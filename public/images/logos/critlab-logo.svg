@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="266.63489"
+   height="312.72733"
+   version="1.1"
+   id="svg2"
+   sodipodi:docname="critlab dice.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="namedview2"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.5734472"
+     inkscape:cx="139.18484"
+     inkscape:cy="168.10224"
+     inkscape:window-width="952"
+     inkscape:window-height="1042"
+     inkscape:window-x="960"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <title
+     id="title1">Twenty-Sided Dice</title>
+  <metadata
+     id="metadata3976">image/svg+xmlTwenty-Sided DiceBrian Burger/Wirelizard DesignTwenty-sided dice (d20) as used in RPGs and wargaming.<rdf:RDF>
+  <cc:Work
+     rdf:about="">
+    <dc:title>Twenty-Sided Dice</dc:title>
+  </cc:Work>
+</rdf:RDF>
+</metadata>
+  <path
+     id="path9"
+     d="M 11.462891,69.05862 132.25977,0.52150993 c 1.56401,-0.94803 1.93004,-0.60384 1.70703,1.03515997 L 131.40625,49.6094 c -0.069,1.55002 -0.28062,2.18048 -1.89063,2.4375 z"
+     style="fill:#002452;fill-opacity:1" />
+  <path
+     id="path8"
+     d="m 43.476562,202.90628 c -0.158,-0.113 -0.299674,-0.71494 -0.609374,-1.58594 L 1.7070312,80.15823 C 1.0061612,77.58422 0.92768937,76.61584 3.5371094,76.13284 L 126.65039,58.32815 c 2.328,-0.34999 2.02987,0.82217 1.46289,1.95117 L 44.330078,201.62503 c -0.5273,1.068 -0.696216,1.39425 -0.853516,1.28125 z"
+     style="fill:#002452;fill-opacity:1" />
+  <path
+     id="path6"
+     d="M 215.06641,207.96682 49.818359,207.53909 c -2.3616,0.035 -2.263956,0.0343 -1.097656,-1.88867 L 132.62695,64.12112 c 1.41699,-2.16001 1.2632,-2.09191 2.74219,0.12109 l 80.61328,141.77149 c 0.706,1.126 1.20998,1.91417 -0.91601,1.95117 z"
+     style="fill:#fabd0f;fill-opacity:1;stroke:#b90e31;stroke-width:5;stroke-dasharray:none;stroke-opacity:1" />
+  <path
+     id="path5"
+     d="M 4.2070312,225.04104 0,93.3887 38.78125,207.29495 c 0.5729,1.682 0.559825,1.76836 -0.609375,2.31836 z"
+     style="fill:#002452;fill-opacity:1" />
+  <path
+     id="path3"
+     d="m 114.75977,300.89651 c -0.034,0.0721 -0.62518,-0.37055 -1.95118,-1.28125 L 7.1953125,230.10159 l 33.0488285,-15 c 1.7241,-0.5685 2.240968,-0.59873 3.355468,0.79297 l 69.697271,83.23242 c 0.98197,1.1366 1.49489,1.69723 1.46289,1.76953 z"
+     style="fill:#002452;fill-opacity:1" />
+  <path
+     id="path3922"
+     d="m 133.23633,312.72659 c -0.571,-0.0194 -1.22693,-0.22879 -1.58594,-0.73242 L 50.976562,215.46682 c -1.3425,-1.6806 -1.431912,-2.05671 0.367188,-2.07421 l 161.58984,0.42773 c 2.22101,0.1815 2.23097,0.0701 0.79297,1.95117 l -79.27148,96.52735 c -0.164,0.25522 -0.64874,0.44174 -1.21875,0.42773 z"
+     style="fill:#002452;fill-opacity:1" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:3"
+     id="rect22"
+     width="0.57610375"
+     height="0"
+     x="160.16092"
+     y="-28.124088"
+     transform="scale(1,-1)" />
+  <path
+     id="path9-3"
+     d="M 257.72103,69.2359 136.92415,0.69878993 c -1.56401,-0.94803 -1.93004,-0.60384 -1.70703,1.03515997 l 2.56055,48.0527301 c 0.069,1.55002 0.28062,2.18048 1.89063,2.4375 z"
+     style="fill:#002452;fill-opacity:1" />
+  <path
+     id="path3-2"
+     d="m 149.17165,302.82929 c 0.034,0.0721 0.62518,-0.37055 1.95118,-1.28125 l 105.61328,-69.51367 -33.04883,-15 c -1.7241,-0.5685 -2.24097,-0.59873 -3.35547,0.79297 l -69.69727,83.23242 c -0.98197,1.1366 -1.49489,1.69723 -1.46289,1.76953 z"
+     style="fill:#002452;fill-opacity:1" />
+  <path
+     id="path5-9"
+     d="m 261.94994,227.48698 4.20703,-131.65234 -38.78125,113.90624 c -0.5729,1.682 -0.55982,1.76836 0.60938,2.31836 z"
+     style="fill:#002452;fill-opacity:1" />
+  <path
+     id="path8-1"
+     d="m 224.44664,202.83979 c 0.158,-0.113 0.29967,-0.71494 0.60937,-1.58594 L 266.21617,80.09174 c 0.70087,-2.57401 0.77934,-3.54239 -1.83008,-4.02539 L 141.27281,58.26166 c -2.328,-0.34999 -2.02987,0.82217 -1.46289,1.95117 l 83.7832,141.34571 c 0.5273,1.068 0.69622,1.39425 0.85352,1.28125 z"
+     style="fill:#002452;fill-opacity:1" />
+  <rect
+     style="fill:#b90e31;fill-opacity:1;stroke:none;stroke-width:0;stroke-dasharray:none;stroke-opacity:1"
+     id="rect27"
+     width="13.346492"
+     height="64.825813"
+     x="126.6442"
+     y="-164.36365"
+     ry="6.6732459"
+     transform="scale(1,-1)" />
+  <ellipse
+     style="fill:#b90e31;fill-opacity:1;stroke:none;stroke-width:0;stroke-dasharray:none;stroke-opacity:1"
+     id="path27"
+     cx="133.31744"
+     cy="-178.94354"
+     rx="8.2621136"
+     ry="8.5798874"
+     transform="scale(1,-1)" />
+</svg>

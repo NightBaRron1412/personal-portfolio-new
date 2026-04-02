@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#grad2)"/>
+  <text x="400" y="250" font-size="48" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial, sans-serif">
+    VehiPlus
+  </text>
+  <text x="400" y="320" font-size="24" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Arial, sans-serif">
+    Embedded Telematics Platform
+  </text>
+  <text x="400" y="380" font-size="16" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Arial, sans-serif">
+    Real-Time Driver Assistance • Edge ML
+  </text>
+</svg>

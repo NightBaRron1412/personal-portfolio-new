@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <defs>
+    <linearGradient id="logGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c0c9c;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#b42484;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#31708e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="40" height="40" rx="8" fill="url(#logGrad)"/>
+  <!-- Initials -->
+  <text x="20" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="800" fill="white" text-anchor="middle" letter-spacing="-1">AS</text>
+</svg>

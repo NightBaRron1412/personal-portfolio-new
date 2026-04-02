@@ -1,0 +1,128 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Rich gradient background -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f1419"/>
+      <stop offset="30%" style="stop-color:#1a1f2e"/>
+      <stop offset="60%" style="stop-color:#1e1535"/>
+      <stop offset="100%" style="stop-color:#0d1116"/>
+    </linearGradient>
+    
+    <!-- Accent gradient -->
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#31708e"/>
+      <stop offset="50%" style="stop-color:#6c0c9c"/>
+      <stop offset="100%" style="stop-color:#e84a7f"/>
+    </linearGradient>
+    
+    <!-- Accent glow orbs -->
+    <radialGradient id="glow1" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#31708e;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#31708e;stop-opacity:0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#6c0c9c;stop-opacity:0.35"/>
+      <stop offset="100%" style="stop-color:#6c0c9c;stop-opacity:0"/>
+    </radialGradient>
+    <radialGradient id="glow3" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#e84a7f;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#e84a7f;stop-opacity:0"/>
+    </radialGradient>
+    
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Text glow -->
+    <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Accent glows -->
+  <circle cx="200" cy="150" r="300" fill="url(#glow1)" opacity="0.6"/>
+  <circle cx="1000" cy="200" r="280" fill="url(#glow2)" opacity="0.5"/>
+  <circle cx="600" cy="500" r="320" fill="url(#glow3)" opacity="0.4"/>
+  
+  <!-- Subtle grid pattern -->
+  <g opacity="0.04">
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="none" stroke="#31708e" stroke-width="0.5"/>
+    </pattern>
+    <rect width="1200" height="630" fill="url(#grid)"/>
+  </g>
+  
+  <!-- Vignette overlay -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="0%" style="stop-color:transparent"/>
+    <stop offset="100%" style="stop-color:rgba(0,0,0,0.4)"/>
+  </radialGradient>
+  <rect width="1200" height="630" fill="url(#vignette)"/>
+  
+  <!-- Terminal window -->
+  <g transform="translate(80, 80)">
+    <!-- Terminal background -->
+    <rect width="1040" height="470" rx="12" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    
+    <!-- Title bar -->
+    <rect width="1040" height="40" rx="12" fill="rgba(255,255,255,0.03)"/>
+    <rect y="28" width="1040" height="12" fill="rgba(0,0,0,0.6)"/>
+    
+    <!-- Traffic lights -->
+    <circle cx="24" cy="20" r="6" fill="#ff5f57" opacity="0.8"/>
+    <circle cx="46" cy="20" r="6" fill="#febc2e" opacity="0.8"/>
+    <circle cx="68" cy="20" r="6" fill="#28c840" opacity="0.8"/>
+    
+    <!-- Title -->
+    <text x="100" y="26" font-family="SF Mono, Monaco, Consolas, monospace" font-size="12" fill="rgba(255,255,255,0.35)" letter-spacing="0.5">dmesg — amir@build-node</text>
+    
+    <!-- Boot log content -->
+    <g transform="translate(28, 65)" font-family="SF Mono, Monaco, Consolas, monospace" font-size="14">
+      <text y="0" fill="rgba(255,255,255,0.5)">[    0.000000] amir_shetaia: initializing runtime ...</text>
+      <text y="28" fill="rgba(255,255,255,0.5)">[    0.004821] ACPI: RSDP validated, mapping system tables</text>
+      <text y="56" fill="#e84a7f" filter="url(#textGlow)">[    0.012490] pci 0000:c1:00.0: GPU detected — gfx942 [MI300X]</text>
+      <text y="84" fill="#e84a7f" opacity="0.8">[    0.019773] amdgpu: VRAM 192GB HBM3 · PCIe Gen5 x16 · 304 CU</text>
+      <text y="112" fill="rgba(255,255,255,0.5)">[    0.027104] rocm: loading KFD topology ... 8 nodes enumerated</text>
+      <text y="140" fill="rgba(255,255,255,0.5)">[    0.034882] hip: runtime v6.3.0 · compiler: amd-clang-19</text>
+      <text y="168" fill="#22c55e">[    0.048019] verify: formal proof obligations discharged ✓</text>
+    </g>
+    
+    <!-- Name card -->
+    <g transform="translate(28, 290)" font-family="SF Mono, Monaco, Consolas, monospace" font-size="15" xml:space="preserve">
+      <text y="0" fill="#31708e">  ┌──────────────────────────────────────────────┐</text>
+      <text y="24" fill="#31708e">  │  <tspan fill="#ffffff" font-weight="600">Amir Shetaia</tspan>                                │</text>
+      <text y="48" fill="#31708e">  │  <tspan fill="rgba(255,255,255,0.7)">Senior Software Engineer · AMD ROCm</tspan>         │</text>
+      <text y="72" fill="#31708e">  │  <tspan fill="rgba(255,255,255,0.5)">Systems · HPC · GPU Compute · ML Infra</tspan>      │</text>
+      <text y="96" fill="#31708e">  └──────────────────────────────────────────────┘</text>
+    </g>
+    
+    <!-- Final line -->
+    <text x="28" y="420" font-family="SF Mono, Monaco, Consolas, monospace" font-size="14" fill="#22c55e" filter="url(#textGlow)">[    0.071339] ready. amirshetaia.com</text>
+    
+    <!-- Blinking cursor -->
+    <rect x="350" y="407" width="10" height="18" fill="#22c55e" opacity="0.9"/>
+  </g>
+  
+  <!-- Progress bar -->
+  <g transform="translate(80, 570)">
+    <rect width="1040" height="3" rx="1.5" fill="rgba(255,255,255,0.06)"/>
+    <rect width="1040" height="3" rx="1.5" fill="url(#accent)" filter="url(#glow)"/>
+  </g>
+  
+  <!-- URL badge -->
+  <g transform="translate(950, 590)">
+    <text font-family="SF Mono, Monaco, Consolas, monospace" font-size="13" fill="rgba(255,255,255,0.25)" text-anchor="end">amirshetaia.com</text>
+  </g>
+</svg>

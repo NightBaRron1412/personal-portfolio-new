@@ -1,0 +1,7 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title>Project placeholder</title>
+  <desc>Placeholder graphic for Amir Shetaia portfolio project</desc>
+  <rect width="800" height="500" fill="#111432" rx="24"/>
+  <rect x="40" y="60" width="720" height="380" rx="18" fill="none" stroke="#31708e" stroke-width="4" opacity="0.7"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="'Inter', sans-serif" font-size="28" fill="#e6e7ee">Project Preview</text>
+</svg>
