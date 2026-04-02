@@ -1,10 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { profile } from "@/data/profile";
 import { Section } from "./section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useMotionPreference } from "../motion-provider";
 
 const categories = [
@@ -48,6 +48,9 @@ function getRipplePillVariant(index: number, total: number) {
 export function Skills() {
   const { hydrated, motionEnabled } = useMotionPreference();
   const enableMotion = hydrated && motionEnabled;
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  const shouldAnimate = enableMotion && !hasAnimated;
 
   return (
     <Section id="skills" className="space-y-6">
@@ -69,15 +72,19 @@ export function Skills() {
           <TabsContent key={category.key} value={category.key}>
             <motion.div
               className="flex flex-wrap gap-2 sm:gap-3"
-              key={`skills-${category.key}-${enableMotion ? "m" : "s"}`}
-              variants={enableMotion ? containerVariants : undefined}
-              initial={enableMotion ? "hidden" : false}
-              animate={enableMotion ? "visible" : {}}
+              {...(shouldAnimate ? {
+                variants: containerVariants,
+                initial: "hidden" as const,
+                animate: "visible" as const,
+                onAnimationComplete: () => { setHasAnimated(true); },
+              } : {})}
             >
               {profile.skills[category.key]?.map((skill, i, arr) => (
                 <motion.div
                   key={skill.name}
-                  variants={enableMotion ? getRipplePillVariant(i, arr.length) : undefined}
+                  {...(shouldAnimate ? {
+                    variants: getRipplePillVariant(i, arr.length),
+                  } : {})}
                   className="group relative overflow-hidden rounded-full border border-border-subtle bg-bg-elevated px-4 py-2 text-sm text-text-primary shadow-soft transition hover:-translate-y-1 hover:shadow-glow"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-accent-blue/20 via-accent-pink/20 to-accent-purple/25 opacity-0 transition duration-500 group-hover:opacity-100" />

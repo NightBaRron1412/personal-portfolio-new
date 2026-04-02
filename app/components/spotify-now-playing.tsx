@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Music, Pause, ExternalLink } from "lucide-react";
+import { Music, ExternalLink } from "lucide-react";
 
 interface SpotifyData {
   isPlaying: boolean;
@@ -54,7 +54,7 @@ export function SpotifyNowPlaying() {
 
   const fetchNowPlaying = useCallback(async () => {
     try {
-      const res = await fetch("/api/spotify");
+      const res = await fetch("/api/spotify", { cache: "no-store" });
       if (res.ok) {
         const json = await res.json();
         setData(json);
@@ -96,7 +96,12 @@ export function SpotifyNowPlaying() {
   const titleRef = useCallback((el: HTMLParagraphElement | null) => {
     if (!el) return;
     requestAnimationFrame(() => {
-      setTitleOverflows(el.scrollWidth > el.parentElement!.clientWidth);
+      const container = el.parentElement!;
+      const overflows = el.scrollWidth > container.clientWidth;
+      setTitleOverflows(overflows);
+      if (overflows) {
+        el.style.setProperty("--marquee-visible", `${container.clientWidth}px`);
+      }
     });
   }, [data?.title]);
 

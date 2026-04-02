@@ -327,6 +327,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ─── Spotify marquee scroll ─── */
 .animate-marquee {
+  --marquee-visible: 130px;
   display: inline-block;
   animation: marquee 8s linear infinite;
   animation-delay: 2s;
@@ -334,6 +335,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 @keyframes marquee {
   0%, 15% { transform: translateX(0); }
-  50%, 65% { transform: translateX(calc(-100% + 150px)); }
+  50%, 65% { transform: translateX(calc(-100% + var(--marquee-visible))); }
   100% { transform: translateX(0); }
 }
