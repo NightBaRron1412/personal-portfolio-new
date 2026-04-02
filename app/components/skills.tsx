@@ -50,8 +50,6 @@ export function Skills() {
   const enableMotion = hydrated && motionEnabled;
   const [hasAnimated, setHasAnimated] = useState(false);
 
-  const shouldAnimate = enableMotion && !hasAnimated;
-
   return (
     <Section id="skills" className="space-y-6">
       <div className="space-y-2">
@@ -72,19 +70,18 @@ export function Skills() {
           <TabsContent key={category.key} value={category.key}>
             <motion.div
               className="flex flex-wrap gap-2 sm:gap-3"
-              {...(shouldAnimate ? {
-                variants: containerVariants,
-                initial: "hidden" as const,
-                animate: "visible" as const,
-                onAnimationComplete: () => { setHasAnimated(true); },
-              } : {})}
+              key={enableMotion ? "m" : "s"}
+              variants={enableMotion ? containerVariants : undefined}
+              initial={enableMotion && !hasAnimated ? "hidden" : false}
+              animate={enableMotion ? "visible" : undefined}
+              onAnimationComplete={() => {
+                if (!hasAnimated) setHasAnimated(true);
+              }}
             >
               {profile.skills[category.key]?.map((skill, i, arr) => (
                 <motion.div
                   key={skill.name}
-                  {...(shouldAnimate ? {
-                    variants: getRipplePillVariant(i, arr.length),
-                  } : {})}
+                  variants={enableMotion && !hasAnimated ? getRipplePillVariant(i, arr.length) : undefined}
                   className="group relative overflow-hidden rounded-full border border-border-subtle bg-bg-elevated px-4 py-2 text-sm text-text-primary shadow-soft transition hover:-translate-y-1 hover:shadow-glow"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-accent-blue/20 via-accent-pink/20 to-accent-purple/25 opacity-0 transition duration-500 group-hover:opacity-100" />
