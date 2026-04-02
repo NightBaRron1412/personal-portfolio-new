@@ -46,8 +46,6 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
 ## Environment Variables
 
 Copy `.env.example` to `.env.local` and fill in the values:
@@ -75,12 +73,6 @@ The site works without any optional variables — features degrade gracefully.
 | `pnpm lint` | Run ESLint |
 | `pnpm typecheck` | Run TypeScript type checking |
 | `pnpm test` | Run tests with Vitest |
-
-## Deployment
-
-Deploy on [Vercel](https://vercel.com) — push to `main` and it just works. Set the environment variables in the Vercel dashboard.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNightBaRron1412%2Fportfolio)
 
 ## License
 
