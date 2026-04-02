@@ -16,3 +16,4 @@ devserver.log
 
 certificates
 .vercel
+.env*.local
