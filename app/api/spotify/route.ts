@@ -52,57 +52,51 @@ export async function GET() {
       cache: "no-store",
     });
 
-    // Not playing anything
-    if (response.status === 204 || response.status > 400) {
-      const recentRes = await fetch(RECENTLY_PLAYED_ENDPOINT, {
-        headers: { Authorization: `Bearer ${access_token}` },
-        cache: "no-store",
-      });
+    if (response.status === 200) {
+      const data = await response.json();
 
-      if (recentRes.ok) {
-        const recentData = await recentRes.json();
-        const track = recentData.items?.[0]?.track;
-        if (track) {
-          return NextResponse.json(
-            {
-              isPlaying: false,
-              title: track.name,
-              artist: track.artists.map((a: any) => a.name).join(", "),
-              album: track.album.name,
-              albumArt: track.album.images?.[0]?.url,
-              songUrl: track.external_urls.spotify,
-            },
-            { headers: NO_CACHE_HEADERS }
-          );
-        }
+      if (data.is_playing && data.currently_playing_type === "track") {
+        return NextResponse.json(
+          {
+            isPlaying: true,
+            title: data.item.name,
+            artist: data.item.artists.map((a: any) => a.name).join(", "),
+            album: data.item.album.name,
+            albumArt: data.item.album.images?.[0]?.url,
+            songUrl: data.item.external_urls.spotify,
+            progress: data.progress_ms,
+            duration: data.item.duration_ms,
+          },
+          { headers: NO_CACHE_HEADERS }
+        );
       }
-
-      return NextResponse.json(
-        { isPlaying: false },
-        { headers: NO_CACHE_HEADERS }
-      );
     }
 
-    const data = await response.json();
+    const recentRes = await fetch(RECENTLY_PLAYED_ENDPOINT, {
+      headers: { Authorization: `Bearer ${access_token}` },
+      cache: "no-store",
+    });
 
-    if (data.currently_playing_type !== "track") {
-      return NextResponse.json(
-        { isPlaying: false },
-        { headers: NO_CACHE_HEADERS }
-      );
+    if (recentRes.ok) {
+      const recentData = await recentRes.json();
+      const track = recentData.items?.[0]?.track;
+      if (track) {
+        return NextResponse.json(
+          {
+            isPlaying: false,
+            title: track.name,
+            artist: track.artists.map((a: any) => a.name).join(", "),
+            album: track.album.name,
+            albumArt: track.album.images?.[0]?.url,
+            songUrl: track.external_urls.spotify,
+          },
+          { headers: NO_CACHE_HEADERS }
+        );
+      }
     }
 
     return NextResponse.json(
-      {
-        isPlaying: data.is_playing,
-        title: data.item.name,
-        artist: data.item.artists.map((a: any) => a.name).join(", "),
-        album: data.item.album.name,
-        albumArt: data.item.album.images?.[0]?.url,
-        songUrl: data.item.external_urls.spotify,
-        progress: data.progress_ms,
-        duration: data.item.duration_ms,
-      },
+      { isPlaying: false },
       { headers: NO_CACHE_HEADERS }
     );
   } catch (err) {
