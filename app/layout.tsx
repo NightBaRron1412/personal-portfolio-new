@@ -20,7 +20,11 @@ export const metadata: Metadata = {
   title: "Amir Shetaia | Senior Software Engineer @ AMD",
   description:
     "Senior Software Engineer at AMD developing GPU drivers for the ROCm platform. Specializing in HPC, ML systems, and formal verification.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [
+    { rel: "icon", url: "/favicon.png", type: "image/png" },
+    { rel: "icon", url: "/favicon.ico" },
+    { rel: "apple-touch-icon", url: "/apple-touch-icon.png" },
+  ],
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -30,7 +34,7 @@ export const metadata: Metadata = {
     description: "GPU drivers for ML & data center workloads on ROCm. HPC optimization, formal methods, and verification systems.",
     images: [
       {
-        url: "/og/og-image.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Amir Shetaia - Senior Software Engineer at AMD",
@@ -42,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Amir Shetaia | Senior Software Engineer @ AMD",
     description: "GPU drivers for ML & data center workloads on ROCm. HPC, formal methods, verification.",
-    images: ["/og/og-image.png"],
+    images: ["/og-image.png"],
     creator: "@amirsh_dev"
   }
 };
