@@ -108,7 +108,7 @@ export const profile = {
       role: "Senior Software Engineer",
       type: "Permanent Full-time",
       dates: "Jan 2026 — Present",
-      location: "Markham, Ontario, Canada · On-site",
+      location: "Toronto, Ontario, Canada · On-site",
       summary:
         "Developing GPU drivers for machine learning and data center workloads on the ROCm open-source platform.",
       bullets: [

@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import type { Metadata, Viewport } from "next/types";
 import { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/react";
@@ -7,7 +7,24 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { isAnalyticsEnabled, isSpeedInsightsEnabled } from "@/lib/analytics";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["500", "600", "700"],
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -53,8 +70,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning data-darkreader-skip data-scroll-behavior="smooth">
-      <body className={`${inter.className} antialiased text-sm sm:text-base`} suppressHydrationWarning data-darkreader-skip>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      data-darkreader-skip
+      data-scroll-behavior="smooth"
+      className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable}`}
+    >
+      <body className="font-sans antialiased text-[15px] sm:text-base" suppressHydrationWarning data-darkreader-skip>
         <Providers>{children}</Providers>
         {isAnalyticsEnabled ? <Analytics /> : null}
         {isSpeedInsightsEnabled ? <SpeedInsights /> : null}

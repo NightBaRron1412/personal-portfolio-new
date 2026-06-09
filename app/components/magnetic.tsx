@@ -1,56 +1,49 @@
 "use client";
 
-import { PointerEvent, PropsWithChildren, useRef } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
-import { useMotionPreference } from "../motion-provider";
+import { useRef, type ReactNode } from "react";
 
-interface MagneticProps extends PropsWithChildren {
-  className?: string;
+/**
+ * Wraps children in a span that gently follows the cursor on hover.
+ * Pointer-driven only; skips when the OS prefers reduced motion.
+ */
+export function Magnetic({
+  children,
+  strength = 0.35,
+  className,
+}: {
+  children: ReactNode;
   strength?: number;
-}
+  className?: string;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
 
-export function Magnetic({ children, className, strength = 0.18 }: MagneticProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { hydrated, motionEnabled } = useMotionPreference();
-  const enableMotion = hydrated && motionEnabled;
+  const reduced = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+    document.documentElement.getAttribute("data-force-motion") !== "true";
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 320, damping: 24, mass: 0.4 });
-  const springY = useSpring(y, { stiffness: 320, damping: 24, mass: 0.4 });
-
-  const handleMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!enableMotion || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const relX = event.clientX - rect.left - rect.width / 2;
-    const relY = event.clientY - rect.top - rect.height / 2;
-    x.set(relX * strength);
-    y.set(relY * strength);
+  const onMove = (e: React.MouseEvent) => {
+    const el = ref.current;
+    if (!el || reduced()) return;
+    const r = el.getBoundingClientRect();
+    const x = e.clientX - (r.left + r.width / 2);
+    const y = e.clientY - (r.top + r.height / 2);
+    el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
   };
 
   const reset = () => {
-    x.set(0);
-    y.set(0);
+    if (ref.current) ref.current.style.transform = "";
   };
 
-  if (!enableMotion) {
-    return (
-      <div ref={ref} className={className}>
-        {children}
-      </div>
-    );
-  }
-
   return (
-    <motion.div
+    <span
       ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={reset}
       className={className}
-      style={{ x: springX, y: springY }}
-      onPointerMove={handleMove}
-      onPointerLeave={reset}
-      onPointerCancel={reset}
+      style={{ display: "inline-block", transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)" }}
     >
       {children}
-    </motion.div>
+    </span>
   );
 }

@@ -1,97 +1,71 @@
 "use client";
 
-import { useState } from "react";
 import { profile } from "@/data/profile";
-import { Section } from "./section";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { motion } from "framer-motion";
-import { useMotionPreference } from "../motion-provider";
+import { Marquee } from "@/components/ui/marquee";
+import { Reveal } from "./reveal";
 
-const categories = [
-  { key: "Languages", label: "Languages" },
-  { key: "Firmware and Embedded", label: "Firmware & Embedded" },
-  { key: "Protocols and Standards", label: "Protocols & Standards" },
-  { key: "Cloud and DevOps", label: "Cloud & DevOps" },
-  { key: "System Design", label: "System Design" },
-  { key: "Debug and Tools", label: "Debug & Tools" },
-  { key: "AI and ML", label: "AI & ML" }
-] as const;
+const ALL_SKILLS = Object.values(profile.skills).flat().map((s) => s.name);
+const HALF = Math.ceil(ALL_SKILLS.length / 2);
+const ROW_A = ALL_SKILLS.slice(0, HALF);
+const ROW_B = ALL_SKILLS.slice(HALF);
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.1 }
-  }
-};
-
-function getRipplePillVariant(index: number, total: number) {
-  const center = Math.floor(total / 2);
-  const distFromCenter = Math.abs(index - center);
-  const delay = distFromCenter * 0.04;
-  return {
-    hidden: { opacity: 0, scale: 0.3, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 18,
-        mass: 0.6,
-        delay,
-      },
-    },
-  };
+function Chip({ label }: { label: string }) {
+  return (
+    <span className="mono mx-1 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-accent hover:text-accent">
+      {label}
+    </span>
+  );
 }
 
 export function Skills() {
-  const { hydrated, motionEnabled } = useMotionPreference();
-  const enableMotion = hydrated && motionEnabled;
-  const [hasAnimated, setHasAnimated] = useState(false);
+  const groups = Object.entries(profile.skills);
 
   return (
-    <Section id="skills" className="space-y-6">
-      <div className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.2em] text-text-secondary">Skills</p>
-        <h2>Technologies and expertise across systems, HPC, and ML</h2>
-      </div>
-      <Tabs defaultValue="Languages">
-        <div className="overflow-x-auto pb-2">
-          <TabsList className="min-w-max gap-2">
-            {categories.map((category) => (
-              <TabsTrigger key={category.key} value={category.key} className="min-w-fit text-xs sm:text-sm px-2 sm:px-3">
-                {category.label}
-              </TabsTrigger>
+    <div className="space-y-8">
+      {/* infinite tech marquee */}
+      <Reveal>
+        <div className="relative overflow-hidden rounded-xl border border-border-subtle bg-surface py-3">
+          <Marquee pauseOnHover className="[--duration:42s] py-0">
+            {ROW_A.map((s) => (
+              <Chip key={s} label={s} />
             ))}
-          </TabsList>
+          </Marquee>
+          <Marquee reverse pauseOnHover className="mt-2 [--duration:48s] py-0">
+            {ROW_B.map((s) => (
+              <Chip key={s} label={s} />
+            ))}
+          </Marquee>
+          {/* edge fades */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-bg-main to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-bg-main to-transparent" />
         </div>
-        {categories.map((category) => (
-          <TabsContent key={category.key} value={category.key}>
-            <motion.div
-              className="flex flex-wrap gap-2 sm:gap-3"
-              key={enableMotion ? "m" : "s"}
-              variants={enableMotion ? containerVariants : undefined}
-              initial={enableMotion ? (hasAnimated ? "visible" : "hidden") : false}
-              animate={enableMotion ? "visible" : undefined}
-              onAnimationComplete={() => {
-                if (!hasAnimated) setHasAnimated(true);
-              }}
-            >
-              {profile.skills[category.key]?.map((skill, i, arr) => (
-                <motion.div
-                  key={skill.name}
-                  variants={enableMotion ? getRipplePillVariant(i, arr.length) : undefined}
-                  className="group relative overflow-hidden rounded-full border border-border-subtle bg-bg-elevated px-4 py-2 text-sm text-text-primary shadow-soft transition hover:-translate-y-1 hover:shadow-glow"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-accent-blue/20 via-accent-pink/20 to-accent-purple/25 opacity-0 transition duration-500 group-hover:opacity-100" />
-                  <span className="relative z-10">{skill.name}</span>
-                </motion.div>
-              )) ?? null}
-            </motion.div>
-          </TabsContent>
+      </Reveal>
+
+      {/* capability matrix */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {groups.map(([category, items], i) => (
+          <Reveal key={category} delay={(i % 3) * 70}>
+            <div className="panel glow-border lift ticks h-full p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-base">{category}</h3>
+                <span className="num text-xs text-text-faint">
+                  {String(items.length).padStart(2, "0")}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {items.map((item) => (
+                  <span
+                    key={item.name}
+                    className="mono rounded-md border border-border-subtle bg-surface px-2 py-1 text-xs text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                  >
+                    {item.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
         ))}
-      </Tabs>
-    </Section>
+      </div>
+    </div>
   );
 }

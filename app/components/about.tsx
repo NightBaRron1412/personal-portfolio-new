@@ -1,90 +1,98 @@
 "use client";
 
-import { useRef } from "react";
+import { Trophy } from "lucide-react";
 import { profile } from "@/data/profile";
-import { Section } from "./section";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { motion, useInView } from "framer-motion";
-import { useMotionPreference } from "../motion-provider";
-
-const gridVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.15 } }
-};
-
-const flyInDirections = [
-  { x: -60, y: -30, rotate: -8 },
-  { x: 50, y: -40, rotate: 6 },
-  { x: -40, y: 50, rotate: 5 },
-  { x: 60, y: 30, rotate: -6 },
-];
-
-function getFlyInVariant(index: number) {
-  const dir = flyInDirections[index % flyInDirections.length];
-  return {
-    hidden: { opacity: 0, x: dir.x, y: dir.y, scale: 0.85, rotate: dir.rotate },
-    visible: {
-      opacity: 1, x: 0, y: 0, scale: 1, rotate: 0,
-      transition: { type: "spring", stiffness: 200, damping: 20, mass: 0.8 },
-    },
-  };
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 30, scale: 0.9 },
-  visible: {
-    opacity: 1, y: 0, scale: 1,
-    transition: { type: "spring", stiffness: 180, damping: 22 },
-  },
-};
+import { Reveal } from "./reveal";
+import { CountUp } from "./count-up";
+import { PortraitCard } from "@/components/ui/portrait-card";
 
 export function About() {
-  const { hydrated, motionEnabled } = useMotionPreference();
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
-  const enableMotion = hydrated && motionEnabled;
-
   return (
-    <Section id="about" className="space-y-6">
-      <div className="space-y-3">
-        <p className="text-sm uppercase tracking-[0.2em] text-text-secondary">About</p>
-        <h2>Systems-minded engineer who loves resilient products</h2>
-        <p className="max-w-3xl text-text-secondary">{profile.summary}</p>
+    <div className="space-y-8">
+      {/* narrative + portrait */}
+      <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="lg:col-span-7">
+          <Reveal>
+            <p className="font-display text-xl leading-snug text-text-primary sm:text-2xl">
+              I work where correctness, performance, and hardware meet — and I like
+              it most when the problem is hard enough that the answer has to be
+              <span className="text-accent"> measured, not guessed</span>.
+            </p>
+          </Reveal>
+          <Reveal delay={80}>
+            <p className="mt-6 leading-relaxed text-text-secondary">
+              Today I&apos;m at AMD, building Linux GPU drivers for the{" "}
+              <span className="text-text-primary">ROCm</span> platform — the layer that lets
+              machine-learning and data-center workloads actually reach the hardware. That&apos;s
+              kernel and driver work in C/C++: shipping features for current and next-gen GPUs and
+              chasing down the complex issues customers and QA surface.
+            </p>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="mt-4 leading-relaxed text-text-secondary">
+              Before AMD I made large-scale optimization solvers deterministic and fast at Huawei
+              (C++, OpenMP, HPC), researched formal methods and LLM-assisted verification at
+              Queen&apos;s, and spent years in embedded — automotive, robotics, and board bring-up.
+              The constant: low-level systems where correctness and performance both have to hold.
+            </p>
+          </Reveal>
+        </div>
+
+        <div className="lg:col-span-5">
+          <Reveal delay={120}>
+            <PortraitCard imageUrl={profile.portrait} name={profile.name} subtitle="Toronto, Canada" />
+          </Reveal>
+        </div>
       </div>
-      <motion.div
-        ref={ref}
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        key={`about-grid-${enableMotion ? "m" : "s"}`}
-        variants={enableMotion ? gridVariants : undefined}
-        initial={enableMotion ? "hidden" : false}
-        animate={enableMotion && inView ? "visible" : {}}
-      >
-        {profile.quickFacts.map((fact, i) => (
-          <motion.div key={fact.label} variants={enableMotion ? getFlyInVariant(i) : undefined}>
-            <Card className="transition-transform hover:-translate-y-1 hover:shadow-glow h-full">
-              <CardHeader>
-                <CardTitle className="text-sm text-text-secondary">{fact.label}</CardTitle>
-                <div className="text-xl font-semibold text-text-primary">{fact.value}</div>
-              </CardHeader>
-            </Card>
-          </motion.div>
-        ))}
-      </motion.div>
-      <motion.div
-        key={`about-now-${enableMotion ? "m" : "s"}`}
-        variants={enableMotion ? cardVariants : undefined}
-        initial={enableMotion ? "hidden" : false}
-        animate={enableMotion && inView ? "visible" : {}}
-      >
-        <Card className="glass-panel transition-transform hover:-translate-y-1 hover:shadow-glow">
-          <CardHeader>
-            <CardTitle className="text-sm text-text-secondary">{profile.nowCard.title}</CardTitle>
-            <div className="text-base leading-relaxed text-text-secondary sm:text-lg">
-              <p className="max-h-32 overflow-hidden sm:max-h-none">{profile.nowCard.body}</p>
+
+      {/* bento highlights */}
+      <Reveal delay={120}>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {/* feature: award */}
+          <div className="panel glow-border ticks col-span-2 flex items-center gap-4 p-5">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+              style={{ background: "var(--accent-2-soft)" }}
+            >
+              <Trophy className="h-5 w-5" style={{ color: "var(--accent-2)" }} />
             </div>
-          </CardHeader>
-        </Card>
-      </motion.div>
-    </Section>
+            <div className="min-w-0">
+              <div className="text-gradient font-display text-lg font-semibold leading-tight">
+                Global 1st · Huawei ICT
+              </div>
+              <div className="eyebrow mt-1.5">Cloud Track — Shenzhen, 2024</div>
+            </div>
+          </div>
+
+          <div className="panel-quiet ticks p-4">
+            <div className="text-gradient font-display text-2xl font-semibold">
+              <CountUp value={4.3} decimals={1} />
+            </div>
+            <div className="eyebrow mt-1.5 leading-tight">MASc GPA · /4.3</div>
+          </div>
+
+          <div className="panel-quiet ticks p-4">
+            <div className="text-gradient font-display text-2xl font-semibold">
+              <CountUp value={4000} suffix="+" />
+            </div>
+            <div className="eyebrow mt-1.5 leading-tight">people reached</div>
+          </div>
+
+          <div className="panel-quiet ticks col-span-2 flex items-center gap-4 p-4">
+            <div className="text-gradient font-display text-2xl font-semibold">
+              <CountUp value={profile.experience.length} />
+            </div>
+            <div className="eyebrow leading-tight">roles across systems, HPC, ML &amp; embedded</div>
+          </div>
+
+          <div className="panel ticks col-span-2 flex items-center gap-2.5 p-4">
+            <span className="pulse-dot relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+            <span className="mono text-xs text-text-secondary">
+              open to interesting problems &amp; collaborations
+            </span>
+          </div>
+        </div>
+      </Reveal>
+    </div>
   );
 }

@@ -21,8 +21,15 @@ export function MotionProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
     try {
       const stored = localStorage.getItem("motion-enabled");
-      // Default to true (on) if nothing stored
-      setMotionEnabled(stored === null ? true : stored === "true");
+      if (stored === null) {
+        // No stored preference: honor the OS "reduce motion" setting.
+        const prefersReduced = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+        setMotionEnabled(!prefersReduced);
+      } else {
+        setMotionEnabled(stored === "true");
+      }
     } catch {
       // ignore storage errors
     }

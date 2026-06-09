@@ -1,43 +1,49 @@
 "use client";
 
-import { motion, useAnimation, useInView } from "framer-motion";
-import { PropsWithChildren, useEffect, useRef } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { useMotionPreference } from "../motion-provider";
+import { Reveal } from "./reveal";
 
-interface SectionProps extends PropsWithChildren {
+type SectionProps = {
+  id: string;
+  index: string;
+  title: string;
+  /** short mono label shown at the far right of the header rule */
+  meta?: string;
+  /** narrative one-liner shown under the header */
+  lead?: string;
+  children: ReactNode;
   className?: string;
-  id?: string;
-}
+};
 
-const hidden = { opacity: 0, y: 24, filter: "blur(8px)" };
-const visible = { opacity: 1, y: 0, filter: "blur(0px)" };
-
-export function Section({ children, className, id }: SectionProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
-  const controls = useAnimation();
-  const { hydrated, motionEnabled } = useMotionPreference();
-  const enableMotion = hydrated && motionEnabled;
-
-  useEffect(() => {
-    if (!enableMotion) return;
-    if (inView) {
-      controls.start(visible);
-    }
-  }, [inView, enableMotion, controls]);
-
+/**
+ * Numbered "datasheet" section: a mono index, a display title, a hairline rule,
+ * and an optional narrative lead-in that gives the section a storytelling voice.
+ */
+export function Section({ id, index, title, meta, lead, children, className }: SectionProps) {
   return (
-    <motion.section
-      key={`${id ?? "section"}-${enableMotion ? "m" : "s"}`}
-      id={id}
-      ref={ref}
-      className={cn("scroll-mt-32 py-16 sm:py-20 lg:py-24", className)}
-      initial={enableMotion ? hidden : false}
-      animate={enableMotion ? controls : undefined}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <section id={id} className={cn("scroll-mt-24 py-16 sm:py-20 lg:py-24", className)}>
+      <Reveal>
+        <div className="mb-6 flex items-center gap-4">
+          <span className="flex shrink-0 items-center gap-2">
+            <span aria-hidden className="h-2 w-2 rounded-[1px] bg-accent" />
+            <span className="eyebrow num text-accent">{index}</span>
+          </span>
+          <h2 className="shrink-0 text-gradient">{title}</h2>
+          <span aria-hidden className="h-px flex-1 gradient-rule opacity-40" />
+          {meta ? (
+            <span className="eyebrow hidden shrink-0 sm:inline">{meta}</span>
+          ) : null}
+        </div>
+        {lead ? (
+          <p className="mb-10 max-w-2xl text-sm leading-relaxed text-text-secondary sm:mb-12 sm:text-base">
+            {lead}
+          </p>
+        ) : (
+          <div className="mb-10 sm:mb-12" />
+        )}
+      </Reveal>
       {children}
-    </motion.section>
+    </section>
   );
 }
