@@ -3,7 +3,7 @@ export const profile = {
   name: "Amir Shetaia",
   title: "Software Engineer | Systems, HPC, and ML",
   location: "Ontario, Canada",
-  headline: "Senior Software Engineer at AMD | MASc. in Computer and Electrical Engineering",
+  headline: "Senior Software Engineer at AMD | MASc. in Electrical & Computer Engineering",
   portrait: "/images/portrait.webp", // Fallback to initials if not present
   portraitBadges: ["Systems", "HPC", "ML"],
   summary:
@@ -129,14 +129,14 @@ export const profile = {
       dates: "Dec 2024 — Jan 2026",
       location: "Vancouver, BC (Remote)",
       summary:
-        "Developed deterministic sparse linear solvers in C++ for large-scale optimization problems with focus on HPC and reproducibility.",
+        "Developed deterministic sparse linear solvers in C++ for large-scale optimization problems with a focus on HPC and reproducibility.",
       bullets: [
         "Developed a deterministic version of the OptVerse Cholesky solver in C++, ensuring reproducibility across runs.",
-        "Optimizing sparse linear solvers in C++ for large-scale optimization problems.",
-        "Applying parallel programming (OpenMP) and HPC techniques to accelerate solver modules.",
-        "Performing profiling and performance analysis to identify bottlenecks and guide optimizations.",
-        "Investigating sources of non-determinism (parallel execution, floating-point operations) and contributing efficient solutions.",
-        "Analyzing solver performance on Hans Mittelmann's benchmarks, providing insights to improve OptVerse competitiveness."
+        "Optimized sparse linear solvers in C++ for large-scale optimization problems.",
+        "Applied parallel programming (OpenMP) and HPC techniques to accelerate solver modules.",
+        "Performed profiling and performance analysis to identify bottlenecks and guide optimizations.",
+        "Investigated sources of non-determinism (parallel execution, floating-point operations) and contributed efficient solutions.",
+        "Analyzed solver performance on Hans Mittelmann's benchmarks to provide insights that improved OptVerse competitiveness."
       ],
       tech: ["C++", "OpenMP", "HPC", "Python", "Linear Programming"]
     },
@@ -154,7 +154,7 @@ export const profile = {
         "Kept an up-to-date inventory of desks, workstation equipment, development hardware, test tools, and simulation devices.",
         "Tracked equipment location and assignments, coordinating access for lab members and ensuring proper usage.",
         "Identified high-use and low-use equipment to support purchasing decisions and resource planning.",
-        "Maintained a safe and organized lab space, addressing safety and usability concerns as they arise."
+        "Maintained a safe and organized lab space, addressing safety and usability concerns as they arose."
       ],
       tech: ["Team Leadership", "Engineering"]
     },
