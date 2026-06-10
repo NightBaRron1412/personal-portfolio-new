@@ -14,7 +14,7 @@ import { Testimonials } from "./components/testimonials";
 import { Contact } from "./components/contact";
 import { Footer } from "./components/footer";
 import { SpotifyWidget } from "./components/spotify-widget";
-import { CrosshairCursor } from "./components/crosshair-cursor";
+import { CursorGlow } from "./components/cursor-glow";
 import { InstrumentField } from "./components/instrument-field";
 import { HeroBackdrop } from "./components/hero-backdrop";
 
@@ -32,7 +32,7 @@ export default function HomePage() {
       <HeroBackdrop />
       <div className="aurora" aria-hidden />
       <InstrumentField />
-      <CrosshairCursor />
+      <CursorGlow />
       <ScrollProgress />
       <Nav />
       <main id="content" className="relative z-10">
