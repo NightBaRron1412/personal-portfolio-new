@@ -30,27 +30,40 @@ export function GitHubPanel() {
   const [data, setData] = useState<GitHubData | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
   const wrapRef = useRef<HTMLDivElement>(null);
-  // Responsive block size: shrink the squares so the full year always fits the
-  // panel width (no horizontal cut on mobile). ~53 weeks across the container.
+  // Responsive sizing so the 6 months fit any width (no horizontal cut).
   const [block, setBlock] = useState({ size: 11, margin: 3 });
+  // On narrow screens the footer text (total + legend) is the width constraint,
+  // not the squares — so shorten the label and drop the legend there.
+  const [narrow, setNarrow] = useState(false);
 
   useEffect(() => {
     if (state !== "ok") return;
     const el = wrapRef.current;
     if (!el) return;
-    const WEEKS = 53;
-    const margin = 2;
-    const labelW = 28; // weekday-label gutter + safety
+    const WEEKS = 27; // ~6 months of columns
     const measure = () => {
+      setNarrow(window.innerWidth < 560);
+      // Desktop: two-column dashboard — fixed, comfortable squares (the right
+      // column soaks up the remaining width, so the calendar needn't stretch).
+      if (window.innerWidth >= 1024) {
+        setBlock({ size: 15, margin: 3 });
+        return;
+      }
+      // Stacked (tablet/mobile): scale squares so the 6 months fill the width.
       const w = el.clientWidth;
       if (!w) return;
-      const size = Math.max(3, Math.min(12, Math.floor((w - labelW) / WEEKS) - margin));
+      const margin = 2;
+      const size = Math.max(4, Math.min(15, Math.floor((w - 28) / WEEKS) - margin));
       setBlock({ size, margin });
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    return () => ro.disconnect();
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, [state]);
 
   useEffect(() => {
@@ -107,53 +120,61 @@ export function GitHubPanel() {
         <Skeleton />
       ) : data ? (
         <>
-          {/* full-year contribution calendar (react-activity-calendar).
-              mx-auto + w-fit centers it when it fits, and scrolls from the
-              left (margins collapse to 0 on overflow) on narrow screens. */}
-          <div ref={wrapRef} className="no-scrollbar overflow-x-auto pb-1">
-            <div className="mx-auto w-fit">
-            <ActivityCalendar
-              data={data.heatmap}
-              theme={CAL_THEME}
-              colorScheme={resolvedTheme === "light" ? "light" : "dark"}
-              blockSize={block.size}
-              blockMargin={block.margin}
-              blockRadius={Math.max(1, block.size >= 8 ? 2 : 1)}
-              fontSize={11}
-              labels={{
-                totalCount: `{{count}} contributions in the last year${
-                  data.includesPrivateContributions ? " · incl. private" : ""
-                }`,
-              }}
-              renderBlock={(block, activity) =>
-                cloneElement(block, {
-                  "data-tooltip-id": "gh-cal-tip",
-                  "data-tooltip-content": `${activity.count} contribution${
-                    activity.count === 1 ? "" : "s"
-                  } on ${activity.date}`,
-                })
-              }
-              style={{ color: "var(--text-faint)" }}
-            />
-            </div>
-            <ReactTooltip id="gh-cal-tip" className="!rounded-md !bg-bg-elevated !text-text-primary" />
-          </div>
-
-          {/* stats */}
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              { value: data.stats.totalCommits, label: "contributions" },
-              { value: data.heatmap.filter((d) => d.count > 0).length, label: "active days" },
-              { value: data.stats.currentStreak, label: "day streak" },
-              { value: data.stats.repos, label: "public repos" },
-            ].map((s) => (
-              <div key={s.label} className="panel-quiet ticks relative p-3.5">
-                <div className="text-gradient font-display text-2xl font-semibold">
-                  <CountUp value={s.value} />
-                </div>
-                <div className="eyebrow mt-1 leading-tight">{s.label}</div>
+          {/* dashboard: calendar (left) + stats (right) on desktop so the full
+              width is used; stacked on tablet/mobile. */}
+          <div className="grid gap-6 lg:grid-cols-[auto_1fr] lg:items-start">
+            {/* 6-month contribution calendar */}
+            <div ref={wrapRef} className="no-scrollbar overflow-x-auto pb-1">
+              <div className="mx-auto w-fit lg:mx-0">
+                <ActivityCalendar
+                  data={data.heatmap}
+                  theme={CAL_THEME}
+                  colorScheme={resolvedTheme === "light" ? "light" : "dark"}
+                  blockSize={block.size}
+                  blockMargin={block.margin}
+                  blockRadius={block.size >= 10 ? 2 : 1}
+                  fontSize={12}
+                  showColorLegend={!narrow}
+                  labels={{
+                    totalCount: narrow
+                      ? "{{count}} contributions"
+                      : `{{count}} contributions in the last 6 months${
+                          data.includesPrivateContributions ? " · incl. private" : ""
+                        }`,
+                  }}
+                  renderBlock={(b, activity) =>
+                    cloneElement(b, {
+                      "data-tooltip-id": "gh-cal-tip",
+                      "data-tooltip-content": `${activity.count} contribution${
+                        activity.count === 1 ? "" : "s"
+                      } on ${activity.date}`,
+                    })
+                  }
+                  style={{ color: "var(--text-faint)" }}
+                />
               </div>
-            ))}
+              <ReactTooltip
+                id="gh-cal-tip"
+                className="!rounded-md !bg-bg-elevated !text-text-primary"
+              />
+            </div>
+
+            {/* stats — fills the remaining width on desktop, 4-up when stacked */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2 lg:content-start">
+              {[
+                { value: data.stats.totalCommits, label: "contributions" },
+                { value: data.heatmap.filter((d) => d.count > 0).length, label: "active days" },
+                { value: data.stats.currentStreak, label: "day streak" },
+                { value: data.stats.repos, label: "public repos" },
+              ].map((s) => (
+                <div key={s.label} className="panel-quiet ticks relative p-4">
+                  <div className="text-gradient font-display text-2xl font-semibold">
+                    <CountUp value={s.value} />
+                  </div>
+                  <div className="eyebrow mt-1 leading-tight">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* recent commits */}
