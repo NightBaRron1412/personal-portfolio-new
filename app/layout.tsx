@@ -38,11 +38,8 @@ export const metadata: Metadata = {
   title: "Amir Shetaia | Senior Software Engineer @ AMD",
   description:
     "Senior Software Engineer at AMD developing GPU drivers for the ROCm platform. Specializing in HPC, ML systems, and formal verification.",
-  icons: [
-    { rel: "icon", url: "/favicon.png", type: "image/png" },
-    { rel: "icon", url: "/favicon.ico" },
-    { rel: "apple-touch-icon", url: "/apple-touch-icon.png" },
-  ],
+  // Icons are provided by the app/ file conventions: icon.svg (modern),
+  // favicon.ico (legacy), apple-icon.png (iOS). No manual overrides needed.
   openGraph: {
     type: "website",
     locale: "en_US",
