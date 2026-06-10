@@ -6,7 +6,7 @@
  */
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={className} role="img" aria-label="Amir Shetaia">
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="brandmark-grad" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#2dd4bf" />

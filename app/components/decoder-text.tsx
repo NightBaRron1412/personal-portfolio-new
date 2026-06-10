@@ -81,7 +81,9 @@ export function DecoderText({
   }, [text]);
 
   return (
-    <Tag ref={ref} className={className} aria-label={text}>
+    <Tag ref={ref} className={className}>
+      {/* real text for screen readers (the animated glyphs are decorative) */}
+      <span className="sr-only">{text}</span>
       <span aria-hidden>{display}</span>
     </Tag>
   );

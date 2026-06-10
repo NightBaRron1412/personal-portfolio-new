@@ -61,7 +61,7 @@ export function Nav() {
         <button
           onClick={() => go("home")}
           className="group flex items-center gap-2.5 text-left"
-          aria-label="Back to top"
+          aria-label="amir.shetaia — back to top"
         >
           <BrandMark className="h-[26px] w-[26px] rounded-lg shadow-soft transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow" />
           <span className="mono text-sm font-medium tracking-tight text-text-primary">
