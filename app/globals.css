@@ -128,24 +128,22 @@ body::after {
   opacity: 0.22;
 }
 
-/* Animated theme switch — View Transitions circular reveal (see ThemeToggle).
-   Default cross-fade off; the toggle JS animates the new snapshot's clip-path. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
+/* World-map marker ping (Contact) */
+.map-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mapPing 2.8s ease-out infinite;
 }
-::view-transition-old(root) {
-  z-index: 1;
+@keyframes mapPing {
+  0% { transform: scale(0.6); opacity: 0.55; }
+  80%, 100% { transform: scale(2.8); opacity: 0; }
 }
-::view-transition-new(root) {
-  z-index: 2;
-}
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
-  }
+
+/* Theme switch: flip instantly (a universal color transition forced a huge
+   style recalc that hitched the page). Only the dominant page background eases
+   — that's one element, so it's free, and the shader/dots ease on their own. */
+body {
+  transition: background-color 0.5s ease;
 }
 
 a {

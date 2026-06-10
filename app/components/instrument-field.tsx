@@ -16,23 +16,32 @@ import { useTheme } from "next-themes";
  * hidden, and rendered as a single static frame under prefers-reduced-motion.
  * pointer-events-none so it never intercepts interaction.
  */
+// Brand colors; lower alpha in light mode so it stays a whisper on white.
+function palette(light: boolean) {
+  return {
+    teal: light ? "13,148,136" : "45,212,191",
+    violet: light ? "124,58,237" : "167,139,250",
+    nodeA: light ? 0.5 : 0.55,
+    linkA: light ? 0.13 : 0.16,
+    cursorA: light ? 0.5 : 0.6,
+  };
+}
+
 export function InstrumentField({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { resolvedTheme } = useTheme();
+  // Palette lives in a ref so a theme switch just swaps colors on the next frame
+  // — it does NOT tear down and rebuild the canvas (which contributed to jank).
+  const paletteRef = useRef(palette(resolvedTheme === "light"));
+  useEffect(() => {
+    paletteRef.current = palette(resolvedTheme === "light");
+  }, [resolvedTheme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const light = resolvedTheme === "light";
-    // Brand colors; lower alpha in light mode so it stays a whisper on white.
-    const teal = light ? "13,148,136" : "45,212,191";
-    const violet = light ? "124,58,237" : "167,139,250";
-    const nodeA = light ? 0.5 : 0.55;
-    const linkA = light ? 0.13 : 0.16;
-    const cursorA = light ? 0.5 : 0.6;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const TARGET_NODES = 230; // keeps node count (and O(n^2) links) bounded at any size
@@ -96,6 +105,7 @@ export function InstrumentField({ className }: { className?: string }) {
     };
 
     const drawFrame = (time: number) => {
+      const { teal, violet, nodeA, linkA, cursorA } = paletteRef.current;
       ctx.clearRect(0, 0, w, h);
       scrollBoost *= 0.9; // decay the scroll-velocity glow each frame
 
@@ -236,7 +246,9 @@ export function InstrumentField({ className }: { className?: string }) {
       window.removeEventListener("blur", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [resolvedTheme]);
+    // Set up once; theme is read live from paletteRef (no rebuild on toggle).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <canvas

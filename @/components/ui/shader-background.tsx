@@ -6,20 +6,21 @@ import { cn } from "@/lib/utils";
 
 /**
  * WebGL animated plasma-grid background (adapted from the 21st.dev
- * "@thanh/shader-background"). Theme-aware: dark mode uses the additive
- * "glow on black" blend; light mode draws teal lines onto a light background
- * (additive washes out on white, so the light variant uses a mix blend).
+ * "@thanh/shader-background"). Theme is driven by a `uLight` UNIFORM (0 = dark,
+ * 1 = light) computed per-fragment, so toggling the theme is a cheap uniform
+ * update — NOT a shader recompile / context re-init (that caused a ~1s hang on
+ * every theme switch). The program is built once.
  */
 const VERT = `
   attribute vec4 aVertexPosition;
   void main() { gl_Position = aVertexPosition; }
 `;
 
-function buildFrag(light: boolean): string {
-  return `
+const FRAG = `
   precision highp float;
   uniform vec2 iResolution;
   uniform float iTime;
+  uniform float uLight; // 0 = dark, 1 = light
 
   const float overallSpeed = 0.2;
   const float gridSmoothWidth = 0.015;
@@ -52,7 +53,6 @@ function buildFrag(light: boolean): string {
 
   void main() {
     vec2 fragCoord = gl_FragCoord.xy;
-    vec4 fragColor;
     vec2 uv = fragCoord.xy / iResolution.xy;
     vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
 
@@ -62,9 +62,10 @@ function buildFrag(light: boolean): string {
     space.y += random(space.x * warpFrequency + iTime * warpSpeed) * warpAmplitude * (0.5 + horizontalFade);
     space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
 
-    vec4 lines = vec4(0.0);
+    vec4 lines = vec4(0.0); // colored accumulation (dark blend)
+    float amt = 0.0; // scalar accumulation (light blend)
 
-    for(int l = 0; l < linesPerGroup; l++) {
+    for (int l = 0; l < linesPerGroup; l++) {
       float normalizedLineIndex = float(l) / float(linesPerGroup);
       float offsetTime = iTime * offsetSpeed;
       float offsetPosition = float(l) + space.x * offsetFrequency;
@@ -79,24 +80,24 @@ function buildFrag(light: boolean): string {
       float circle = drawCircle(circlePosition, 0.01, space) * 4.0;
 
       line = line + circle;
-      ${light ? "lines += vec4(line * rand);" : "lines += line * lineColor * rand;"}
+      lines += line * lineColor * rand;
+      amt += line * rand;
     }
 
-    ${
-      light
-        ? `vec4 bg = mix(vec4(0.90, 0.95, 0.96, 1.0), vec4(0.93, 0.93, 0.99, 1.0), uv.x);
-           float amt = clamp(lines.r, 0.0, 1.0);
-           fragColor = mix(bg, vec4(0.04, 0.55, 0.50, 1.0), amt * 0.85);
-           fragColor.a = 1.0;`
-        : `fragColor = mix(vec4(0.02, 0.12, 0.13, 1.0), vec4(0.16, 0.06, 0.32, 1.0), uv.x);
-           fragColor *= verticalFade;
-           fragColor.a = 1.0;
-           fragColor += lines;`
-    }
-    gl_FragColor = fragColor;
+    // dark = additive teal/violet glow on a dark gradient
+    vec4 darkCol = mix(vec4(0.02, 0.12, 0.13, 1.0), vec4(0.16, 0.06, 0.32, 1.0), uv.x);
+    darkCol *= verticalFade;
+    darkCol.a = 1.0;
+    darkCol += lines;
+
+    // light = teal lines mixed onto a light background (additive washes out on white)
+    vec4 lightBg = mix(vec4(0.90, 0.95, 0.96, 1.0), vec4(0.93, 0.93, 0.99, 1.0), uv.x);
+    vec4 lightCol = mix(lightBg, vec4(0.04, 0.55, 0.50, 1.0), clamp(amt, 0.0, 1.0) * 0.85);
+    lightCol.a = 1.0;
+
+    gl_FragColor = mix(darkCol, lightCol, uLight);
   }
 `;
-}
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
   const shader = gl.createShader(type);
@@ -114,7 +115,18 @@ export function ShaderBackground({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  // Theme as a ref so the draw loop can read it without re-initializing WebGL.
+  const lightRef = useRef(resolvedTheme === "light");
+  const drawRef = useRef<(() => void) | null>(null);
+
   useEffect(() => setMounted(true), []);
+
+  // Theme change = update the uniform value (+ redraw once for the static /
+  // reduced-motion case). No recompile.
+  useEffect(() => {
+    lightRef.current = resolvedTheme === "light";
+    drawRef.current?.();
+  }, [resolvedTheme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -122,9 +134,8 @@ export function ShaderBackground({ className }: { className?: string }) {
     const gl = canvas.getContext("webgl");
     if (!gl) return;
 
-    const light = resolvedTheme === "light";
     const vert = compile(gl, gl.VERTEX_SHADER, VERT);
-    const frag = compile(gl, gl.FRAGMENT_SHADER, buildFrag(light));
+    const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG);
     if (!vert || !frag) return;
 
     const program = gl.createProgram();
@@ -141,6 +152,7 @@ export function ShaderBackground({ className }: { className?: string }) {
     const posLoc = gl.getAttribLocation(program, "aVertexPosition");
     const resLoc = gl.getUniformLocation(program, "iResolution");
     const timeLoc = gl.getUniformLocation(program, "iTime");
+    const lightLoc = gl.getUniformLocation(program, "uLight");
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const resize = () => {
@@ -160,27 +172,38 @@ export function ShaderBackground({ className }: { className?: string }) {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
       document.documentElement.getAttribute("data-force-motion") !== "true";
 
-    let raf = 0;
-    let inView = true;
     const start = Date.now();
+    let uLight = lightRef.current ? 1 : 0;
     const draw = (t: number) => {
+      // Ease toward the target theme so the plasma smoothly crossfades.
+      const target = lightRef.current ? 1 : 0;
+      uLight += (target - uLight) * 0.08;
       gl.useProgram(program);
       gl.uniform2f(resLoc, canvas.width, canvas.height);
       gl.uniform1f(timeLoc, t);
+      gl.uniform1f(lightLoc, uLight);
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(posLoc);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
+    // static / reduced-motion redraw: snap to the target theme instantly
+    drawRef.current = () => {
+      uLight = lightRef.current ? 1 : 0;
+      draw(8);
+    };
 
     if (reduced) {
       draw(8);
       return () => {
+        drawRef.current = null;
         window.removeEventListener("resize", resize);
         ro?.disconnect();
       };
     }
 
+    let raf = 0;
+    let inView = true;
     const loop = () => {
       draw((Date.now() - start) / 1000);
       raf = requestAnimationFrame(loop);
@@ -195,8 +218,6 @@ export function ShaderBackground({ className }: { className?: string }) {
       }
     };
 
-    // Animate immediately (the band is in view on load), then pause whenever it
-    // scrolls offscreen or the tab is hidden — no wasted GPU/CPU on a static bg.
     startLoop();
     const io = new IntersectionObserver(([e]) => {
       inView = e.isIntersecting;
@@ -208,12 +229,13 @@ export function ShaderBackground({ className }: { className?: string }) {
 
     return () => {
       stopLoop();
+      drawRef.current = null;
       io.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", resize);
       ro?.disconnect();
     };
-  }, [resolvedTheme, mounted]);
+  }, [mounted]);
 
   return <canvas ref={canvasRef} aria-hidden className={cn("block h-full w-full", className)} />;
 }

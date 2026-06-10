@@ -13,10 +13,12 @@ export default function Template({ children }: { children: ReactNode }) {
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
-        key={`${pathname}-${enableMotion ? "m" : "s"}`}
-        initial={!enableMotion ? false : { opacity: 0 }}
-        animate={!enableMotion ? {} : { opacity: 1 }}
-        exit={!enableMotion ? {} : { opacity: 0 }}
+        // Key on pathname ONLY — including the motion flag caused a full page
+        // remount the moment hydration flipped it (the "double refresh").
+        key={pathname}
+        initial={enableMotion ? { opacity: 0 } : false}
+        animate={enableMotion ? { opacity: 1 } : {}}
+        exit={enableMotion ? { opacity: 0 } : {}}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       >
         {children}
