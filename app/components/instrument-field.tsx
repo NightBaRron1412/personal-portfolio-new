@@ -35,10 +35,11 @@ export function InstrumentField({ className }: { className?: string }) {
     const cursorA = light ? 0.5 : 0.6;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const SPACING = 96; // px between nodes (sparse — reads as constellation, not grid)
-    const LINK = 118; // max node-to-node link distance
-    const REACH = 168; // cursor influence radius
-    const MAXN = 150; // hard cap on node count
+    const TARGET_NODES = 230; // keeps node count (and O(n^2) links) bounded at any size
+    const BASE_SPACING = 92;
+    let spacing = BASE_SPACING; // px between nodes — grows on big screens
+    let LINK = 118; // max node-to-node link distance (scales with spacing)
+    let REACH = 168; // cursor influence radius (scales with spacing)
 
     type Node = { bx: number; by: number; x: number; y: number; ph: number; amp: number };
     let nodes: Node[] = [];
@@ -54,19 +55,25 @@ export function InstrumentField({ className }: { className?: string }) {
       canvas.style.height = h + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const cols = Math.ceil(w / SPACING) + 1;
-      const rows = Math.ceil(h / SPACING) + 1;
+      // Adaptive spacing: spread ~TARGET_NODES across the WHOLE viewport so the
+      // field fills large monitors too (instead of capping to the top rows).
+      spacing = Math.max(BASE_SPACING, Math.sqrt((w * h) / TARGET_NODES));
+      LINK = spacing + 24;
+      REACH = Math.max(168, spacing * 1.7);
+
+      const cols = Math.ceil(w / spacing) + 1;
+      const rows = Math.ceil(h / spacing) + 1;
       nodes = [];
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          // deterministic jitter (no Math.random in render path concerns) per cell
+          // deterministic per-cell jitter
           const j = Math.sin((c * 12.9898 + r * 78.233) * 43758.5453);
-          const jx = (j - Math.floor(j) - 0.5) * SPACING * 0.6;
+          const jx = (j - Math.floor(j) - 0.5) * spacing * 0.6;
           const k = Math.sin((c * 39.346 + r * 11.135) * 24634.6345);
-          const jy = (k - Math.floor(k) - 0.5) * SPACING * 0.6;
+          const jy = (k - Math.floor(k) - 0.5) * spacing * 0.6;
           nodes.push({
-            bx: c * SPACING + jx,
-            by: r * SPACING + jy,
+            bx: c * spacing + jx,
+            by: r * spacing + jy,
             x: 0,
             y: 0,
             ph: (j - Math.floor(j)) * Math.PI * 2,
@@ -74,7 +81,6 @@ export function InstrumentField({ className }: { className?: string }) {
           });
         }
       }
-      if (nodes.length > MAXN) nodes = nodes.slice(0, MAXN);
     };
 
     const mouse = { x: -9999, y: -9999, on: false };
