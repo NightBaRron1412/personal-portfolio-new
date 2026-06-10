@@ -6,6 +6,7 @@ import { cn, scrollToId } from "@/lib/utils";
 import { profile } from "@/data/profile";
 import { NAV_LINKS } from "./nav-data";
 import { ThemeToggle } from "./theme-toggle";
+import { BrandMark } from "./brand-mark";
 
 export function Nav() {
   const [active, setActive] = useState<string>("home");
@@ -59,9 +60,13 @@ export function Nav() {
           className="group flex items-center gap-2.5 text-left"
           aria-label="Back to top"
         >
-          <span className="pulse-dot relative inline-flex h-2 w-2 rounded-full bg-accent" />
+          <span className="relative inline-flex">
+            <BrandMark className="h-[26px] w-[26px] rounded-lg shadow-soft transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow" />
+            {/* live-status LED, telemetry style */}
+            <span className="pulse-dot absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-accent ring-2 ring-bg-main" />
+          </span>
           <span className="mono text-sm font-medium tracking-tight text-text-primary">
-            amir.shetaia
+            amir<span className="text-text-faint">.</span>shetaia
           </span>
         </button>
 
