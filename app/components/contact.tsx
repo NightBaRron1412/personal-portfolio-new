@@ -11,7 +11,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Reveal } from "./reveal";
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { Globe } from "@/components/ui/globe";
+import { WorldMap } from "./world-map";
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -118,18 +118,9 @@ export function Contact() {
             based in Ontario, Canada · open to interesting work
           </div>
 
-          {/* globe — own region below the text, no overlap */}
-          <div className="relative mt-4 min-h-[150px] flex-1">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -bottom-14 left-1/2 w-[230px] max-w-[78%] -translate-x-1/2 opacity-90"
-              style={{
-                WebkitMaskImage: "radial-gradient(circle at 50% 42%, #000 50%, transparent 75%)",
-                maskImage: "radial-gradient(circle at 50% 42%, #000 50%, transparent 75%)",
-              }}
-            >
-              <Globe />
-            </div>
+          {/* dotted world map — the places I've worked from */}
+          <div className="relative mt-6 flex-1">
+            <WorldMap className="opacity-90" />
           </div>
         </div>
       </Reveal>
