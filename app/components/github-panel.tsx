@@ -1,6 +1,6 @@
 "use client";
 
-import { cloneElement, useEffect, useState } from "react";
+import { cloneElement, useEffect, useRef, useState } from "react";
 import { Github, GitCommitHorizontal } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useTheme } from "next-themes";
@@ -29,6 +29,29 @@ export function GitHubPanel() {
   const { resolvedTheme } = useTheme();
   const [data, setData] = useState<GitHubData | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
+  const wrapRef = useRef<HTMLDivElement>(null);
+  // Responsive block size: shrink the squares so the full year always fits the
+  // panel width (no horizontal cut on mobile). ~53 weeks across the container.
+  const [block, setBlock] = useState({ size: 11, margin: 3 });
+
+  useEffect(() => {
+    if (state !== "ok") return;
+    const el = wrapRef.current;
+    if (!el) return;
+    const WEEKS = 53;
+    const margin = 2;
+    const labelW = 28; // weekday-label gutter + safety
+    const measure = () => {
+      const w = el.clientWidth;
+      if (!w) return;
+      const size = Math.max(3, Math.min(12, Math.floor((w - labelW) / WEEKS) - margin));
+      setBlock({ size, margin });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [state]);
 
   useEffect(() => {
     let alive = true;
@@ -87,15 +110,15 @@ export function GitHubPanel() {
           {/* full-year contribution calendar (react-activity-calendar).
               mx-auto + w-fit centers it when it fits, and scrolls from the
               left (margins collapse to 0 on overflow) on narrow screens. */}
-          <div className="no-scrollbar overflow-x-auto pb-1">
+          <div ref={wrapRef} className="no-scrollbar overflow-x-auto pb-1">
             <div className="mx-auto w-fit">
             <ActivityCalendar
               data={data.heatmap}
               theme={CAL_THEME}
               colorScheme={resolvedTheme === "light" ? "light" : "dark"}
-              blockSize={11}
-              blockMargin={3}
-              blockRadius={2}
+              blockSize={block.size}
+              blockMargin={block.margin}
+              blockRadius={Math.max(1, block.size >= 8 ? 2 : 1)}
               fontSize={11}
               labels={{
                 totalCount: `{{count}} contributions in the last year${
