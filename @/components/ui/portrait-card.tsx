@@ -55,6 +55,7 @@ export function PortraitCard({
             src={imageUrl}
             alt={name}
             loading="lazy"
+            decoding="async"
             className="ken-burns absolute inset-0 h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10" />

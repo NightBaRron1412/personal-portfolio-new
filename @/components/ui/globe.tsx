@@ -57,39 +57,71 @@ export function Globe({ className }: { className?: string }) {
     window.addEventListener("resize", onResize);
     onResize();
 
-    const globe = createGlobe(canvas, {
-      width: width * 2,
-      height: width * 2,
-      devicePixelRatio: 2,
-      phi: 0,
-      theta: 0.3,
-      mapSamples: 16000,
-      dark: light ? 0 : 1,
-      diffuse: light ? 0.5 : 1.1,
-      mapBrightness: light ? 5.5 : 5,
-      baseColor: light ? [0.92, 0.94, 0.97] : [0.26, 0.3, 0.34],
-      markerColor: light ? [13 / 255, 148 / 255, 136 / 255] : [45 / 255, 212 / 255, 191 / 255],
-      glowColor: light ? [1, 1, 1] : [0.13, 0.2, 0.22],
-      markers: MARKERS,
-    });
-
+    let globe: ReturnType<typeof createGlobe> | null = null;
     let raf = 0;
-    const tick = () => {
-      if (pointerInteracting.current === null) phiRef.current += 0.004;
-      globe.update({ phi: phiRef.current + rs.get(), width: width * 2, height: width * 2 });
+    let inView = false;
+
+    const startRaf = () => {
+      if (raf || !globe) return;
+      const tick = () => {
+        if (pointerInteracting.current === null) phiRef.current += 0.004;
+        globe!.update({ phi: phiRef.current + rs.get(), width: width * 2, height: width * 2 });
+        raf = requestAnimationFrame(tick);
+      };
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
+    const stopRaf = () => {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
 
-    const reveal = setTimeout(() => {
-      canvas.style.opacity = "1";
-    }, 0);
+    // Build the (heavy) globe only the first time it scrolls into view — it
+    // lives at the bottom of the page, so this keeps it off the initial load.
+    const init = () => {
+      if (globe) return;
+      onResize();
+      globe = createGlobe(canvas, {
+        width: width * 2,
+        height: width * 2,
+        devicePixelRatio: 2,
+        phi: 0,
+        theta: 0.3,
+        mapSamples: 16000,
+        dark: light ? 0 : 1,
+        diffuse: light ? 0.5 : 1.1,
+        mapBrightness: light ? 5.5 : 5,
+        baseColor: light ? [0.92, 0.94, 0.97] : [0.26, 0.3, 0.34],
+        markerColor: light ? [13 / 255, 148 / 255, 136 / 255] : [45 / 255, 212 / 255, 191 / 255],
+        glowColor: light ? [1, 1, 1] : [0.13, 0.2, 0.22],
+        markers: MARKERS,
+      });
+      requestAnimationFrame(() => {
+        canvas.style.opacity = "1";
+      });
+    };
+
+    const io = new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      if (inView) {
+        init();
+        if (!document.hidden) startRaf();
+      } else {
+        stopRaf();
+      }
+    });
+    io.observe(canvas);
+
+    const onVisibility = () => (document.hidden || !inView ? stopRaf() : startRaf());
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(reveal);
-      globe.destroy();
+      stopRaf();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", onResize);
+      globe?.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolvedTheme, mounted]);

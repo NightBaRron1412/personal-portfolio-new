@@ -15,6 +15,7 @@ import { Contact } from "./components/contact";
 import { Footer } from "./components/footer";
 import { SpotifyWidget } from "./components/spotify-widget";
 import { CursorGlow } from "./components/cursor-glow";
+import { InstrumentField } from "./components/instrument-field";
 import { ShaderBackground } from "@/components/ui/shader-background";
 
 export default function HomePage() {
@@ -44,6 +45,7 @@ export default function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-bg-main/25" />
       </div>
       <div className="aurora" aria-hidden />
+      <InstrumentField />
       <CursorGlow />
       <ScrollProgress />
       <Nav />

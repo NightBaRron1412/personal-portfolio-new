@@ -55,6 +55,7 @@ export function Logo({
         src={src}
         alt={`${name} logo`}
         loading="lazy"
+        decoding="async"
         className="h-full w-full object-contain"
         onError={() => setFailed(true)}
       />

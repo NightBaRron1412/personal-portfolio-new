@@ -161,6 +161,7 @@ export function ShaderBackground({ className }: { className?: string }) {
       document.documentElement.getAttribute("data-force-motion") !== "true";
 
     let raf = 0;
+    let inView = true;
     const start = Date.now();
     const draw = (t: number) => {
       gl.useProgram(program);
@@ -174,16 +175,41 @@ export function ShaderBackground({ className }: { className?: string }) {
 
     if (reduced) {
       draw(8);
-    } else {
-      const loop = () => {
-        draw((Date.now() - start) / 1000);
-        raf = requestAnimationFrame(loop);
+      return () => {
+        window.removeEventListener("resize", resize);
+        ro?.disconnect();
       };
-      raf = requestAnimationFrame(loop);
     }
 
+    const loop = () => {
+      draw((Date.now() - start) / 1000);
+      raf = requestAnimationFrame(loop);
+    };
+    const startLoop = () => {
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    const stopLoop = () => {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
+
+    // Animate immediately (the band is in view on load), then pause whenever it
+    // scrolls offscreen or the tab is hidden — no wasted GPU/CPU on a static bg.
+    startLoop();
+    const io = new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      inView && !document.hidden ? startLoop() : stopLoop();
+    });
+    io.observe(canvas);
+    const onVisibility = () => (document.hidden || !inView ? stopLoop() : startLoop());
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
-      if (raf) cancelAnimationFrame(raf);
+      stopLoop();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", resize);
       ro?.disconnect();
     };

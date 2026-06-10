@@ -4,7 +4,7 @@ export const profile = {
   title: "Software Engineer | Systems, HPC, and ML",
   location: "Ontario, Canada",
   headline: "Senior Software Engineer at AMD | MASc. in Computer and Electrical Engineering",
-  portrait: "/images/portrait.jpg", // Fallback to initials if not present
+  portrait: "/images/portrait.webp", // Fallback to initials if not present
   portraitBadges: ["Systems", "HPC", "ML"],
   summary:
     "Senior Software Engineer at AMD working on GPU drivers for machine learning and data center workloads on the ROCm open-source platform. Background in deterministic optimization solvers, high-performance computing, and embedded systems with a strong focus on formal methods, verification, and machine learning systems.",
