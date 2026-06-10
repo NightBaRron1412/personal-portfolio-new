@@ -47,7 +47,8 @@ await sharp(Buffer.from(squareSvg)).resize(180, 180).png().toFile("app/apple-ico
 mkdirSync("scripts/.tmp", { recursive: true });
 await sharp(Buffer.from(roundedSvg)).resize(256, 256).png().toFile("scripts/.tmp/icon-256.png");
 
-// 4. A 512 PNG (handy for PWA / general use).
+// 4. PWA raster icons (192 + 512).
+await sharp(Buffer.from(roundedSvg)).resize(192, 192).png().toFile("public/icon-192.png");
 await sharp(Buffer.from(roundedSvg)).resize(512, 512).png().toFile("public/icon-512.png");
 
-console.log("icons generated: app/icon.svg, app/apple-icon.png, public/icon-512.png, scripts/.tmp/icon-256.png");
+console.log("icons generated: app/icon.svg, app/apple-icon.png, public/icon-192.png, public/icon-512.png, scripts/.tmp/icon-256.png");

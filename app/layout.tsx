@@ -29,6 +29,10 @@ const spaceGrotesk = Space_Grotesk({
 
 export const viewport: Viewport = {
   viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0a0e14" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f6f8" },
+  ],
 };
 
 const siteUrl = process.env.SITE_URL || "https://amirshetaia.com";
