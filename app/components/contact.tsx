@@ -152,17 +152,33 @@ export function Contact() {
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Name" error={errors.name?.message}>
-              <Input placeholder="Your name" {...register("name")} />
+            <Field id="cf-name" label="Name" error={errors.name?.message}>
+              <Input
+                id="cf-name"
+                placeholder="Your name"
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "cf-name-error" : undefined}
+                {...register("name")}
+              />
             </Field>
-            <Field label="Email" error={errors.email?.message}>
-              <Input type="email" placeholder="you@example.com" {...register("email")} />
+            <Field id="cf-email" label="Email" error={errors.email?.message}>
+              <Input
+                id="cf-email"
+                type="email"
+                placeholder="you@example.com"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "cf-email-error" : undefined}
+                {...register("email")}
+              />
             </Field>
           </div>
-          <Field label="Message" error={errors.message?.message}>
+          <Field id="cf-message" label="Message" error={errors.message?.message}>
             <Textarea
+              id="cf-message"
               rows={6}
               placeholder="What are you working on?"
+              aria-invalid={!!errors.message}
+              aria-describedby={errors.message ? "cf-message-error" : undefined}
               {...register("message")}
             />
           </Field>
@@ -184,19 +200,27 @@ export function Contact() {
 }
 
 function Field({
+  id,
   label,
   error,
   children,
 }: {
+  id: string;
   label: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="eyebrow block">{label}</label>
+      <label htmlFor={id} className="eyebrow block">
+        {label}
+      </label>
       {children}
-      {error ? <p className="text-xs text-red-400">{error}</p> : null}
+      {error ? (
+        <p id={`${id}-error`} className="text-xs text-red-400">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

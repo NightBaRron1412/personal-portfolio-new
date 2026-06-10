@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { isAnalyticsEnabled, isSpeedInsightsEnabled } from "@/lib/analytics";
 import { Providers } from "./providers";
+import { StructuredData } from "./components/structured-data";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -79,6 +80,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="font-sans antialiased text-[15px] sm:text-base" suppressHydrationWarning data-darkreader-skip>
         <Providers>{children}</Providers>
+        <StructuredData />
         {isAnalyticsEnabled ? <Analytics /> : null}
         {isSpeedInsightsEnabled ? <SpeedInsights /> : null}
       </body>

@@ -317,6 +317,27 @@ export const profile = {
   ],
   projects: [
     {
+      title: "OptVerse: Deterministic Sparse Linear Solver",
+      role: "R&D Software Engineer · Huawei",
+      description:
+        "Made Huawei's OptVerse Cholesky solver bit-for-bit reproducible across runs in C++/OpenMP without giving up HPC throughput.",
+      tech: ["C++", "OpenMP", "HPC", "Sparse Linear Algebra", "Profiling"],
+      outcomes:
+        "Reproducible run-to-run output for a parallel sparse Cholesky solver, validated on Hans Mittelmann's optimization benchmarks to keep OptVerse competitive.",
+      repo: "",
+      demo: "",
+      featured: true,
+      images: [],
+      details: {
+        problem:
+          "Parallel sparse Cholesky factorization produced run-to-run variation — non-associative floating-point reductions and non-deterministic OpenMP scheduling gave slightly different results each run, blocking reproducible benchmarking and root-cause debugging.",
+        approach:
+          "Traced the non-determinism to parallel reduction order and floating-point accumulation order; introduced deterministic reduction/scheduling strategies with controlled accumulation, then profiled the hot paths to recover the throughput the determinism constraints cost.",
+        results:
+          "Delivered a deterministic Cholesky solver with reproducible output across runs, validated on Hans Mittelmann's optimization benchmarks to keep OptVerse competitive on large-scale problems."
+      }
+    },
+    {
       title: "DeepParse: LLM-Enhanced Log Parsing Framework",
       role: "Project Lead",
       description: "Hybrid log parsing system combining DeepSeek-R1:8B and Drain algorithm achieving 97.6% accuracy across 16 datasets.",

@@ -82,12 +82,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    // Send email via Resend
-    // Note: In test mode, Resend only sends to the verified email address (amoor22009@gmail.com)
-    // To send to ashetaia01@gmail.com, verify a domain at resend.com/domains
+    // Send email via Resend.
+    // CONTACT_TO_EMAIL is where submissions are delivered; CONTACT_FROM_EMAIL must be a
+    // verified sender (default is Resend's shared test sender, which only delivers to the
+    // account's own verified address — verify a domain at resend.com/domains for production).
+    const toEmail = process.env.CONTACT_TO_EMAIL || "ashetaia01@gmail.com";
+    const fromEmail = process.env.CONTACT_FROM_EMAIL || "onboarding@resend.dev";
     const result = await getResend().emails.send({
-      from: "onboarding@resend.dev",
-      to: "amoor22009@gmail.com",
+      from: fromEmail,
+      to: toEmail,
       replyTo: email,
       subject: `New message from ${name.replace(/[\r\n]+/g, " ").slice(0, 80)}`,
       html: `

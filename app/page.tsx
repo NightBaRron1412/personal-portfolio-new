@@ -20,6 +20,13 @@ import { ShaderBackground } from "@/components/ui/shader-background";
 export default function HomePage() {
   return (
     <>
+      {/* skip-to-content: first focusable element, visible only on keyboard focus */}
+      <a
+        href="#content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:border focus:border-accent focus:bg-bg-main focus:px-4 focus:py-2 focus:text-sm focus:text-text-primary focus:shadow-glow"
+      >
+        Skip to content
+      </a>
       {/* animated shader (21st.dev): full-width top band, masked so it dissolves
           into the page (no hard edge), with a left scrim for hero legibility */}
       <div
@@ -40,7 +47,7 @@ export default function HomePage() {
       <CursorGlow />
       <ScrollProgress />
       <Nav />
-      <main className="relative z-10">
+      <main id="content" className="relative z-10">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <Hero />
 
@@ -71,7 +78,7 @@ export default function HomePage() {
             index="03"
             title="Selected Work"
             meta="case studies"
-            lead="Two projects that show how I think — turning messy logs and moving vehicles into systems that hold up."
+            lead="A few projects that show how I think — making a parallel solver reproducible, taming messy logs, and putting a car's senses on the edge."
           >
             <Work />
           </Section>

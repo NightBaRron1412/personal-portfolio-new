@@ -18,6 +18,11 @@ type Metric = {
 };
 
 const METRICS: Record<string, Metric[]> = {
+  "OptVerse: Deterministic Sparse Linear Solver": [
+    { static: "bit-exact", label: "run-to-run reproducible" },
+    { static: "C++ / OpenMP", label: "parallel HPC" },
+    { static: "Mittelmann", label: "benchmark-validated" },
+  ],
   "DeepParse: LLM-Enhanced Log Parsing Framework": [
     { value: 97.6, decimals: 1, suffix: "%", label: "parse accuracy" },
     { value: 16, label: "datasets" },
