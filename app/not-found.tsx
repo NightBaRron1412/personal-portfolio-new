@@ -1,210 +1,95 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { InstrumentField } from "./components/instrument-field";
+import { BrandMark } from "./components/brand-mark";
 
-/* ------------------------------------------------------------------
-   Animated 404 page with floating particles + glitch text
-   ------------------------------------------------------------------ */
+/**
+ * 404 — "signal lost" in the Instrument design language: gradient glyph with a
+ * periodic teal/violet glitch, a telemetry readout, the reactive constellation
+ * backdrop, and the brand lockup. Theme-aware + reduced-motion safe (the global
+ * dot-grid/aurora come from globals.css; the glitch animation is disabled under
+ * prefers-reduced-motion).
+ */
 export default function NotFound() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [glitch, setGlitch] = useState(false);
-
-  // Floating particles background
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    let animId: number;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const particles: {
-      x: number;
-      y: number;
-      r: number;
-      dx: number;
-      dy: number;
-      o: number;
-      color: string;
-    }[] = [];
-
-    const colors = ["#6c0c9c", "#31708e", "#b42484", "#4f46e5"];
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2.5 + 0.5,
-        dx: (Math.random() - 0.5) * 0.4,
-        dy: (Math.random() - 0.5) * 0.4,
-        o: Math.random() * 0.5 + 0.1,
-        color: colors[Math.floor(Math.random() * colors.length)],
-      });
-    }
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 150) {
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(108, 12, 156, ${0.08 * (1 - d / 150)})`;
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Draw particles
-      for (const p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.o;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-      }
-
-      animId = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  // Periodic glitch effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setGlitch(true);
-      setTimeout(() => setGlitch(false), 200);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg-main">
-      {/* Particle canvas */}
-      <canvas ref={canvasRef} className="pointer-events-none absolute inset-0" />
+    <main className="relative grid min-h-screen place-items-center overflow-hidden px-6 py-16">
+      <InstrumentField />
 
-      {/* Gradient orbs */}
-      <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-accent-purple/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-accent-blue/20 blur-[120px]" />
+      <div className="relative z-10 flex w-full max-w-lg flex-col items-center">
+        {/* brand lockup (doubles as a home link) */}
+        <Link href="/" className="group mb-10 inline-flex items-center gap-2.5">
+          <BrandMark className="h-7 w-7 rounded-lg shadow-soft transition-transform duration-300 group-hover:scale-105" />
+          <span className="mono text-sm font-medium tracking-tight text-text-primary">
+            amir<span className="text-text-faint">.</span>shetaia
+          </span>
+        </Link>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center px-6 text-center">
-        {/* Glitchy 404 */}
-        <div className="relative select-none">
-          <h1
-            className={`text-[10rem] font-black leading-none tracking-tighter sm:text-[14rem] ${
-              glitch ? "animate-glitch" : ""
-            }`}
-            style={{
-              background:
-                "linear-gradient(135deg, var(--accent-purple), var(--accent-pink), var(--accent-blue))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            404
-          </h1>
+        <div className="panel ticks w-full p-8 text-center sm:p-10">
+          <p className="eyebrow inline-flex items-center gap-2">
+            <span className="pulse-dot relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+            signal lost
+          </p>
 
-          {/* Glitch layers */}
-          {glitch && (
-            <>
-              <span
-                className="absolute inset-0 text-[10rem] font-black leading-none tracking-tighter sm:text-[14rem]"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--accent-blue), var(--accent-purple))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  clipPath: "inset(20% 0 40% 0)",
-                  transform: "translate(-4px, 2px)",
-                }}
-                aria-hidden
-              >
-                404
-              </span>
-              <span
-                className="absolute inset-0 text-[10rem] font-black leading-none tracking-tighter sm:text-[14rem]"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--accent-pink), var(--accent-blue))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  clipPath: "inset(60% 0 5% 0)",
-                  transform: "translate(4px, -2px)",
-                }}
-                aria-hidden
-              >
-                404
-              </span>
-            </>
-          )}
-        </div>
+          {/* glitching 404 */}
+          <div className="relative mt-4 inline-block select-none leading-none">
+            <span className="text-gradient block font-display text-8xl font-semibold leading-none sm:text-9xl">
+              404
+            </span>
+            <span
+              aria-hidden
+              className="glitch-404 glitch-404-a absolute inset-0 font-display text-8xl font-semibold leading-none sm:text-9xl"
+            >
+              404
+            </span>
+            <span
+              aria-hidden
+              className="glitch-404 glitch-404-b absolute inset-0 font-display text-8xl font-semibold leading-none sm:text-9xl"
+            >
+              404
+            </span>
+          </div>
 
-        {/* Subtitle with typing cursor */}
-        <p className="mt-2 text-lg font-medium text-text-secondary sm:text-xl">
-          This page has drifted into the void
-        </p>
+          <div className="gradient-rule mx-auto mt-5 h-px w-24 opacity-60" />
 
-        {/* Animated line */}
-        <div className="relative mt-6 h-px w-48 overflow-hidden rounded-full bg-border-subtle">
-          <div className="animate-shimmer absolute inset-0 h-full w-1/3 rounded-full bg-gradient-to-r from-transparent via-accent-purple to-transparent" />
-        </div>
+          <p className="mx-auto mt-5 max-w-sm leading-relaxed text-text-secondary">
+            This route isn&apos;t on the map — it moved, or it never existed.
+          </p>
 
-        {/* Description */}
-        <p className="mt-6 max-w-md text-sm leading-relaxed text-text-secondary">
-          The page you&apos;re looking for doesn&apos;t exist, has been moved, or
-          is temporarily unavailable.
-        </p>
+          {/* telemetry readout */}
+          <dl className="mono mx-auto mt-7 max-w-[260px] space-y-2 rounded-lg border border-border-subtle bg-surface p-4 text-left text-xs">
+            <Row k="status" v="404 · not_found" accent />
+            <Row k="signal" v="no route" />
+            <Row k="recommended" v="return to base" />
+          </dl>
 
-        {/* Buttons */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/"
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-accent-purple px-6 py-3 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 transition group-hover:opacity-100" />
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
-            </svg>
-            Go Home
-          </Link>
-          <button
-            onClick={() => window.history.back()}
-            className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-bg-elevated px-6 py-3 text-sm font-medium text-text-primary transition-all hover:-translate-y-0.5 hover:border-accent-blue/40"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Go Back
-          </button>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex h-11 items-center gap-2 rounded-xl px-6 text-sm font-semibold text-[#0b0f17] shadow-glow transition-transform hover:-translate-y-0.5"
+              style={{ background: "var(--gradient)" }}
+            >
+              Back to home <ArrowRight className="h-4 w-4" />
+            </Link>
+            <button
+              onClick={() => window.history.back()}
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-border-subtle px-5 text-sm font-medium text-text-primary transition-colors hover:border-accent hover:text-accent"
+            >
+              <ArrowLeft className="h-4 w-4" /> Go back
+            </button>
+          </div>
         </div>
       </div>
+    </main>
+  );
+}
+
+function Row({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <dt className="text-text-faint">{k}</dt>
+      <dd className={accent ? "text-accent" : "text-text-secondary"}>{v}</dd>
     </div>
   );
 }

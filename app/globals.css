@@ -128,6 +128,33 @@ body::after {
   opacity: 0.22;
 }
 
+/* 404 glitch — two color layers that burst briefly every cycle (teal/violet).
+   Disabled under reduced-motion via the global block below (layers rest at
+   opacity 0, so only the clean gradient "404" shows). */
+.glitch-404 {
+  opacity: 0;
+}
+.glitch-404-a {
+  color: #2dd4bf;
+  animation: glitch404a 6s steps(1) infinite;
+}
+.glitch-404-b {
+  color: #f472b6;
+  animation: glitch404b 6s steps(1) infinite;
+}
+@keyframes glitch404a {
+  0%, 90%, 97%, 100% { opacity: 0; transform: translate(0); }
+  91% { opacity: 0.85; transform: translate(-3px, 1px); clip-path: inset(8% 0 58% 0); }
+  93% { opacity: 0.85; transform: translate(2px, -1px); clip-path: inset(62% 0 18% 0); }
+  95% { opacity: 0.85; transform: translate(-2px, 0); clip-path: inset(34% 0 40% 0); }
+}
+@keyframes glitch404b {
+  0%, 90.5%, 97%, 100% { opacity: 0; transform: translate(0); }
+  92% { opacity: 0.8; transform: translate(3px, -1px); clip-path: inset(20% 0 50% 0); }
+  94% { opacity: 0.8; transform: translate(-2px, 1px); clip-path: inset(55% 0 25% 0); }
+  96% { opacity: 0.8; transform: translate(2px, 0); clip-path: inset(40% 0 35% 0); }
+}
+
 /* World-map marker ping (Contact) */
 .map-ping {
   transform-box: fill-box;
