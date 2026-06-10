@@ -164,7 +164,7 @@ export async function GET() {
     const now = new Date();
     const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     const fromDate = new Date(todayUTC);
-    fromDate.setUTCDate(fromDate.getUTCDate() - 209);
+    fromDate.setUTCDate(fromDate.getUTCDate() - 364);
     const fromISO = `${fromDate.toISOString().slice(0, 10)}T00:00:00Z`;
     const toISO = `${todayUTC.toISOString().slice(0, 10)}T23:59:59Z`;
 
@@ -191,9 +191,9 @@ export async function GET() {
       }
     }
 
-    // Generate last 210 days (30 weeks) for the heatmap.
+    // Generate the last 365 days (full year) for the heatmap.
     const days: { date: string; count: number; level: number }[] = [];
-    for (let i = 209; i >= 0; i--) {
+    for (let i = 364; i >= 0; i--) {
       const d = new Date(todayUTC);
       d.setUTCDate(d.getUTCDate() - i);
       const dateStr = d.toISOString().slice(0, 10);
