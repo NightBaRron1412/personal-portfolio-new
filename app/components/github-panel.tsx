@@ -84,8 +84,11 @@ export function GitHubPanel() {
         <Skeleton />
       ) : data ? (
         <>
-          {/* full-year contribution calendar (react-activity-calendar) */}
+          {/* full-year contribution calendar (react-activity-calendar).
+              mx-auto + w-fit centers it when it fits, and scrolls from the
+              left (margins collapse to 0 on overflow) on narrow screens. */}
           <div className="no-scrollbar overflow-x-auto pb-1">
+            <div className="mx-auto w-fit">
             <ActivityCalendar
               data={data.heatmap}
               theme={CAL_THEME}
@@ -109,6 +112,7 @@ export function GitHubPanel() {
               }
               style={{ color: "var(--text-faint)" }}
             />
+            </div>
             <ReactTooltip id="gh-cal-tip" className="!rounded-md !bg-bg-elevated !text-text-primary" />
           </div>
 
