@@ -60,6 +60,8 @@ export function SpotifyWidget() {
 
   return (
     <div
+      role="complementary"
+      aria-label="Now playing on Spotify"
       className="spotify-widget fixed bottom-4 left-4 z-40 max-w-[220px]"
       style={{ transform: ready ? "translateY(0)" : "translateY(160%)", opacity: ready ? 1 : 0 }}
     >

@@ -47,7 +47,7 @@ export function Footer() {
           </div>
         </div>
 
-        <nav className="grid grid-cols-2 gap-x-10 gap-y-2 sm:grid-cols-3">
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-10 gap-y-2 sm:grid-cols-3">
           {NAV_LINKS.map((l) => (
             <button
               key={l.id}

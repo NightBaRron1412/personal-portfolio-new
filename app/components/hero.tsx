@@ -48,7 +48,7 @@ export function Hero() {
       <div className="relative z-10 grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
         {/* Left — masthead */}
         <motion.div
-          className="lg:col-span-7"
+          className="min-w-0 lg:col-span-7"
           variants={container}
           initial="hidden"
           animate="show"
@@ -88,7 +88,7 @@ export function Hero() {
           </motion.p>
 
           <motion.div variants={item} className="mt-7">
-            <div className="inline-flex max-w-full items-center gap-2 rounded-lg border border-border-subtle bg-surface px-3 py-2">
+            <div className="inline-flex max-w-full items-center gap-2 overflow-hidden rounded-lg border border-border-subtle bg-surface px-3 py-2">
               <span className="mono shrink-0 text-sm text-accent">amir@now:~$</span>
               <Typewriter words={TYPED} className="mono truncate text-sm text-text-secondary" />
             </div>
@@ -132,7 +132,7 @@ export function Hero() {
 
         {/* Right — status instrument */}
         <motion.div
-          className="lg:col-span-5"
+          className="min-w-0 lg:col-span-5"
           initial={{ opacity: 0, x: 24, filter: "blur(6px)" }}
           animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}

@@ -57,6 +57,10 @@ export function Globe({ className }: { className?: string }) {
     window.addEventListener("resize", onResize);
     onResize();
 
+    const reduced =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+      document.documentElement.getAttribute("data-force-motion") !== "true";
+
     let globe: ReturnType<typeof createGlobe> | null = null;
     let raf = 0;
     let inView = false;
@@ -64,7 +68,7 @@ export function Globe({ className }: { className?: string }) {
     const startRaf = () => {
       if (raf || !globe) return;
       const tick = () => {
-        if (pointerInteracting.current === null) phiRef.current += 0.004;
+        if (!reduced && pointerInteracting.current === null) phiRef.current += 0.004;
         globe!.update({ phi: phiRef.current + rs.get(), width: width * 2, height: width * 2 });
         raf = requestAnimationFrame(tick);
       };

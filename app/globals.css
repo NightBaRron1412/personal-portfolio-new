@@ -19,7 +19,7 @@
 
   --text-primary: #e8eaed;
   --text-secondary: #99a0aa;
-  --text-faint: #636a74;
+  --text-faint: #878f9c;
   --text-on-accent: #04211d;
 
   --border-subtle: rgba(255, 255, 255, 0.09);
@@ -58,13 +58,13 @@
 
   --text-primary: #0f1419;
   --text-secondary: #545b64;
-  --text-faint: #828b95;
+  --text-faint: #636a73;
   --text-on-accent: #ffffff;
 
   --border-subtle: rgba(15, 20, 25, 0.10);
   --border-strong: rgba(15, 20, 25, 0.18);
 
-  --accent: #0d9488;
+  --accent: #0b857a;
   --accent-2: #7c3aed;
   --accent-soft: rgba(13, 148, 136, 0.10);
   --accent-glow: rgba(13, 148, 136, 0.18);
@@ -439,6 +439,13 @@ textarea {
   p {
     @apply leading-relaxed;
   }
+}
+
+/* Accessible focus indicator — global fallback. :where() keeps specificity 0,
+   so components with their own focus-visible ring still win (no double ring). */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Ken Burns slow zoom (About portrait) */

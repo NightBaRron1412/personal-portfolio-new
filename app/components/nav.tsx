@@ -53,7 +53,10 @@ export function Nav() {
           : "border-b border-transparent"
       )}
     >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <nav
+        aria-label="Primary"
+        className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
+      >
         {/* Brand */}
         <button
           onClick={() => go("home")}
