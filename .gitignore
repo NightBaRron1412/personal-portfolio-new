@@ -17,3 +17,8 @@ devserver.log
 certificates
 .vercel
 .env*.local
+
+# test artifacts
+test-results
+playwright-report
+.playwright/.cache

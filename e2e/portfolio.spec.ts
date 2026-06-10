@@ -75,8 +75,30 @@ test.describe("Portfolio", () => {
         !e.includes("Failed to load resource") &&
         !e.includes("favicon") &&
         !e.includes("spotify") &&
-        !e.includes("github")
+        !e.includes("github") &&
+        // Vercel Analytics/Speed-Insights scripts only exist on Vercel; they
+        // 404 / fail MIME locally but are fine once deployed.
+        !e.includes("_vercel") &&
+        !e.includes("insights")
     );
     expect(critical).toHaveLength(0);
+  });
+
+  test("project cards link to their GitHub repositories", async ({ page }) => {
+    await page.locator("#work").scrollIntoViewIfNeeded();
+    await expect(page.getByRole("link", { name: "Repository" }).first()).toBeVisible();
+  });
+
+  test("skip-to-content is the first focusable element", async ({ page }) => {
+    await page.keyboard.press("Tab");
+    const focused = await page.evaluate(() => document.activeElement?.textContent ?? "");
+    expect(focused).toMatch(/skip to content/i);
+  });
+
+  test("unknown routes render the 404 page", async ({ page }) => {
+    await page.goto("/this-route-does-not-exist");
+    await expect(page.getByText("404").first()).toBeVisible();
+    await expect(page.getByText(/signal lost/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /back to home/i })).toBeVisible();
   });
 });

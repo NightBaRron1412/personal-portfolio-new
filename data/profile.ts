@@ -1,7 +1,7 @@
 // Place your portrait at: public/images/portrait.webp (or portrait.jpg)
 export const profile = {
   name: "Amir Shetaia",
-  title: "Software Engineer | Systems, HPC, and ML",
+  title: "Senior Software Engineer | Systems, HPC, and ML",
   location: "Ontario, Canada",
   headline: "Senior Software Engineer at AMD | MASc. in Electrical & Computer Engineering",
   portrait: "/images/portrait.webp", // Fallback to initials if not present
@@ -17,7 +17,7 @@ export const profile = {
   resumeUrl: "/Amir-Shetaia-Resume.pdf",
   hero: {
     name: "Amir Shetaia",
-    subtitle: "Software Engineer | Systems, HPC, and ML",
+    subtitle: "Senior Software Engineer | Systems, HPC, and ML",
     bio: "Developing GPU drivers for ML and data center workloads at AMD on the ROCm platform. Background in HPC optimization, formal methods, and verification systems.",
     commands: [
       "GPU drivers @ AMD ROCm",
@@ -343,7 +343,7 @@ export const profile = {
       description: "Hybrid log parsing system combining DeepSeek-R1:8B and Drain algorithm achieving 97.6% accuracy across 16 datasets.",
       tech: ["LLMs", "DeepSeek-R1", "NLP", "Python", "Log Parsing"],
       outcomes: "97.6% accuracy across 16 datasets, improved anomaly detection and debugging pipelines through LLM-driven template generation.",
-      repo: "",
+      repo: "https://github.com/NightBaRron1412/DeepParse",
       demo: "",
       featured: true,
       images: ["/images/projects/deepparse-1.svg", "/images/projects/deepparse-2.svg"],
@@ -359,7 +359,7 @@ export const profile = {
       description: "Raspberry Pi 4 based real-time diagnostics platform combining OBD-II telemetry, MQTT messaging, YOLO object detection, and ML for driver assistance.",
       tech: ["Raspberry Pi", "OBD-II", "MQTT", "YOLO", "TensorFlow", "MobileNet"],
       outcomes: "Real-time lane departure warnings, collision avoidance alerts, live telemetry monitoring, and OTA update framework for software-defined vehicle platform.",
-      repo: "",
+      repo: "https://github.com/NightBaRron1412/VehiPlus",
       demo: "",
       featured: true,
       images: ["/images/projects/vehicleplus-1.svg", "/images/projects/vehicleplus-2.svg"],
