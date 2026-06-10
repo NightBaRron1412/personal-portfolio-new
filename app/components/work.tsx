@@ -5,6 +5,7 @@ import { profile } from "@/data/profile";
 import { Reveal } from "./reveal";
 import { CountUp } from "./count-up";
 import { PanelLabel } from "./panel-label";
+import { Sweep } from "./sweep";
 import { TiltSpotlight } from "./tilt-spotlight";
 import { BorderBeam } from "@/components/ui/border-beam";
 
@@ -110,7 +111,8 @@ export function Work() {
                           />
                         )}
                       </div>
-                      <div className="eyebrow mt-1 leading-tight">{m.label}</div>
+                      <Sweep className="mt-2 w-8" />
+                      <div className="eyebrow mt-1.5 leading-tight">{m.label}</div>
                     </div>
                   ))}
                 </div>

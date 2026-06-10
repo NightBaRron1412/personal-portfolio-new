@@ -8,6 +8,7 @@ import { Clock } from "./clock";
 import { PanelLabel } from "./panel-label";
 import { Magnetic } from "./magnetic";
 import { Typewriter } from "./typewriter";
+import { DecoderText } from "./decoder-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { ShinyButton } from "@/components/ui/shiny-button";
 
@@ -59,7 +60,9 @@ export function Hero() {
           </motion.p>
 
           <motion.div variants={item}>
-            <h1 className="mt-5 text-gradient">Amir Shetaia</h1>
+            <h1 className="mt-5 text-gradient">
+              <DecoderText text="Amir Shetaia" />
+            </h1>
             <span
               aria-hidden
               className="underline-grow mt-4 block h-1 w-24 rounded-full"

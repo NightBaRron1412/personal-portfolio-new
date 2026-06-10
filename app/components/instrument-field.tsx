@@ -45,6 +45,8 @@ export function InstrumentField({ className }: { className?: string }) {
     let nodes: Node[] = [];
     let w = 0;
     let h = 0;
+    let scrollBoost = 0; // links brighten with scroll velocity, then decay
+    let lastScrollY = window.scrollY;
 
     const build = () => {
       w = window.innerWidth;
@@ -95,6 +97,7 @@ export function InstrumentField({ className }: { className?: string }) {
 
     const drawFrame = (time: number) => {
       ctx.clearRect(0, 0, w, h);
+      scrollBoost *= 0.9; // decay the scroll-velocity glow each frame
 
       // update positions (gentle drift)
       for (const n of nodes) {
@@ -127,7 +130,8 @@ export function InstrumentField({ className }: { className?: string }) {
           const d2 = dx * dx + dy * dy;
           if (d2 < LINK * LINK) {
             const d = Math.sqrt(d2);
-            ctx.strokeStyle = `rgba(${teal},${(1 - d / LINK) * linkA})`;
+            const alpha = Math.min(0.6, (1 - d / LINK) * linkA * (1 + scrollBoost * 2));
+            ctx.strokeStyle = `rgba(${teal},${alpha})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
@@ -208,7 +212,13 @@ export function InstrumentField({ className }: { className?: string }) {
     };
 
     const onResize = () => build();
+    const onScroll = () => {
+      const yy = window.scrollY;
+      scrollBoost = Math.min(1.5, scrollBoost + Math.abs(yy - lastScrollY) * 0.012);
+      lastScrollY = yy;
+    };
     window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerleave", onLeave);
     window.addEventListener("blur", onLeave);
@@ -220,6 +230,7 @@ export function InstrumentField({ className }: { className?: string }) {
     return () => {
       stop();
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("blur", onLeave);

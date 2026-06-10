@@ -14,9 +14,9 @@ import { Testimonials } from "./components/testimonials";
 import { Contact } from "./components/contact";
 import { Footer } from "./components/footer";
 import { SpotifyWidget } from "./components/spotify-widget";
-import { CursorGlow } from "./components/cursor-glow";
+import { CrosshairCursor } from "./components/crosshair-cursor";
 import { InstrumentField } from "./components/instrument-field";
-import { ShaderBackground } from "@/components/ui/shader-background";
+import { HeroBackdrop } from "./components/hero-backdrop";
 
 export default function HomePage() {
   return (
@@ -28,25 +28,11 @@ export default function HomePage() {
       >
         Skip to content
       </a>
-      {/* animated shader (21st.dev): full-width top band, masked so it dissolves
-          into the page (no hard edge), with a left scrim for hero legibility */}
-      <div
-        aria-hidden
-        className="hero-shader absolute inset-x-0 top-0 z-0 h-[115vh] overflow-hidden"
-        style={{
-          WebkitMaskImage: "linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%)",
-          maskImage: "linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%)",
-        }}
-      >
-        <ShaderBackground className="h-full w-full opacity-50" />
-        {/* darken the left (text) side, keep the shader vivid on the right */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-bg-main via-bg-main/85 to-transparent" />
-        {/* gentle overall floor for small/secondary text */}
-        <div className="pointer-events-none absolute inset-0 bg-bg-main/25" />
-      </div>
+      {/* animated plasma shader band with scroll parallax */}
+      <HeroBackdrop />
       <div className="aurora" aria-hidden />
       <InstrumentField />
-      <CursorGlow />
+      <CrosshairCursor />
       <ScrollProgress />
       <Nav />
       <main id="content" className="relative z-10">

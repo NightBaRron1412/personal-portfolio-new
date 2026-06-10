@@ -8,6 +8,7 @@ import { ActivityCalendar, type ThemeInput } from "react-activity-calendar";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import { CountUp } from "./count-up";
 import { PanelLabel } from "./panel-label";
+import { Sweep } from "./sweep";
 
 type HeatDay = { date: string; count: number; level: number };
 type Commit = { sha: string; message: string; repo: string; date: string };
@@ -171,7 +172,8 @@ export function GitHubPanel() {
                   <div className="text-gradient font-display text-2xl font-semibold">
                     <CountUp value={s.value} />
                   </div>
-                  <div className="eyebrow mt-1 leading-tight">{s.label}</div>
+                  <Sweep className="mt-2 w-8" />
+                  <div className="eyebrow mt-1.5 leading-tight">{s.label}</div>
                 </div>
               ))}
             </div>

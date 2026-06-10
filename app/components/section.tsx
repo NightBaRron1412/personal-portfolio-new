@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./reveal";
+import { DecoderText } from "./decoder-text";
 
 type SectionProps = {
   id: string;
@@ -29,7 +30,9 @@ export function Section({ id, index, title, meta, lead, children, className }: S
             <span aria-hidden className="h-2 w-2 rounded-[1px] bg-accent" />
             <span className="eyebrow num text-accent">{index}</span>
           </span>
-          <h2 className="shrink-0 text-gradient">{title}</h2>
+          <h2 className="shrink-0 text-gradient">
+            <DecoderText text={title} />
+          </h2>
           <span aria-hidden className="h-px flex-1 gradient-rule opacity-40" />
           {meta ? (
             <span className="eyebrow hidden shrink-0 sm:inline">{meta}</span>

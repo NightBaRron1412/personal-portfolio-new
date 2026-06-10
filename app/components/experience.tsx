@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import { motion, useScroll } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { profile } from "@/data/profile";
 import { cn } from "@/lib/utils";
@@ -15,6 +17,11 @@ import { Reveal } from "./reveal";
 const ARC = ["Robotics", "Embedded", "Cloud", "HPC · Research", "GPU Drivers"];
 
 export function Experience() {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: panelRef,
+    offset: ["start 85%", "end 55%"],
+  });
   return (
     <div className="space-y-6">
       {/* journey arc */}
@@ -46,7 +53,13 @@ export function Experience() {
 
       {/* timeline */}
       <Reveal delay={80}>
-        <div className="panel overflow-hidden">
+        <div ref={panelRef} className="panel overflow-hidden">
+          {/* scroll-fill spine — fills with the gradient as you move through the timeline */}
+          <motion.span
+            aria-hidden
+            className="absolute left-[23px] top-0 z-10 h-full w-px origin-top sm:left-[27px]"
+            style={{ scaleY: scrollYProgress, background: "var(--gradient)" }}
+          />
           <Accordion type="single" collapsible defaultValue="exp-0" className="w-full">
             {profile.experience.map((job, i) => {
               const isLast = i === profile.experience.length - 1;
