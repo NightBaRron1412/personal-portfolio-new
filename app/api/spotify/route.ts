@@ -67,16 +67,20 @@ async function fetchFromSpotify(): Promise<Track | null> {
   }
   if (now.status === 200) {
     const data = await now.json();
-    if (data?.is_playing && data?.currently_playing_type === "track" && data.item) {
+    // Use the active track whether it's PLAYING or PAUSED. When paused, Spotify
+    // still reports it here, but the recently-played endpoint below points at the
+    // *previous* track — which made "last played" show the wrong song.
+    if (data?.item && data.item.type === "track") {
+      const playing = !!data.is_playing;
       return {
-        isPlaying: true,
+        isPlaying: playing,
         title: data.item.name,
         artist: data.item.artists.map((a: { name: string }) => a.name).join(", "),
         album: data.item.album.name,
         albumArt: data.item.album.images?.[0]?.url,
         songUrl: data.item.external_urls.spotify,
-        progress: data.progress_ms,
-        duration: data.item.duration_ms,
+        progress: playing ? data.progress_ms : undefined,
+        duration: playing ? data.item.duration_ms : undefined,
       };
     }
   }
