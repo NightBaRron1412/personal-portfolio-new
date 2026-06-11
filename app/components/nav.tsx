@@ -6,6 +6,7 @@ import { cn, scrollToId } from "@/lib/utils";
 import { profile } from "@/data/profile";
 import { NAV_LINKS } from "./nav-data";
 import { ThemeToggle } from "./theme-toggle";
+import { MotionToggle } from "./motion-toggle";
 import { BrandMark } from "./brand-mark";
 
 export function Nav() {
@@ -96,6 +97,7 @@ export function Nav() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          <MotionToggle />
           <ThemeToggle />
           <a
             href={profile.resumeUrl}
