@@ -9,9 +9,12 @@ const sharp = require(
 
 // Brand gradient (matches --gradient: teal -> violet -> pink). Glossy app-icon
 // treatment: radial highlight + top sheen + inner stroke, white centered "AS".
-const TEAL = "#2dd4bf";
-const VIOLET = "#a78bfa";
-const PINK = "#f0abfc";
+// Default/raster favicon uses the DEEP (light-mode) gradient — richer on a tab
+// than the washed-out vivid one. The SVG favicon's @media dark override (see
+// themedSvg) uses a slightly lighter MID gradient.
+const TEAL = "#0b857a";
+const VIOLET = "#7c3aed";
+const PINK = "#c026d3";
 
 function svg({ rounded }) {
   const rx = rounded ? 120 : 0;
@@ -52,7 +55,7 @@ function themedSvg() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <style>
     .g0{stop-color:${TEAL}}.g1{stop-color:${VIOLET}}.g2{stop-color:${PINK}}
-    @media (prefers-color-scheme: light){.g0{stop-color:#0b857a}.g1{stop-color:#7c3aed}.g2{stop-color:#c026d3}}
+    @media (prefers-color-scheme: dark){.g0{stop-color:#16a394}.g1{stop-color:#8b5cf6}.g2{stop-color:#d472dd}}
   </style>
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
