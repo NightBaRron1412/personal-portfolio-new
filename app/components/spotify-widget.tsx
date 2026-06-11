@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Music } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type SpotifyData = {
   isPlaying: boolean;
@@ -15,12 +16,17 @@ type SpotifyData = {
   duration?: number;
 };
 
-/** Compact floating now-playing widget pinned to the bottom-left. */
+/** Compact floating now-playing widget pinned to the bottom-left. Fixed width
+ *  so it doesn't jump as songs change; the title scrolls when it overflows. */
 export function SpotifyWidget() {
   const [data, setData] = useState<SpotifyData | null>(null);
   const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  // title overflow → marquee
+  const titleRef = useRef<HTMLParagraphElement>(null);
+  const [shift, setShift] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -55,6 +61,17 @@ export function SpotifyWidget() {
     return () => clearInterval(id);
   }, [data?.isPlaying, duration]);
 
+  // measure title overflow whenever the track changes → drive the marquee
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    const raf = requestAnimationFrame(() => {
+      const overflow = el.scrollWidth - el.clientWidth;
+      setShift(overflow > 4 ? -(overflow + 8) : 0);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [data?.title]);
+
   if (!data) return null;
   const pct = duration ? Math.min(100, (progress / duration) * 100) : 0;
 
@@ -62,7 +79,7 @@ export function SpotifyWidget() {
     <div
       role="complementary"
       aria-label="Now playing on Spotify"
-      className="spotify-widget fixed bottom-4 left-4 z-40 max-w-[220px]"
+      className="spotify-widget fixed bottom-4 left-4 z-40 w-[230px]"
       style={{ transform: ready ? "translateY(0)" : "translateY(160%)", opacity: ready ? 1 : 0 }}
     >
       <a
@@ -99,9 +116,18 @@ export function SpotifyWidget() {
               {data.isPlaying ? "playing" : "last played"}
             </span>
           </div>
-          <p className="truncate text-xs font-semibold text-text-primary transition-colors group-hover:text-accent">
-            {data.title}
-          </p>
+          <div className="overflow-hidden">
+            <p
+              ref={titleRef}
+              className={cn(
+                "whitespace-nowrap text-xs font-semibold text-text-primary transition-colors group-hover:text-accent",
+                shift < 0 && "spotify-title-scroll"
+              )}
+              style={shift < 0 ? ({ "--mq-shift": `${shift}px` } as React.CSSProperties) : undefined}
+            >
+              {data.title}
+            </p>
+          </div>
           <p className="truncate text-[10px] text-text-secondary">{data.artist}</p>
           {data.isPlaying ? (
             <div className="mt-1.5 h-[2px] w-full overflow-hidden rounded-full bg-bg-elevated">

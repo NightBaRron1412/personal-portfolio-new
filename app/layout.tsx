@@ -91,6 +91,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="font-sans antialiased text-[15px] sm:text-base" suppressHydrationWarning data-darkreader-skip>
         <Providers>{children}</Providers>
+        <div className="grain" aria-hidden />
         <StructuredData />
         {isAnalyticsEnabled ? <Analytics /> : null}
         {isSpeedInsightsEnabled ? <SpeedInsights /> : null}

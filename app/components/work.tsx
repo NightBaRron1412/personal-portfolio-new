@@ -36,27 +36,39 @@ const METRICS: Record<string, Metric[]> = {
   ],
 };
 
+// Per-project accent so the cards read as distinct (teal · violet · fuchsia).
+const PROJECT_ACCENTS = ["var(--accent)", "var(--accent-2)", "#d946ef"];
+
 export function Work() {
   return (
     <div className="space-y-5">
       {profile.projects.map((project, i) => {
         const metrics = METRICS[project.title] ?? [];
+        const color = PROJECT_ACCENTS[i % PROJECT_ACCENTS.length];
         return (
           <Reveal key={project.title} delay={i * 80}>
             <TiltSpotlight className="panel ticks p-6 sm:p-8">
+              {/* per-project accent glow — gives each card its own identity */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute right-5 top-5 h-24 w-24 rounded-full opacity-[0.12] blur-2xl"
+                style={{ background: color }}
+              />
               <BorderBeam duration={8} delay={i * 4} size={70} />
               <BorderBeam duration={8} delay={i * 4 + 4} size={70} reverse />
               {/* header */}
-              <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="relative flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-3">
-                    <span className="eyebrow text-accent">P-{String(i + 1).padStart(2, "0")}</span>
+                    <span className="eyebrow" style={{ color }}>
+                      P-{String(i + 1).padStart(2, "0")}
+                    </span>
                     <span
                       className="mono rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider"
                       style={{
-                        borderColor: "var(--accent-2)",
-                        background: "var(--accent-2-soft)",
-                        color: "var(--accent-2)",
+                        borderColor: color,
+                        background: `color-mix(in srgb, ${color} 14%, transparent)`,
+                        color,
                       }}
                     >
                       featured
