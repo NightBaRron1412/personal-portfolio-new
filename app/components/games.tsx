@@ -84,7 +84,7 @@ export function Games() {
       {/* player HUD */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-border-subtle bg-surface px-4 py-3">
         <span className="mono inline-flex items-center gap-2 text-xs font-medium text-accent">
-          <Gamepad2 className="h-4 w-4" /> PLAYER · AMIR
+          <Gamepad2 className="h-4 w-4" /> PLAYER · NightBaRron1412
         </span>
         <HudStat label="library" value={`${GAMES.length} titles`} />
         <HudStat label="genre" value="story-driven AAA" />
@@ -93,7 +93,7 @@ export function Games() {
       </div>
 
       {/* shelf */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
         {GAMES.map((g, i) => {
           const m = meta[g.slug] ?? ({} as Meta);
           const playing = /playing/i.test(g.status ?? "");
@@ -141,23 +141,23 @@ export function Games() {
                 </div>
 
                 {/* hover detail */}
-                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/75 to-black/25 p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <h3 className="text-xs font-semibold leading-tight text-white">{g.title}</h3>
-                  <p className="mt-1.5 text-[11px] leading-snug text-white/85">{g.note}</p>
-                  <div className="mt-2 flex flex-wrap gap-1">
+                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/80 to-black/20 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <h3 className="text-sm font-semibold leading-tight text-white">{g.title}</h3>
+                  {detail ? <div className="mono mt-1 text-[11px] text-accent">{detail}</div> : null}
+                  <p className="mt-2 text-[13px] leading-relaxed text-white/90">{g.note}</p>
+                  <div className="mt-3 flex flex-wrap gap-1">
                     {g.platforms.map((p) => (
                       <span
                         key={p}
-                        className="mono rounded border border-white/20 px-1 py-0.5 text-[8px] text-white/80"
+                        className="mono rounded border border-white/25 px-1.5 py-0.5 text-[9px] text-white/85"
                       >
                         {p}
                       </span>
                     ))}
                   </div>
-                  {detail ? <div className="mono mt-2 text-[10px] text-accent">{detail}</div> : null}
                   {m.url ? (
-                    <span className="mono mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-white">
-                      ▶ STORE <ArrowUpRight className="h-3 w-3" />
+                    <span className="mono mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-accent">
+                      ▶ VIEW ON STEAM <ArrowUpRight className="h-3 w-3" />
                     </span>
                   ) : null}
                 </div>

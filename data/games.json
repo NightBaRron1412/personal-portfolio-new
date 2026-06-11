@@ -1,11 +1,19 @@
 [
   {
+    "title": "The Witcher 3: Wild Hunt",
+    "slug": "witcher3",
+    "query": "The Witcher 3",
+    "platforms": ["PC", "PS", "Xbox", "Switch"],
+    "note": "The RPG yardstick — even the side quests are full-blown stories. My all-time favorite.",
+    "status": "all-time fave"
+  },
+  {
     "title": "God of War Ragnarök",
     "slug": "gow-ragnarok",
     "query": "God of War Ragnarok",
     "platforms": ["PS5", "PC"],
     "note": "Norse myth, brutal and tender — a father-and-son saga with the best-feeling combat I've played.",
-    "status": "all-time fave"
+    "status": "favorite"
   },
   {
     "title": "The Last of Us Part II",
@@ -24,25 +32,36 @@
     "status": "favorite"
   },
   {
-    "title": "The Witcher 3: Wild Hunt",
-    "slug": "witcher3",
-    "query": "The Witcher 3",
-    "platforms": ["PC", "PS", "Xbox", "Switch"],
-    "note": "The RPG yardstick — even the side quests are full-blown stories.",
-    "status": "100%'d"
-  },
-  {
     "title": "Pragmata",
     "slug": "pragmata",
     "query": "Pragmata",
+    "poster": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Pragmata_cover.jpg",
     "platforms": ["PS5", "Xbox", "PC"],
     "note": "Capcom's lunar sci-fi mystery — and it absolutely delivered.",
     "status": "currently playing"
   },
   {
+    "title": "Battlefield 6",
+    "slug": "bf6",
+    "query": "Battlefield 6",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/8/87/Battlefield_6_cover_art.jpg",
+    "platforms": ["PC", "PS5", "Xbox"],
+    "note": "All-out warfare, back to its loud, chaotic best.",
+    "status": "in rotation"
+  },
+  {
+    "title": "Rainbow Six Siege",
+    "slug": "r6",
+    "query": "Rainbow Six Siege",
+    "platforms": ["PC", "PS5", "Xbox"],
+    "note": "The squad-based tac-shooter I keep coming back to.",
+    "status": "FPS go-to"
+  },
+  {
     "title": "EA SPORTS FC 26",
     "slug": "fc26",
     "query": "EA SPORTS FC 26",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/f/f2/EA_FC_26_Cover.jpg",
     "platforms": ["PS5", "PC", "Xbox"],
     "note": "The daily fix — Ultimate Team and Weekend League grind.",
     "status": "in rotation"

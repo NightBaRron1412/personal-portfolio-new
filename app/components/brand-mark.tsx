@@ -9,10 +9,11 @@ export function BrandMark({ className }: { className?: string }) {
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="brandmark-grad" x1="0" y1="0" x2="1" y2="1">
-          {/* CSS vars → the mark re-tints with the in-app light/dark toggle */}
-          <stop offset="0" stopColor="var(--accent)" />
-          <stop offset="0.52" stopColor="var(--accent-2)" />
-          <stop offset="1" stopColor="var(--accent-3)" />
+          {/* Fixed deep gradient matching the favicon (the var-driven one read
+              washed-out/too light in dark mode). */}
+          <stop offset="0" stopColor="#0b857a" />
+          <stop offset="0.52" stopColor="#7c3aed" />
+          <stop offset="1" stopColor="#c026d3" />
         </linearGradient>
         <radialGradient id="brandmark-hl" cx="0.3" cy="0.24" r="0.9">
           <stop offset="0" stopColor="#ffffff" stopOpacity="0.3" />

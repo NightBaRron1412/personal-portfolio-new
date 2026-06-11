@@ -59,9 +59,12 @@ async function save(url, slug) {
   return false;
 }
 
-// Prefer the portrait library capsule; fall back to the (landscape) header for
-// newer apps whose portrait art isn't on the unauthenticated CDN.
-async function downloadCover(appid, slug, headerUrl) {
+// Cover priority: explicit `poster` override (a real vertical box-art URL) →
+// Steam portrait library capsule → (landscape) Steam header as a last resort.
+async function downloadCover(appid, slug, headerUrl, posterUrl) {
+  if (posterUrl && (await save(posterUrl, slug))) {
+    return { cover: `/images/games/${slug}.jpg`, wide: false };
+  }
   const portrait = [
     `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/library_600x900_2x.jpg`,
     `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/library_600x900.jpg`,
@@ -81,10 +84,8 @@ for (const g of games) {
   let info = {};
   let cover = null;
   let wide = false;
-  if (appid) {
-    info = await details(appid);
-    ({ cover, wide } = await downloadCover(appid, g.slug, info.header));
-  }
+  if (appid) info = await details(appid);
+  ({ cover, wide } = await downloadCover(appid, g.slug, info.header, g.poster));
   meta[g.slug] = {
     appid: appid || null,
     cover,

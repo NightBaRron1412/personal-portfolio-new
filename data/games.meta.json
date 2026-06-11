@@ -1,4 +1,14 @@
 {
+  "witcher3": {
+    "appid": "292030",
+    "cover": "/images/games/witcher3.jpg",
+    "wide": false,
+    "year": "2015",
+    "genres": [
+      "RPG"
+    ],
+    "url": "https://store.steampowered.com/app/292030"
+  },
   "gow-ragnarok": {
     "appid": "2322010",
     "cover": "/images/games/gow-ragnarok.jpg",
@@ -32,20 +42,10 @@
     ],
     "url": "https://store.steampowered.com/app/1222140"
   },
-  "witcher3": {
-    "appid": "292030",
-    "cover": "/images/games/witcher3.jpg",
-    "wide": false,
-    "year": "2015",
-    "genres": [
-      "RPG"
-    ],
-    "url": "https://store.steampowered.com/app/292030"
-  },
   "pragmata": {
     "appid": "3357650",
     "cover": "/images/games/pragmata.jpg",
-    "wide": true,
+    "wide": false,
     "year": "2026",
     "genres": [
       "Action",
@@ -53,10 +53,31 @@
     ],
     "url": "https://store.steampowered.com/app/3357650"
   },
+  "bf6": {
+    "appid": "2807960",
+    "cover": "/images/games/bf6.jpg",
+    "wide": false,
+    "year": "2025",
+    "genres": [
+      "Action"
+    ],
+    "url": "https://store.steampowered.com/app/2807960"
+  },
+  "r6": {
+    "appid": "359550",
+    "cover": "/images/games/r6.jpg",
+    "wide": false,
+    "year": "2015",
+    "genres": [
+      "Action",
+      "Free To Play"
+    ],
+    "url": "https://store.steampowered.com/app/359550"
+  },
   "fc26": {
     "appid": "3405690",
     "cover": "/images/games/fc26.jpg",
-    "wide": true,
+    "wide": false,
     "year": "2025",
     "genres": [
       "Simulation",
