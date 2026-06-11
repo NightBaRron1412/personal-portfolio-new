@@ -31,6 +31,7 @@ export function MusicPlayer({ className }: { className?: string }) {
     audio.addEventListener("pause", sync);
 
     const onGesture = () => audio.play().catch(() => {});
+    const onArcade = () => audio.play().catch(() => {}); // Konami easter egg starts it
     const opts = { once: true } as AddEventListenerOptions;
     let cancelled = false;
 
@@ -45,6 +46,7 @@ export function MusicPlayer({ className }: { className?: string }) {
           return;
         }
         audio.src = SRC; // set only once the file is confirmed (avoids a 404)
+        window.addEventListener("arcade-music", onArcade);
         if (localStorage.getItem(LS_KEY) === "false") return;
         audio.play().catch(() => {});
         window.addEventListener("pointerdown", onGesture, opts);
@@ -62,6 +64,7 @@ export function MusicPlayer({ className }: { className?: string }) {
       window.removeEventListener("pointerdown", onGesture);
       window.removeEventListener("keydown", onGesture);
       window.removeEventListener("scroll", onGesture);
+      window.removeEventListener("arcade-music", onArcade);
     };
   }, []);
 

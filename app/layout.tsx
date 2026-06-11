@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { isAnalyticsEnabled, isSpeedInsightsEnabled } from "@/lib/analytics";
 import { Providers } from "./providers";
 import { StructuredData } from "./components/structured-data";
+import { ArcadeMode } from "./components/arcade-mode";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -92,6 +93,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="font-sans antialiased text-[15px] sm:text-base" suppressHydrationWarning data-darkreader-skip>
         <Providers>{children}</Providers>
         <div className="grain" aria-hidden />
+        <div className="crt" aria-hidden />
+        <ArcadeMode />
         <StructuredData />
         {isAnalyticsEnabled ? <Analytics /> : null}
         {isSpeedInsightsEnabled ? <SpeedInsights /> : null}
