@@ -12,7 +12,9 @@ const sharp = require(
 const TEAL = "#2dd4bf";
 const VIOLET = "#a78bfa";
 const PINK = "#f472b6";
-const INK = "#0b0f17";
+// White monogram with a soft dark shadow so it stays legible over the bright
+// (teal) corner of the gradient.
+const INK = "#ffffff";
 
 function svg({ rounded }) {
   const rx = rounded ? 112 : 0;
@@ -27,10 +29,13 @@ function svg({ rounded }) {
       <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
       <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
+    <filter id="ts" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0b0f17" flood-opacity="0.4"/>
+    </filter>
   </defs>
   <rect width="512" height="512" rx="${rx}" fill="url(#g)"/>
   <rect width="512" height="512" rx="${rx}" fill="url(#sheen)"/>
-  <text x="256" y="258" font-family="'DejaVu Sans','Liberation Sans',Arial,sans-serif" font-size="300" font-weight="bold" fill="${INK}" text-anchor="middle" dominant-baseline="central">AS</text>
+  <text x="256" y="258" font-family="'DejaVu Sans','Liberation Sans',Arial,sans-serif" font-size="300" font-weight="bold" fill="${INK}" filter="url(#ts)" text-anchor="middle" dominant-baseline="central">AS</text>
 </svg>`;
 }
 

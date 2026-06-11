@@ -1,7 +1,19 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { ArrowDown, ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUpRight,
+  Github,
+  Linkedin,
+  Mail,
+  Briefcase,
+  Layers,
+  Crosshair,
+  MapPin,
+  Clock as ClockIcon,
+  type LucideIcon,
+} from "lucide-react";
 import { profile } from "@/data/profile";
 import { scrollToId } from "@/lib/utils";
 import { Clock } from "./clock";
@@ -20,12 +32,12 @@ const TYPED = [
   "happiest one layer below the surface",
 ];
 
-const STATUS_ROWS: { label: string; value: React.ReactNode }[] = [
-  { label: "ROLE", value: "Sr. Software Engineer · AMD" },
-  { label: "STACK", value: "ROCm · Linux kernel · C/C++" },
-  { label: "FOCUS", value: "Systems · HPC · ML · formal methods" },
-  { label: "LOCATION", value: profile.location },
-  { label: "LOCAL", value: <Clock /> },
+const STATUS_ROWS: { label: string; icon: LucideIcon; value: React.ReactNode }[] = [
+  { label: "ROLE", icon: Briefcase, value: "Sr. Software Engineer · AMD" },
+  { label: "STACK", icon: Layers, value: "ROCm · Linux kernel · C/C++" },
+  { label: "FOCUS", icon: Crosshair, value: "Systems · HPC · ML · formal methods" },
+  { label: "LOCATION", icon: MapPin, value: profile.location },
+  { label: "LOCAL", icon: ClockIcon, value: <Clock /> },
 ];
 
 const container: Variants = {
@@ -142,22 +154,35 @@ export function Hero() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         >
           <div className="panel ticks p-5 sm:p-6">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <PanelLabel>status</PanelLabel>
               <span className="mono inline-flex items-center gap-1.5 text-xs text-accent">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                <span className="pulse-dot relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
                 online
               </span>
             </div>
-            <dl className="divide-y divide-border-subtle">
-              {STATUS_ROWS.map((row) => (
-                <div key={row.label} className="flex items-baseline justify-between gap-4 py-2.5">
-                  <dt className="eyebrow shrink-0">{row.label}</dt>
-                  <dd className="num text-right text-xs text-text-primary sm:text-[13px]">
-                    {row.value}
-                  </dd>
-                </div>
-              ))}
+            <div className="gradient-rule mt-3 h-px w-full opacity-70" aria-hidden />
+            <dl className="mt-1.5 divide-y divide-border-subtle">
+              {STATUS_ROWS.map((row, i) => {
+                const Icon = row.icon;
+                return (
+                  <motion.div
+                    key={row.label}
+                    initial={{ opacity: 0, x: 8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.35 + i * 0.07, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="group/row -mx-2 flex items-center justify-between gap-4 rounded-md px-2 py-2.5 transition-colors hover:bg-surface/60"
+                  >
+                    <dt className="eyebrow flex shrink-0 items-center gap-2">
+                      <Icon className="h-3.5 w-3.5 text-text-faint transition-colors group-hover/row:text-accent" />
+                      {row.label}
+                    </dt>
+                    <dd className="num text-right text-xs text-text-primary transition-colors group-hover/row:text-accent sm:text-[13px]">
+                      {row.value}
+                    </dd>
+                  </motion.div>
+                );
+              })}
             </dl>
             <div className="mt-4 rounded-lg border border-border-subtle bg-surface p-3">
               <PanelLabel className="mb-1.5">now</PanelLabel>
