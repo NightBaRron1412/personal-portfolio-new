@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next/types";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.SITE_URL || "http://localhost:3000";
+  const baseUrl = process.env.SITE_URL || "https://amirshetaia.com";
   return [
     {
       url: baseUrl,

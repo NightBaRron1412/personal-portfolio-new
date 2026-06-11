@@ -76,8 +76,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Amir Shetaia | Senior Software Engineer @ AMD",
     description: "GPU drivers for ML & data center workloads on ROCm. HPC, formal methods, verification.",
-    images: ["/og-image.png"],
-    creator: "@amirsh_dev"
+    images: ["/og-image.png"]
   }
 };
 

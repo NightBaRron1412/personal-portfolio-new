@@ -67,6 +67,7 @@ export function Contact() {
   const links = [
     { icon: Mail, label: email, href: `mailto:${email}` },
     { icon: Github, label: "github.com/NightBaRron1412", href: profile.social.github },
+    { icon: Github, label: "github.com/ashetaia-amd · AMD", href: profile.social.githubAmd },
     { icon: Linkedin, label: "linkedin.com/in/ashetaia", href: profile.social.linkedin },
   ];
 

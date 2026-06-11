@@ -23,7 +23,7 @@ function HudStat({ label, value, accent }: { label: string; value: string; accen
   return (
     <span className="mono text-[11px]">
       <span className="uppercase tracking-wide text-text-faint">{label} </span>
-      <span className={accent ? "text-accent" : "text-text-primary"}>{value}</span>
+      <span className={accent ? "font-semibold text-text-primary" : "text-text-primary"}>{value}</span>
     </span>
   );
 }
@@ -83,8 +83,8 @@ export function Games() {
     <div className="space-y-5">
       {/* player HUD */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-border-subtle bg-surface px-4 py-3">
-        <span className="mono inline-flex items-center gap-2 text-xs font-medium text-accent">
-          <Gamepad2 className="h-4 w-4" /> PLAYER · NightBaRron1412
+        <span className="mono inline-flex items-center gap-2 text-xs font-medium text-text-primary">
+          <Gamepad2 className="h-4 w-4 text-accent" /> PLAYER · NightBaRron1412
         </span>
         <HudStat label="library" value={`${GAMES.length} titles`} />
         <HudStat label="genre" value="story-driven AAA" />

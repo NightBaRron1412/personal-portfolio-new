@@ -11,6 +11,7 @@ export const profile = {
   bio: `Senior Software Engineer at AMD developing GPU drivers for the ROCm platform. Specializing in HPC systems, embedded systems architecture, and performance optimization. Experienced with OpenMP, performance profiling, and real-time systems. Research background in formal methods, verification & validation, and applications of LLMs in system design.`,
   social: {
     github: "https://github.com/NightBaRron1412",
+    githubAmd: "https://github.com/ashetaia-amd",
     linkedin: "https://www.linkedin.com/in/ashetaia/",
     email: "mailto:ashetaia01@gmail.com"
   },
