@@ -49,9 +49,10 @@ export function MusicPlayer({ className }: { className?: string }) {
         window.addEventListener("arcade-music", onArcade);
         if (localStorage.getItem(LS_KEY) === "false") return;
         audio.play().catch(() => {});
+        // Only real activation gestures can start audio — a scroll/wheel does
+        // NOT count under the browser autoplay policy, so we don't listen for it.
         window.addEventListener("pointerdown", onGesture, opts);
         window.addEventListener("keydown", onGesture, opts);
-        window.addEventListener("scroll", onGesture, { ...opts, passive: true });
       })
       .catch(() => {
         if (!cancelled) setAvailable(false);
@@ -63,7 +64,6 @@ export function MusicPlayer({ className }: { className?: string }) {
       audio.removeEventListener("pause", sync);
       window.removeEventListener("pointerdown", onGesture);
       window.removeEventListener("keydown", onGesture);
-      window.removeEventListener("scroll", onGesture);
       window.removeEventListener("arcade-music", onArcade);
     };
   }, []);

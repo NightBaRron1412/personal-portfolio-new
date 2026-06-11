@@ -685,7 +685,8 @@ html[data-arcade="true"] .crt::after {
   animation: arcadeFlash 0.5s ease-out forwards;
 }
 .arcade-banner[data-state="off"]::before {
-  animation: none;
+  /* no power-on flash when exiting (was leaving a solid white overlay) */
+  display: none;
 }
 .arcade-banner-card {
   position: relative;
