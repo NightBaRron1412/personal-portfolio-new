@@ -36,7 +36,15 @@
     "slug": "pragmata",
     "query": "Pragmata",
     "platforms": ["PS5", "Xbox", "PC"],
-    "note": "Capcom's lunar sci-fi mystery — the atmosphere is unreal.",
-    "status": "most anticipated"
+    "note": "Capcom's lunar sci-fi mystery — and it absolutely delivered.",
+    "status": "currently playing"
+  },
+  {
+    "title": "EA SPORTS FC 26",
+    "slug": "fc26",
+    "query": "EA SPORTS FC 26",
+    "platforms": ["PS5", "PC", "Xbox"],
+    "note": "The daily fix — Ultimate Team and Weekend League grind.",
+    "status": "in rotation"
   }
 ]

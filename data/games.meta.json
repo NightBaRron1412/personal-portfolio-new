@@ -2,6 +2,7 @@
   "gow-ragnarok": {
     "appid": "2322010",
     "cover": "/images/games/gow-ragnarok.jpg",
+    "wide": false,
     "year": "2024",
     "genres": [
       "Action",
@@ -12,6 +13,7 @@
   "tlou": {
     "appid": "2531310",
     "cover": "/images/games/tlou.jpg",
+    "wide": false,
     "year": "2025",
     "genres": [
       "Action",
@@ -22,6 +24,7 @@
   "detroit": {
     "appid": "1222140",
     "cover": "/images/games/detroit.jpg",
+    "wide": false,
     "year": "2020",
     "genres": [
       "Action",
@@ -32,6 +35,7 @@
   "witcher3": {
     "appid": "292030",
     "cover": "/images/games/witcher3.jpg",
+    "wide": false,
     "year": "2015",
     "genres": [
       "RPG"
@@ -40,12 +44,24 @@
   },
   "pragmata": {
     "appid": "3357650",
-    "cover": null,
+    "cover": "/images/games/pragmata.jpg",
+    "wide": true,
     "year": "2026",
     "genres": [
       "Action",
       "Adventure"
     ],
     "url": "https://store.steampowered.com/app/3357650"
+  },
+  "fc26": {
+    "appid": "3405690",
+    "cover": "/images/games/fc26.jpg",
+    "wide": true,
+    "year": "2025",
+    "genres": [
+      "Simulation",
+      "Sports"
+    ],
+    "url": "https://store.steampowered.com/app/3405690"
   }
 }

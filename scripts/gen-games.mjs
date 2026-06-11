@@ -37,32 +37,42 @@ async function details(appid) {
     if (!d) return {};
     const year = (d.release_date?.date || "").match(/\d{4}/)?.[0] || null;
     const genres = (d.genres || []).slice(0, 2).map((g) => g.description);
-    return { year, genres, name: d.name };
+    return { year, genres, name: d.name, header: d.header_image || null };
   } catch {
     return {};
   }
 }
 
-async function downloadCover(appid, slug) {
-  const urls = [
+async function save(url, slug) {
+  try {
+    const r = await fetch(url, { headers: UA });
+    if (r.ok && (r.headers.get("content-type") || "").startsWith("image")) {
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (buf.length > 2000) {
+        writeFileSync(`public/images/games/${slug}.jpg`, buf);
+        return true;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
+// Prefer the portrait library capsule; fall back to the (landscape) header for
+// newer apps whose portrait art isn't on the unauthenticated CDN.
+async function downloadCover(appid, slug, headerUrl) {
+  const portrait = [
     `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/library_600x900_2x.jpg`,
     `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/library_600x900.jpg`,
   ];
-  for (const u of urls) {
-    try {
-      const r = await fetch(u, { headers: UA });
-      if (r.ok && (r.headers.get("content-type") || "").startsWith("image")) {
-        const buf = Buffer.from(await r.arrayBuffer());
-        if (buf.length > 2000) {
-          writeFileSync(`public/images/games/${slug}.jpg`, buf);
-          return `/images/games/${slug}.jpg`;
-        }
-      }
-    } catch {
-      /* try next */
-    }
+  for (const u of portrait) {
+    if (await save(u, slug)) return { cover: `/images/games/${slug}.jpg`, wide: false };
   }
-  return null;
+  if (headerUrl && (await save(headerUrl, slug))) {
+    return { cover: `/images/games/${slug}.jpg`, wide: true };
+  }
+  return { cover: null, wide: false };
 }
 
 const meta = {};
@@ -70,19 +80,21 @@ for (const g of games) {
   const appid = await searchAppId(g.query || g.title);
   let info = {};
   let cover = null;
+  let wide = false;
   if (appid) {
     info = await details(appid);
-    cover = await downloadCover(appid, g.slug);
+    ({ cover, wide } = await downloadCover(appid, g.slug, info.header));
   }
   meta[g.slug] = {
     appid: appid || null,
     cover,
+    wide,
     year: info.year || null,
     genres: info.genres || [],
     url: appid ? `https://store.steampowered.com/app/${appid}` : null,
   };
   console.log(
-    `${g.title} → appid ${appid ?? "—"} (${info.name ?? "?"}) | cover ${cover ? "ok" : "—"} | ${info.year ?? "?"} | ${(info.genres || []).join(", ")}`
+    `${g.title} → appid ${appid ?? "—"} (${info.name ?? "?"}) | cover ${cover ? (wide ? "header" : "portrait") : "—"} | ${info.year ?? "?"} | ${(info.genres || []).join(", ")}`
   );
   await sleep(700);
 }
