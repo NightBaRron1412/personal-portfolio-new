@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 const TZ = "America/Toronto";
 
 /** Live local time in Amir's timezone — a small telemetry detail. */
-export function Clock({ className }: { className?: string }) {
+export function Clock({ className, showZone = true }: { className?: string; showZone?: boolean }) {
   const [time, setTime] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,7 +24,8 @@ export function Clock({ className }: { className?: string }) {
 
   return (
     <span className={className} suppressHydrationWarning>
-      {time ?? "--:--:--"} ET
+      {time ?? "--:--:--"}
+      {showZone ? " ET" : ""}
     </span>
   );
 }
