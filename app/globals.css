@@ -513,6 +513,66 @@ textarea {
   to { transform: scale(1.09); }
 }
 
+/* ── Portrait instrument frame ─────────────────────────────────────────────
+   Turns the static headshot into a live "sensor readout": a slowly rotating
+   conic-gradient ring, a sweeping scan line, faint CRT scanlines, and HUD
+   corner brackets (the brackets live in JSX). All of it is auto-gated by the
+   reduced-motion block above. */
+@property --pc-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.portrait-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--pc-angle),
+    var(--accent),
+    var(--accent-2),
+    transparent 55%,
+    var(--accent) 90%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+  animation: pcSpin 6s linear infinite;
+  pointer-events: none;
+}
+.portrait-ring:hover::before {
+  opacity: 0.95;
+}
+@keyframes pcSpin {
+  to { --pc-angle: 360deg; }
+}
+
+/* Vertical scan sweep over the image */
+.portrait-scan {
+  animation: pcScan 5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes pcScan {
+  0% { transform: translateY(-60%); opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { transform: translateY(560%); opacity: 0; }
+}
+
+/* Faint CRT scanlines */
+.portrait-lines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
 /* Spotify "now playing" equalizer */
 .eq {
   display: inline-flex;

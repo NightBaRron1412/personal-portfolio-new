@@ -1,9 +1,17 @@
 "use client";
 
-import { Award, GraduationCap, Users } from "lucide-react";
+import { Award, Users } from "lucide-react";
 import { profile } from "@/data/profile";
 import { Logo } from "./logo";
 import { Reveal } from "./reveal";
+import { GpaRing } from "./gpa-ring";
+
+/** Parse a "value/max" GPA string (e.g. "3.80/4.0") into numbers. */
+function parseGpa(gpa: string): { value: number; max: number } | null {
+  const [v, m] = gpa.split("/").map((s) => Number.parseFloat(s.trim()));
+  if (Number.isFinite(v) && Number.isFinite(m) && m > 0) return { value: v, max: m };
+  return null;
+}
 
 export function Education() {
   const { degrees, awards } = profile.education;
@@ -13,34 +21,36 @@ export function Education() {
     <div className="grid gap-4 lg:grid-cols-2">
       {/* Degrees */}
       <div className="space-y-4">
-        {degrees.map((d, i) => (
-          <Reveal key={d.school} delay={i * 70}>
-            <div className="panel glow-border lift ticks p-5">
-              <div className="flex items-start gap-4">
-                <Logo src={d.logo} name={d.school} className="h-11 w-11 shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3">
+        {degrees.map((d, i) => {
+          const gpa = parseGpa(d.gpa);
+          return (
+            <Reveal key={d.school} delay={i * 70}>
+              <div className="panel glow-border lift ticks p-5">
+                <div className="flex items-start gap-4">
+                  <Logo src={d.logo} name={d.school} className="h-11 w-11 shrink-0" />
+                  <div className="min-w-0 flex-1">
                     <h3 className="text-base leading-snug">{d.degree}</h3>
-                    <span className="num shrink-0 text-xs text-text-faint">{d.year}</span>
+                    {/* School + year on their own line — never crowded by the GPA */}
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <a
+                        href={d.schoolUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mono text-xs text-text-secondary transition-colors hover:text-accent"
+                      >
+                        {d.school}
+                      </a>
+                      <span aria-hidden className="text-text-faint">·</span>
+                      <span className="num text-xs text-text-faint">{d.year}</span>
+                    </div>
+                    <p className="mt-3 text-sm leading-relaxed text-text-secondary">{d.details}</p>
                   </div>
-                  <a
-                    href={d.schoolUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mono text-xs text-text-secondary transition-colors hover:text-accent"
-                  >
-                    {d.school}
-                  </a>
-                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent-soft px-2 py-0.5">
-                    <GraduationCap className="h-3.5 w-3.5 text-accent" />
-                    <span className="num text-xs text-accent">GPA {d.gpa}</span>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-text-secondary">{d.details}</p>
+                  {gpa ? <GpaRing value={gpa.value} max={gpa.max} /> : null}
                 </div>
               </div>
-            </div>
-          </Reveal>
-        ))}
+            </Reveal>
+          );
+        })}
       </div>
 
       {/* Awards + community */}
