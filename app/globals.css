@@ -42,7 +42,9 @@
 
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-blur: 10px;
-  --panel-bg: var(--bg-secondary);
+  --glass-sheen: rgba(255, 255, 255, 0.06);
+  --panel-bg: rgba(18, 22, 28, 0.55);
+  --panel-quiet-bg: rgba(255, 255, 255, 0.035);
 
   --card-bg: rgba(255, 255, 255, 0.02);
   --card-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.03), 0 18px 50px -28px rgba(0, 0, 0, 0.8);
@@ -75,7 +77,9 @@
   --grid: rgba(15, 20, 25, 0.05);
 
   --glass-bg: rgba(255, 255, 255, 0.7);
-  --panel-bg: #ffffff;
+  --glass-sheen: rgba(255, 255, 255, 0.75);
+  --panel-bg: rgba(255, 255, 255, 0.6);
+  --panel-quiet-bg: rgba(255, 255, 255, 0.42);
 
   --card-bg: rgba(255, 255, 255, 0.6);
   --card-shadow: 0 1px 2px rgba(15, 20, 25, 0.05), 0 18px 50px -34px rgba(15, 20, 25, 0.25);
@@ -229,6 +233,10 @@ textarea {
   border: 1px solid var(--border-subtle);
   background: var(--panel-bg);
   border-radius: 14px;
+  /* Frosted glass — translucent fill over a blurred backdrop + a top sheen. */
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  box-shadow: inset 0 1px 0 0 var(--glass-sheen);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 .panel:hover {
@@ -237,8 +245,10 @@ textarea {
 
 .panel-quiet {
   border: 1px solid var(--border-subtle);
-  background: var(--surface);
+  background: var(--panel-quiet-bg);
   border-radius: 14px;
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
 }
 
 /* Opt-in hover lift for interactive cards */
