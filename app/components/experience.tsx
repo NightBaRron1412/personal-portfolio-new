@@ -129,13 +129,11 @@ export function Experience() {
                       }}
                     />
 
-                    {/* card */}
+                    {/* card — same frosted glass as the other panels */}
                     <div
                       className={cn(
-                        "rounded-xl border transition-colors",
-                        isOpen
-                          ? "border-border-strong bg-surface"
-                          : "border-border-subtle bg-bg-secondary/40 hover:border-border-strong"
+                        "panel rounded-xl transition-colors",
+                        isOpen && "border-border-strong ring-1 ring-accent/15"
                       )}
                     >
                       <button
