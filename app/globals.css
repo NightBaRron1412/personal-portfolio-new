@@ -606,7 +606,7 @@ textarea {
   background: var(--surface);
 }
 
-/* Reduced motion */
+/* Reduced motion — OS preference (only while the user hasn't forced motion on) */
 @media (prefers-reduced-motion: reduce) {
   html:not([data-force-motion="true"]) *,
   html:not([data-force-motion="true"]) *::before,
@@ -621,4 +621,23 @@ textarea {
     transform: none !important;
     filter: none !important;
   }
+}
+
+/* Reduced motion — explicit in-app toggle. Lives OUTSIDE the media query so it
+   takes effect on any machine, not only when the OS also requests reduce. */
+html[data-force-motion="false"] *,
+html[data-force-motion="false"] *::before,
+html[data-force-motion="false"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+html[data-force-motion="false"] [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+html[data-force-motion="false"] .cursor-glow {
+  display: none !important;
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
+import { prefersReducedMotion, onMotionPreferenceChange } from "@/lib/motion";
 
 /**
  * InstrumentField — a cursor-reactive constellation of "datasheet pixels".
@@ -190,21 +191,7 @@ export function InstrumentField({ className }: { className?: string }) {
       }
     };
 
-    const reduced =
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
-      document.documentElement.getAttribute("data-force-motion") !== "true";
-
     build();
-
-    if (reduced) {
-      drawFrame(0);
-      const onResize = () => {
-        build();
-        drawFrame(0);
-      };
-      window.addEventListener("resize", onResize);
-      return () => window.removeEventListener("resize", onResize);
-    }
 
     let raf = 0;
     const loop = (t: number) => {
@@ -221,7 +208,23 @@ export function InstrumentField({ className }: { className?: string }) {
       }
     };
 
-    const onResize = () => build();
+    // Live motion preference — pauses to a single static frame when the visitor
+    // turns motion off (in-app toggle or OS), resumes when turned back on.
+    let reduced = prefersReducedMotion();
+    const applyMotion = () => {
+      reduced = prefersReducedMotion();
+      if (reduced) {
+        stop();
+        drawFrame(0);
+      } else if (!document.hidden) {
+        start();
+      }
+    };
+
+    const onResize = () => {
+      build();
+      if (reduced) drawFrame(0);
+    };
     const onScroll = () => {
       const yy = window.scrollY;
       scrollBoost = Math.min(1.5, scrollBoost + Math.abs(yy - lastScrollY) * 0.012);
@@ -232,10 +235,14 @@ export function InstrumentField({ className }: { className?: string }) {
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerleave", onLeave);
     window.addEventListener("blur", onLeave);
-    const onVisibility = () => (document.hidden ? stop() : start());
+    const onVisibility = () => {
+      if (reduced) return;
+      document.hidden ? stop() : start();
+    };
     document.addEventListener("visibilitychange", onVisibility);
+    const unsubscribe = onMotionPreferenceChange(applyMotion);
 
-    start();
+    applyMotion();
 
     return () => {
       stop();
@@ -245,9 +252,9 @@ export function InstrumentField({ className }: { className?: string }) {
       window.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("blur", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
+      unsubscribe();
     };
     // Set up once; theme is read live from paletteRef (no rebuild on toggle).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

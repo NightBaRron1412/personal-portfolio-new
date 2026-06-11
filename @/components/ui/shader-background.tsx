@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { prefersReducedMotion, onMotionPreferenceChange } from "@/lib/motion";
 
 /**
  * WebGL animated plasma-grid background (adapted from the 21st.dev
@@ -168,10 +169,6 @@ export function ShaderBackground({ className }: { className?: string }) {
     ro?.observe(canvas);
     window.addEventListener("resize", resize);
 
-    const reduced =
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
-      document.documentElement.getAttribute("data-force-motion") !== "true";
-
     const start = Date.now();
     let uLight = lightRef.current ? 1 : 0;
     const draw = (t: number) => {
@@ -193,15 +190,6 @@ export function ShaderBackground({ className }: { className?: string }) {
       draw(8);
     };
 
-    if (reduced) {
-      draw(8);
-      return () => {
-        drawRef.current = null;
-        window.removeEventListener("resize", resize);
-        ro?.disconnect();
-      };
-    }
-
     let raf = 0;
     let inView = true;
     const loop = () => {
@@ -218,14 +206,33 @@ export function ShaderBackground({ className }: { className?: string }) {
       }
     };
 
-    startLoop();
+    // Live motion preference — freezes the plasma to a static frame when the
+    // visitor turns motion off (in-app toggle or OS), resumes when turned on.
+    let reduced = prefersReducedMotion();
+    const applyMotion = () => {
+      reduced = prefersReducedMotion();
+      if (reduced) {
+        stopLoop();
+        drawRef.current?.();
+      } else if (inView && !document.hidden) {
+        startLoop();
+      }
+    };
+
     const io = new IntersectionObserver(([e]) => {
       inView = e.isIntersecting;
+      if (reduced) return;
       inView && !document.hidden ? startLoop() : stopLoop();
     });
     io.observe(canvas);
-    const onVisibility = () => (document.hidden || !inView ? stopLoop() : startLoop());
+    const onVisibility = () => {
+      if (reduced) return;
+      document.hidden || !inView ? stopLoop() : startLoop();
+    };
     document.addEventListener("visibilitychange", onVisibility);
+    const unsubscribe = onMotionPreferenceChange(applyMotion);
+
+    applyMotion();
 
     return () => {
       stopLoop();
@@ -234,6 +241,7 @@ export function ShaderBackground({ className }: { className?: string }) {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", resize);
       ro?.disconnect();
+      unsubscribe();
     };
   }, [mounted]);
 
