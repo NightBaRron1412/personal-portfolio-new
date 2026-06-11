@@ -43,11 +43,48 @@ function svg({ rounded }) {
 </svg>`;
 }
 
+// Theme-aware variant for the SVG favicon: embedded @media swaps the gradient
+// with the OS light/dark scheme (modern browsers honor CSS in SVG favicons).
+// Raster fallbacks (.ico/png) can't adapt, so they keep the dark variant.
+function themedSvg() {
+  const rx = 120;
+  const innerRx = rx - 5;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <style>
+    .g0{stop-color:${TEAL}}.g1{stop-color:${VIOLET}}.g2{stop-color:${PINK}}
+    @media (prefers-color-scheme: light){.g0{stop-color:#0b857a}.g1{stop-color:#7c3aed}.g2{stop-color:#c026d3}}
+  </style>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="g0"/>
+      <stop offset="0.52" class="g1"/>
+      <stop offset="1" class="g2"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="0.3" cy="0.24" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.30"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="0.46" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="ts" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="7" flood-color="#06201b" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="${rx}" fill="url(#g)"/>
+  <rect width="512" height="512" rx="${rx}" fill="url(#hl)"/>
+  <rect width="512" height="512" rx="${rx}" fill="url(#sheen)"/>
+  <rect x="5" y="5" width="502" height="502" rx="${innerRx}" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>
+  <text x="256" y="264" font-family="'DejaVu Sans','Liberation Sans',Arial,sans-serif" font-size="272" font-weight="bold" fill="#ffffff" filter="url(#ts)" text-anchor="middle" dominant-baseline="central" letter-spacing="-12">AS</text>
+</svg>`;
+}
+
 const roundedSvg = svg({ rounded: true });
 const squareSvg = svg({ rounded: false });
 
-// 1. Modern SVG favicon (served at /icon.svg via app/ file convention).
-writeFileSync("app/icon.svg", roundedSvg + "\n");
+// 1. Modern SVG favicon (served at /icon.svg via app/ file convention) — theme-aware.
+writeFileSync("app/icon.svg", themedSvg() + "\n");
 
 // 2. Apple touch icon — opaque, full-bleed (iOS applies its own rounding).
 await sharp(Buffer.from(squareSvg)).resize(180, 180).png().toFile("app/apple-icon.png");

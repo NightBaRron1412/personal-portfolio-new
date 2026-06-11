@@ -31,6 +31,7 @@
   --accent-blue: var(--accent);
   --accent-purple: var(--accent-2);
   --accent-pink: var(--accent-2);
+  --accent-3: #f0abfc;
   --accent-soft: rgba(45, 212, 191, 0.12);
   --accent-glow: rgba(45, 212, 191, 0.22);
   --accent-2-soft: rgba(167, 139, 250, 0.14);
@@ -68,6 +69,7 @@
 
   --accent: #0b857a;
   --accent-2: #7c3aed;
+  --accent-3: #c026d3;
   --accent-soft: rgba(13, 148, 136, 0.10);
   --accent-glow: rgba(13, 148, 136, 0.18);
   --accent-2-soft: rgba(124, 58, 237, 0.10);
