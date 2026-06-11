@@ -21,7 +21,7 @@ import { PanelLabel } from "./panel-label";
 import { Magnetic } from "./magnetic";
 import { Typewriter } from "./typewriter";
 import { DecoderText } from "./decoder-text";
-import { SignalWave } from "./signal-wave";
+import { SignalBars } from "./signal-bars";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { ShinyButton } from "@/components/ui/shiny-button";
 
@@ -170,7 +170,7 @@ export function Hero() {
               </span>
             </div>
             {/* live signal — the eye-catching centerpiece */}
-            <SignalWave className="relative mt-3" />
+            <SignalBars className="relative mt-3" />
             {/* metric rows with iconography tiles */}
             <dl className="relative mt-2 space-y-0.5">
               {STATUS_ROWS.map((row, i) => {

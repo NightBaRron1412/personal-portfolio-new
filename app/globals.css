@@ -573,15 +573,21 @@ textarea {
   );
 }
 
-/* Live signal sparkline (hero status panel). Pure translateX = GPU-composited,
-   so it scrolls smoothly without the per-frame main-thread paint that an
-   animated gradient/filter would cost. Loops by exactly one period. */
-.signal-wave {
-  animation: signalScroll 7s linear infinite;
+/* Live signal — equalizer/spectrum bars (hero status panel). Each bar
+   oscillates via scaleY ONLY (GPU-composited, no per-frame paint); per-bar
+   animation-delay creates a traveling wave. --b is the bar's resting height. */
+.signal-bar {
+  transform: scaleY(var(--b, 0.5));
+  transform-origin: bottom;
+  animation-name: eqBar;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
   will-change: transform;
 }
-@keyframes signalScroll {
-  to { transform: translateX(-360px); }
+@keyframes eqBar {
+  from { transform: scaleY(calc(var(--b, 0.5) * 0.35)); }
+  to { transform: scaleY(var(--b, 0.5)); }
 }
 
 /* Spotify "now playing" equalizer */
