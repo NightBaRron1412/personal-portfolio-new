@@ -573,6 +573,17 @@ textarea {
   );
 }
 
+/* Live signal sparkline (hero status panel). Pure translateX = GPU-composited,
+   so it scrolls smoothly without the per-frame main-thread paint that an
+   animated gradient/filter would cost. Loops by exactly one period. */
+.signal-wave {
+  animation: signalScroll 7s linear infinite;
+  will-change: transform;
+}
+@keyframes signalScroll {
+  to { transform: translateX(-360px); }
+}
+
 /* Spotify "now playing" equalizer */
 .eq {
   display: inline-flex;
