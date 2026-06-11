@@ -1,27 +1,13 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import {
-  ArrowDown,
-  ArrowUpRight,
-  Github,
-  Linkedin,
-  Mail,
-  Briefcase,
-  Layers,
-  Crosshair,
-  MapPin,
-  Clock as ClockIcon,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowDown, ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
 import { profile } from "@/data/profile";
 import { scrollToId } from "@/lib/utils";
-import { Clock } from "./clock";
-import { PanelLabel } from "./panel-label";
 import { Magnetic } from "./magnetic";
 import { Typewriter } from "./typewriter";
 import { DecoderText } from "./decoder-text";
-import { SignalBars } from "./signal-bars";
+import { StatusCard } from "./status-card";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { ShinyButton } from "@/components/ui/shiny-button";
 
@@ -31,14 +17,6 @@ const TYPED = [
   "teaching systems to parse their own logs",
   "from embedded benches to data-center GPUs",
   "happiest one layer below the surface",
-];
-
-const STATUS_ROWS: { label: string; icon: LucideIcon; value: React.ReactNode }[] = [
-  { label: "ROLE", icon: Briefcase, value: "Sr. Software Engineer · AMD" },
-  { label: "STACK", icon: Layers, value: "ROCm · Linux kernel · C/C++" },
-  { label: "FOCUS", icon: Crosshair, value: "Systems · HPC · ML · formal methods" },
-  { label: "LOCATION", icon: MapPin, value: profile.location },
-  { label: "LOCAL", icon: ClockIcon, value: <Clock /> },
 ];
 
 const container: Variants = {
@@ -154,53 +132,7 @@ export function Hero() {
           animate={{ x: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         >
-          <div className="panel ticks relative overflow-hidden p-5 sm:p-6">
-            {/* soft corner glow for depth (static, cheap) */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full opacity-25 blur-2xl"
-              style={{ background: "var(--gradient)" }}
-            />
-            {/* header */}
-            <div className="relative flex items-center justify-between">
-              <PanelLabel>system status</PanelLabel>
-              <span className="mono inline-flex items-center gap-1.5 text-[11px] tracking-wide text-accent">
-                <span className="pulse-dot relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                LIVE
-              </span>
-            </div>
-            {/* live signal — the eye-catching centerpiece */}
-            <SignalBars className="relative mt-3" />
-            {/* metric rows with iconography tiles */}
-            <dl className="relative mt-2 space-y-0.5">
-              {STATUS_ROWS.map((row, i) => {
-                const Icon = row.icon;
-                return (
-                  <motion.div
-                    key={row.label}
-                    initial={{ opacity: 0, x: 8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + i * 0.07, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="group/row -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface/70"
-                  >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border-subtle bg-accent-soft text-accent transition-colors group-hover/row:border-accent/50">
-                      <Icon className="h-3.5 w-3.5" />
-                    </span>
-                    <dt className="eyebrow shrink-0">{row.label}</dt>
-                    <dd className="num ml-auto text-right text-xs text-text-primary transition-colors group-hover/row:text-accent sm:text-[13px]">
-                      {row.value}
-                    </dd>
-                  </motion.div>
-                );
-              })}
-            </dl>
-            {/* now */}
-            <div className="relative mt-4 overflow-hidden rounded-lg border border-border-subtle bg-surface p-3 pl-4">
-              <span aria-hidden className="absolute inset-y-0 left-0 w-0.5" style={{ background: "var(--gradient)" }} />
-              <PanelLabel className="mb-1.5">now</PanelLabel>
-              <p className="text-xs leading-relaxed text-text-secondary">{profile.hero.now}</p>
-            </div>
-          </div>
+          <StatusCard />
         </motion.div>
       </div>
 
