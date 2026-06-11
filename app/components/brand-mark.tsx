@@ -1,8 +1,8 @@
 /**
  * BrandMark — the "AS" monogram squircle, matching the favicon / OG image so the
- * brand reads consistently across tab icon, social preview, and header.
- * Inline SVG: crisp at any size, theme-independent (the gradient reads on light
- * and dark), and weightless (no image request).
+ * brand reads consistently across tab icon, social preview, and header. Glossy
+ * app-icon treatment: radial highlight + top sheen + inner stroke, white "AS".
+ * Inline SVG: crisp at any size, theme-independent, weightless (no request).
  */
 export function BrandMark({ className }: { className?: string }) {
   return (
@@ -11,25 +11,45 @@ export function BrandMark({ className }: { className?: string }) {
         <linearGradient id="brandmark-grad" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#2dd4bf" />
           <stop offset="0.52" stopColor="#a78bfa" />
-          <stop offset="1" stopColor="#f472b6" />
+          <stop offset="1" stopColor="#f0abfc" />
         </linearGradient>
+        <radialGradient id="brandmark-hl" cx="0.3" cy="0.24" r="0.9">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.3" />
+          <stop offset="0.55" stopColor="#ffffff" stopOpacity="0" />
+        </radialGradient>
         <linearGradient id="brandmark-sheen" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" stopOpacity="0.24" />
-          <stop offset="0.5" stopColor="#ffffff" stopOpacity="0" />
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.32" />
+          <stop offset="0.46" stopColor="#ffffff" stopOpacity="0" />
         </linearGradient>
+        <filter id="brandmark-sh" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="0.2" stdDeviation="0.5" floodColor="#06201b" floodOpacity="0.5" />
+        </filter>
       </defs>
       <rect width="32" height="32" rx="8" fill="url(#brandmark-grad)" />
+      <rect width="32" height="32" rx="8" fill="url(#brandmark-hl)" />
       <rect width="32" height="32" rx="8" fill="url(#brandmark-sheen)" />
+      <rect
+        x="0.6"
+        y="0.6"
+        width="30.8"
+        height="30.8"
+        rx="7.4"
+        fill="none"
+        stroke="#ffffff"
+        strokeOpacity="0.16"
+        strokeWidth="0.8"
+      />
       <text
         x="16"
-        y="17"
+        y="16.6"
         textAnchor="middle"
         dominantBaseline="central"
         fontFamily="var(--font-display), system-ui, sans-serif"
-        fontSize="16.5"
+        fontSize="15.5"
         fontWeight="700"
-        letterSpacing="-0.5"
-        fill="#0b0f17"
+        letterSpacing="-1"
+        fill="#ffffff"
+        filter="url(#brandmark-sh)"
       >
         AS
       </text>

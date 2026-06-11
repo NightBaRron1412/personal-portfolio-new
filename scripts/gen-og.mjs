@@ -12,8 +12,15 @@ const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http
     <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#2dd4bf"/>
       <stop offset="0.52" stop-color="#a78bfa"/>
-      <stop offset="1" stop-color="#f472b6"/>
+      <stop offset="1" stop-color="#f0abfc"/>
     </linearGradient>
+    <radialGradient id="og-hl" cx="0.3" cy="0.24" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.30"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="og-sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="3" flood-color="#06201b" flood-opacity="0.45"/>
+    </filter>
     <radialGradient id="glow" cx="82%" cy="16%" r="65%">
       <stop offset="0" stop-color="#2dd4bf" stop-opacity="0.26"/>
       <stop offset="0.45" stop-color="#a78bfa" stop-opacity="0.14"/>
@@ -35,8 +42,10 @@ const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http
   <!-- AS monogram tile -->
   <g transform="translate(80,76)">
     <rect width="104" height="104" rx="26" fill="url(#brand)"/>
+    <rect width="104" height="104" rx="26" fill="url(#og-hl)"/>
     <rect width="104" height="104" rx="26" fill="url(#sheen)"/>
-    <text x="52" y="55" font-family="'DejaVu Sans',Arial,sans-serif" font-size="60" font-weight="bold" fill="#0b0f17" text-anchor="middle" dominant-baseline="central">AS</text>
+    <rect x="1.5" y="1.5" width="101" height="101" rx="24.5" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="1.5"/>
+    <text x="52" y="56" font-family="'DejaVu Sans',Arial,sans-serif" font-size="56" font-weight="bold" fill="#ffffff" filter="url(#og-sh)" text-anchor="middle" dominant-baseline="central" letter-spacing="-2">AS</text>
   </g>
 
   <!-- eyebrow + accent rule -->

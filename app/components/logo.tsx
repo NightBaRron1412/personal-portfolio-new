@@ -46,9 +46,9 @@ export function Logo({
   return (
     <div
       className={cn(
-        // Softer than a stark white chip: a translucent tile so it settles into
-        // the dark glass instead of popping; logo eases to full on hover.
-        "flex items-center justify-center overflow-hidden rounded-lg border border-border-subtle bg-white/70 p-1.5",
+        // Opaque light tile so colored logos stay clean and legible (a
+        // translucent tile let the dark card bleed through and muddied them).
+        "flex items-center justify-center overflow-hidden rounded-lg border border-border-subtle bg-white p-1.5",
         className
       )}
     >
@@ -58,7 +58,7 @@ export function Logo({
         alt={`${name} logo`}
         loading="lazy"
         decoding="async"
-        className="h-full w-full object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100"
+        className="h-full w-full object-contain"
         onError={() => setFailed(true)}
       />
     </div>

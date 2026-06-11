@@ -7,17 +7,15 @@ const sharp = require(
   process.cwd() + "/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp"
 );
 
-// Brand gradient (matches --gradient: teal -> violet -> pink) with a dark ink
-// monogram for maximum contrast at favicon sizes.
+// Brand gradient (matches --gradient: teal -> violet -> pink). Glossy app-icon
+// treatment: radial highlight + top sheen + inner stroke, white centered "AS".
 const TEAL = "#2dd4bf";
 const VIOLET = "#a78bfa";
-const PINK = "#f472b6";
-// White monogram with a soft dark shadow so it stays legible over the bright
-// (teal) corner of the gradient.
-const INK = "#ffffff";
+const PINK = "#f0abfc";
 
 function svg({ rounded }) {
-  const rx = rounded ? 112 : 0;
+  const rx = rounded ? 120 : 0;
+  const innerRx = Math.max(2, rx - 5);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
@@ -25,17 +23,23 @@ function svg({ rounded }) {
       <stop offset="0.52" stop-color="${VIOLET}"/>
       <stop offset="1" stop-color="${PINK}"/>
     </linearGradient>
+    <radialGradient id="hl" cx="0.3" cy="0.24" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.30"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
     <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
-      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="0.46" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
-    <filter id="ts" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0b0f17" flood-opacity="0.4"/>
+    <filter id="ts" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="7" flood-color="#06201b" flood-opacity="0.45"/>
     </filter>
   </defs>
   <rect width="512" height="512" rx="${rx}" fill="url(#g)"/>
+  <rect width="512" height="512" rx="${rx}" fill="url(#hl)"/>
   <rect width="512" height="512" rx="${rx}" fill="url(#sheen)"/>
-  <text x="256" y="258" font-family="'DejaVu Sans','Liberation Sans',Arial,sans-serif" font-size="300" font-weight="bold" fill="${INK}" filter="url(#ts)" text-anchor="middle" dominant-baseline="central">AS</text>
+  <rect x="5" y="5" width="502" height="502" rx="${innerRx}" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>
+  <text x="256" y="264" font-family="'DejaVu Sans','Liberation Sans',Arial,sans-serif" font-size="272" font-weight="bold" fill="#ffffff" filter="url(#ts)" text-anchor="middle" dominant-baseline="central" letter-spacing="-12">AS</text>
 </svg>`;
 }
 

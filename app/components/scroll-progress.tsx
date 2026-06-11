@@ -28,10 +28,14 @@ export function ScrollProgress() {
   }, []);
 
   return (
-    <div aria-hidden className="fixed inset-x-0 top-0 z-[60] h-px bg-transparent">
+    <div aria-hidden className="fixed inset-x-0 top-0 z-[70] h-0.5 bg-transparent">
       <div
-        className="h-full origin-left bg-accent"
-        style={{ transform: `scaleX(${progress})`, boxShadow: "0 0 8px var(--accent-glow)" }}
+        className="h-full w-full origin-left"
+        style={{
+          transform: `scaleX(${progress})`,
+          background: "var(--gradient)",
+          boxShadow: "0 0 8px var(--accent-glow)",
+        }}
       />
     </div>
   );

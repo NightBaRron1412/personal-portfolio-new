@@ -41,8 +41,10 @@ export function WorkedAt() {
               </div>
             ))}
           </Marquee>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-bg-main to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-bg-main to-transparent" />
+          {/* Slide-under edges — softened (quick ramp to transparent) so they
+              aren't a harsh solid black/white block. */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-bg-main via-bg-main/50 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-bg-main via-bg-main/50 to-transparent" />
         </div>
       </div>
     </Reveal>
