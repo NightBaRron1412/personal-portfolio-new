@@ -541,15 +541,11 @@ textarea {
   mask-composite: exclude;
   opacity: 0.6;
   transition: opacity 0.3s ease;
+  animation: pcSpin 6s linear infinite;
   pointer-events: none;
 }
-/* Spin ONLY on hover. Animating --pc-angle re-rasterizes the conic gradient on
-   the main thread every frame; left running infinitely (even off-screen) it
-   janks scrolling site-wide. At rest the ring is a static gradient; the cheap
-   GPU-composited scan sweep + pulse dot carry the "alive" feel. */
 .portrait-ring:hover::before {
   opacity: 0.95;
-  animation: pcSpin 6s linear infinite;
 }
 @keyframes pcSpin {
   to { --pc-angle: 360deg; }

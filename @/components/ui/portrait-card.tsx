@@ -90,11 +90,11 @@ export function PortraitCard({
             style={{ transform: "translateZ(40px)" }}
             className="absolute inset-x-0 top-0 flex items-center justify-between p-3"
           >
-            <span className="mono inline-flex items-center gap-1.5 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-white/85">
+            <span className="mono inline-flex items-center gap-1.5 rounded bg-black/45 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-white/85 backdrop-blur-sm">
               <span className="pulse-dot relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
               LIVE
             </span>
-            <span className="mono rounded bg-black/55 px-1.5 py-0.5 text-[10px] tracking-wide text-white/65">
+            <span className="mono rounded bg-black/45 px-1.5 py-0.5 text-[10px] tracking-wide text-white/65 backdrop-blur-sm">
               {coords}
             </span>
           </div>
