@@ -10,6 +10,9 @@ import { Reveal } from "./reveal";
 
 const ARC = ["Robotics", "Embedded", "Cloud", "HPC · Research", "GPU Drivers"];
 
+// Fade the rail at both ends so it doesn't stub past the first/last node.
+const RAIL_FADE = "linear-gradient(to bottom, transparent, #000 5%, #000 95%, transparent)";
+
 export function Experience() {
   const railRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<number | null>(0);
@@ -63,22 +66,30 @@ export function Experience() {
 
       {/* journey timeline */}
       <div ref={railRef} className="relative">
-        {/* rail — faint base */}
+        {/* rail — faint base (centered on left-5 / sm:left-6) */}
         <span
           aria-hidden
-          className="absolute bottom-3 left-[19px] top-3 w-px bg-border-subtle sm:left-[23px]"
+          className="absolute bottom-2 left-5 top-2 w-0.5 -translate-x-1/2 rounded-full bg-border-subtle sm:left-6"
+          style={{ maskImage: RAIL_FADE, WebkitMaskImage: RAIL_FADE }}
         />
         {/* rail — gradient fill (scroll-linked, scaleY = composited) */}
         <motion.span
           aria-hidden
-          className="absolute left-[19px] top-3 w-px origin-top sm:left-[23px]"
-          style={{ height: "calc(100% - 24px)", scaleY: scrollYProgress, background: "var(--gradient)" }}
+          className="absolute left-5 top-2 w-0.5 origin-top rounded-full sm:left-6"
+          style={{
+            x: "-50%",
+            height: "calc(100% - 16px)",
+            scaleY: scrollYProgress,
+            background: "var(--gradient)",
+            maskImage: RAIL_FADE,
+            WebkitMaskImage: RAIL_FADE,
+          }}
         />
         {/* traveling glow comet at the fill tip */}
         <motion.span
           aria-hidden
-          className="absolute left-[15px] z-10 h-2.5 w-2.5 rounded-full sm:left-[19px]"
-          style={{ top: headTop, background: "var(--accent)", boxShadow: "0 0 12px 2px var(--accent)" }}
+          className="absolute left-5 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full sm:left-6"
+          style={{ top: headTop, background: "var(--accent)", boxShadow: "0 0 10px 2px var(--accent)" }}
         />
 
         <div className="space-y-3">
@@ -105,12 +116,12 @@ export function Experience() {
 
                 <Reveal delay={(i % 3) * 60}>
                   <div className="relative pl-12 sm:pl-16">
-                    {/* node */}
+                    {/* node — centered on the same axis as the rail */}
                     <span
                       aria-hidden
                       className={cn(
-                        "absolute left-[14px] top-5 z-[1] h-3 w-3 rounded-full border-2 border-bg-secondary transition-all duration-300 sm:left-[18px]",
-                        isOpen && "scale-125"
+                        "absolute left-5 top-8 z-[1] h-3 w-3 -translate-x-1/2 rounded-full border-2 border-bg-secondary transition-transform duration-300 sm:left-6",
+                        isOpen && "scale-[1.35]"
                       )}
                       style={{
                         background: isOpen ? "var(--gradient)" : "var(--accent)",
