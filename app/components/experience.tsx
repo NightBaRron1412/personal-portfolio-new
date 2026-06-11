@@ -182,10 +182,10 @@ export function Experience() {
                             ))}
                           </div>
                           {bullets.length ? (
-                            <span className="mono mt-3 inline-flex items-center gap-1 text-[11px] text-accent">
+                            <span className="mono mt-3 inline-flex items-center gap-1 text-[11px] text-text-secondary">
                               {isOpen ? "hide details" : "details"}
                               <ChevronDown
-                                className={cn("h-3.5 w-3.5 transition-transform duration-300", isOpen && "rotate-180")}
+                                className={cn("h-3.5 w-3.5 text-accent transition-transform duration-300", isOpen && "rotate-180")}
                               />
                             </span>
                           ) : null}
