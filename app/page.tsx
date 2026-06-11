@@ -11,6 +11,7 @@ import { Experience } from "./components/experience";
 import { Education } from "./components/education";
 import { Signals } from "./components/signals";
 import { Testimonials } from "./components/testimonials";
+import { Games } from "./components/games";
 import { Contact } from "./components/contact";
 import { Footer } from "./components/footer";
 import { SpotifyWidget } from "./components/spotify-widget";
@@ -112,8 +113,18 @@ export default function HomePage() {
           </Section>
 
           <Section
-            id="contact"
+            id="games"
             index="08"
+            title="Off the Clock"
+            meta="games"
+            lead="When I'm not in the kernel, these are the worlds I get lost in — story-first, cinematic, the kind that stick with you."
+          >
+            <Games />
+          </Section>
+
+          <Section
+            id="contact"
+            index="09"
             title="Contact"
             meta="say hi"
             lead="If any of this resonates — a hard problem, a role, or just comparing notes — let's talk."

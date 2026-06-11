@@ -1,0 +1,42 @@
+[
+  {
+    "title": "God of War Ragnarök",
+    "slug": "gow-ragnarok",
+    "query": "God of War Ragnarok",
+    "platforms": ["PS5", "PC"],
+    "note": "Norse myth, brutal and tender — a father-and-son saga with the best-feeling combat I've played.",
+    "status": "all-time fave"
+  },
+  {
+    "title": "The Last of Us Part II",
+    "slug": "tlou",
+    "query": "The Last of Us Part II",
+    "platforms": ["PS5", "PC"],
+    "note": "The benchmark for storytelling in games — it wrecked me, in the best way.",
+    "status": "favorite"
+  },
+  {
+    "title": "Detroit: Become Human",
+    "slug": "detroit",
+    "query": "Detroit Become Human",
+    "platforms": ["PS4", "PC"],
+    "note": "Branching android futures where every choice actually mattered.",
+    "status": "favorite"
+  },
+  {
+    "title": "The Witcher 3: Wild Hunt",
+    "slug": "witcher3",
+    "query": "The Witcher 3",
+    "platforms": ["PC", "PS", "Xbox", "Switch"],
+    "note": "The RPG yardstick — even the side quests are full-blown stories.",
+    "status": "100%'d"
+  },
+  {
+    "title": "Pragmata",
+    "slug": "pragmata",
+    "query": "Pragmata",
+    "platforms": ["PS5", "Xbox", "PC"],
+    "note": "Capcom's lunar sci-fi mystery — the atmosphere is unreal.",
+    "status": "most anticipated"
+  }
+]
