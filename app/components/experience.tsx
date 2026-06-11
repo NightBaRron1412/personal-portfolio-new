@@ -131,13 +131,32 @@ export function Experience() {
 
                     {/* card — same frosted glass as the other panels */}
                     <div
+                      data-exp-card
                       className={cn(
-                        "panel rounded-xl transition-colors",
+                        "panel scroll-mt-24 rounded-xl transition-colors",
                         isOpen && "border-border-strong ring-1 ring-accent/15"
                       )}
                     >
                       <button
-                        onClick={() => setOpen(isOpen ? null : i)}
+                        onClick={(e) => {
+                          const willOpen = !isOpen;
+                          setOpen(willOpen ? i : null);
+                          // The expanded bullets can land below the fold on
+                          // mobile — once they're laid out, bring the card into
+                          // view so the details aren't off-screen.
+                          if (willOpen) {
+                            const card = e.currentTarget.closest("[data-exp-card]");
+                            const reduce = window.matchMedia(
+                              "(prefers-reduced-motion: reduce)"
+                            ).matches;
+                            window.setTimeout(() => {
+                              card?.scrollIntoView({
+                                behavior: reduce ? "auto" : "smooth",
+                                block: "nearest",
+                              });
+                            }, 360);
+                          }
+                        }}
                         className="flex w-full items-start gap-3 p-4 text-left sm:gap-4 sm:p-5"
                         aria-expanded={isOpen}
                       >

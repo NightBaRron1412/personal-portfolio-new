@@ -93,7 +93,7 @@ export function GpaRing({
           {fmt(value)}
         </span>
         <span className="num mt-[3px] text-[9px] leading-none text-text-faint">
-          GPA
+          / {fmt(max)}
         </span>
       </div>
     </div>
