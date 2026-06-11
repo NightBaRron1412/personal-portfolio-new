@@ -1,0 +1,8 @@
+# SSH host keys (generated at runtime — never commit)
+.ssh/
+*_ed25519
+*_ed25519.pub
+
+# build artifacts
+/term
+*.out

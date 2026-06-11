@@ -1,0 +1,30 @@
+# Fly.io config for the SSH portfolio.
+# Deploy:  fly launch --no-deploy   (first time, to create the app)
+#          fly volume create term_data --size 1
+#          fly deploy
+app = "amir-term"
+primary_region = "yyz"   # Toronto — change to your nearest region
+
+[build]
+
+# Expose the TUI on the public SSH port (22) -> container's 2222.
+[[services]]
+  protocol = "tcp"
+  internal_port = 2222
+
+  [[services.ports]]
+    port = 22
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "5s"
+
+# Persist the SSH host key so clients don't see "host key changed" on redeploys.
+[mounts]
+  source = "term_data"
+  destination = "/app/.ssh"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

@@ -1,0 +1,5 @@
+.ssh/
+term
+*.out
+README.md
+fly.toml

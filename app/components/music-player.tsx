@@ -35,6 +35,24 @@ export function MusicPlayer({ className }: { className?: string }) {
     const opts = { once: true } as AddEventListenerOptions;
     let cancelled = false;
 
+    // Pause when the tab/app is backgrounded (esp. on mobile, where audio would
+    // otherwise keep playing after you switch tabs) and resume on return —
+    // unless the visitor muted it. This is a transient pause, so it never
+    // touches the stored preference.
+    let wasPlaying = false;
+    const onVisibility = () => {
+      if (document.hidden) {
+        if (!audio.paused) {
+          wasPlaying = true;
+          audio.pause();
+        }
+      } else if (wasPlaying) {
+        wasPlaying = false;
+        if (localStorage.getItem(LS_KEY) !== "false") audio.play().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     // Confirm the track exists before showing the control; then arm autostart
     // unless the visitor opted out. Autoplay-with-sound is blocked until a
     // gesture, so playback begins on the first click / scroll / keypress.
@@ -65,6 +83,7 @@ export function MusicPlayer({ className }: { className?: string }) {
       window.removeEventListener("pointerdown", onGesture);
       window.removeEventListener("keydown", onGesture);
       window.removeEventListener("arcade-music", onArcade);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
