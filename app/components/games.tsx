@@ -104,9 +104,18 @@ export function Games() {
                 href={m.url ?? undefined}
                 target={m.url ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group relative block aspect-[2/3] overflow-hidden rounded-xl border border-border-subtle bg-bg-elevated transition-all duration-300 hover:-translate-y-1.5 hover:border-accent hover:shadow-glow hover:ring-2 hover:ring-accent/50"
+                className={cn(
+                  "group relative block aspect-[2/3] overflow-hidden rounded-xl border border-border-subtle bg-bg-elevated transition-all duration-300 hover:-translate-y-1.5 hover:border-accent hover:shadow-glow hover:ring-2 hover:ring-accent/50",
+                  playing && "border-accent/40 shadow-glow ring-1 ring-accent/30"
+                )}
               >
                 <Cover m={m} title={g.title} />
+
+                {/* hover sheen sweep */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 -translate-x-[160%] skew-x-[-16deg] bg-gradient-to-r from-transparent via-white/25 to-transparent group-hover:[animation:gameSheen_0.75s_ease-out]"
+                />
 
                 {/* rank */}
                 <span className="num pointer-events-none absolute right-1.5 top-0.5 z-10 text-2xl font-bold text-white/20 mix-blend-overlay">

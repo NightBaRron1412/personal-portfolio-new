@@ -632,17 +632,130 @@ textarea {
 html[data-arcade="true"] .crt {
   opacity: 1;
   animation: crtFlicker 3.5s steps(60) infinite;
+  /* Colour-grade via backdrop-filter on the overlay — NOT `filter` on <body>,
+     which would make every position:fixed element size to the whole document. */
+  backdrop-filter: saturate(1.35) contrast(1.08) brightness(1.03);
+  -webkit-backdrop-filter: saturate(1.35) contrast(1.08) brightness(1.03);
 }
 html[data-arcade="true"] .grain {
   opacity: 0.1;
-}
-html[data-arcade="true"] body {
-  filter: saturate(1.22) contrast(1.06);
 }
 @keyframes crtFlicker {
   0%, 97%, 100% { opacity: 1; }
   98% { opacity: 0.82; }
   99% { opacity: 0.94; }
+}
+
+/* Game cover sheen — a light streak that sweeps across on hover */
+@keyframes gameSheen {
+  0% { transform: translateX(-160%) skewX(-16deg); }
+  100% { transform: translateX(260%) skewX(-16deg); }
+}
+
+/* Arcade mode — CRT refresh sweep, power-on flash, CHEAT banner + HUD */
+html[data-arcade="true"] .crt::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 36%;
+  background: linear-gradient(to bottom, transparent, rgba(150, 255, 230, 0.05), transparent);
+  transform: translateY(-100%);
+  animation: crtSweep 5s linear infinite;
+}
+@keyframes crtSweep {
+  to { transform: translateY(285%); }
+}
+
+.arcade-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.arcade-banner::before {
+  /* CRT power-on flash */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  animation: arcadeFlash 0.5s ease-out forwards;
+}
+.arcade-banner[data-state="off"]::before {
+  animation: none;
+}
+.arcade-banner-card {
+  position: relative;
+  text-align: center;
+  animation: arcadeBannerIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.arcade-banner-title {
+  display: block;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 9vw, 6rem);
+  letter-spacing: -0.04em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: arcadeGlitch 0.4s steps(2) 1;
+}
+.arcade-banner-sub {
+  display: block;
+  margin-top: 0.6rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+}
+@keyframes arcadeFlash {
+  from { opacity: 0.55; }
+  to { opacity: 0; }
+}
+@keyframes arcadeBannerIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes arcadeGlitch {
+  0% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+.arcade-hud {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.6rem;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  pointer-events: none;
+}
+.arcade-hud-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 1.6s ease-out infinite;
+}
+.arcade-hud-hint {
+  color: var(--text-faint);
 }
 
 /* Film grain — static noise overlay for a tactile, premium finish */
