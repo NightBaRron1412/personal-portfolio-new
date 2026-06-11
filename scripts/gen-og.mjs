@@ -62,5 +62,10 @@ const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http
   <text x="82" y="572" font-family="'DejaVu Sans Mono',monospace" font-size="25" fill="#6b7280">amirshetaia.com</text>
 </svg>`;
 
-await sharp(Buffer.from(svg)).png().toFile("public/og-image.png");
-console.log("og-image.png written (1200x630)");
+// Flatten onto the solid bg to strip the alpha channel — WhatsApp's crawler
+// refuses to render PNGs that carry alpha, even when fully opaque.
+await sharp(Buffer.from(svg))
+  .flatten({ background: "#0a0e14" })
+  .png()
+  .toFile("public/og-image.png");
+console.log("og-image.png written (1200x630, opaque/no-alpha)");
