@@ -2,8 +2,23 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
+
+// gpaFrac parses "4.3/4.3" into a 0..1 fraction.
+func gpaFrac(s string) float64 {
+	parts := strings.SplitN(s, "/", 2)
+	if len(parts) != 2 {
+		return 0
+	}
+	v, _ := strconv.ParseFloat(strings.TrimSpace(parts[0]), 64)
+	mx, _ := strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
+	if mx <= 0 {
+		return 0
+	}
+	return v / mx
+}
 
 // Blocky "AS" monogram for the Home view.
 var asLogo = []string{
@@ -83,7 +98,8 @@ func viewAbout(w int) []string {
 	out = append(out, "", stLabel.Render("// EDUCATION"))
 	for _, d := range education {
 		out = append(out, stAccent2.Render(d.degree))
-		out = append(out, stText.Render(d.school)+stFaint.Render("  ·  "+d.year+"  ·  GPA "+d.gpa))
+		out = append(out, stText.Render(d.school)+stFaint.Render("  ·  "+d.year))
+		out = append(out, bar(gpaFrac(d.gpa), 18, brandStops)+stText.Render("  "+d.gpa)+stFaint.Render(" GPA"))
 		for _, l := range wrapText(d.details, w) {
 			out = append(out, stDim.Render(l))
 		}

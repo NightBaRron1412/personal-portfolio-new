@@ -10,43 +10,66 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const sidebarW = 18
-
 type tickMsg time.Time
 
 func tick() tea.Cmd {
 	return tea.Tick(time.Millisecond*110, func(t time.Time) tea.Msg { return tickMsg(t) })
 }
 
+var konamiSeq = []string{"up", "up", "down", "down", "left", "right", "left", "right", "b", "a"}
+
+func matchKonami(buf []string) bool {
+	if len(buf) < len(konamiSeq) {
+		return false
+	}
+	buf = buf[len(buf)-len(konamiSeq):]
+	for i := range konamiSeq {
+		if buf[i] != konamiSeq[i] {
+			return false
+		}
+	}
+	return true
+}
+
 type model struct {
-	w, h  int
-	sec   int
-	off   int
-	frame int
-	ready bool
+	w, h   int
+	sec    int
+	off    int
+	frame  int
+	now    *nowPlaying
+	arcade bool
+	konami []string
+	ready  bool
 }
 
 func newModel(w, h int) model {
 	return model{w: w, h: h, ready: w > 0 && h > 0}
 }
 
-func (m model) Init() tea.Cmd { return tick() }
+func (m model) Init() tea.Cmd {
+	return tea.Batch(tick(), fetchSpotify, spotifyTick())
+}
 
 func (m model) contentWidth() int {
-	w := m.w - 2
-	if m.w >= 64 {
-		w = m.w - sidebarW - 3
+	if m.w < 64 {
+		w := m.w - 4
+		if w < 10 {
+			w = 10
+		}
+		return w
 	}
-	if w < 20 {
-		w = 20
+	w := m.w - 23
+	if w < 10 {
+		w = 10
 	}
 	return w
 }
 
 func (m model) bodyLines() []string { return bodyFor(m.sec, m.contentWidth()) }
 
+// inner content height (inside the panel border).
 func (m model) bodyHeight() int {
-	h := m.h - 4
+	h := m.h - 5
 	if h < 1 {
 		h = 1
 	}
@@ -84,8 +107,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tickMsg:
 		m.frame++
 		return m, tick()
+	case spotifyMsg:
+		if msg.np != nil {
+			m.now = msg.np
+		}
+		return m, nil
+	case spotifyTickMsg:
+		return m, tea.Batch(fetchSpotify, spotifyTick())
 	case tea.KeyMsg:
-		switch msg.String() {
+		k := msg.String()
+		m.konami = append(m.konami, k)
+		if len(m.konami) > len(konamiSeq) {
+			m.konami = m.konami[len(m.konami)-len(konamiSeq):]
+		}
+		if matchKonami(m.konami) {
+			m.arcade = !m.arcade
+			m.konami = nil
+		}
+		switch k {
 		case "q", "ctrl+c", "esc":
 			return m, tea.Quit
 		case "tab", "right", "l":
@@ -115,7 +154,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.off = 1 << 30
 			m.clamp()
 		case "1", "2", "3", "4", "5", "6", "7":
-			i := int(msg.String()[0] - '1')
+			i := int(k[0] - '1')
 			if i >= 0 && i < len(sections) {
 				m.sec = i
 				m.off = 0
@@ -126,27 +165,52 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) renderSidebar(h int) []string {
-	lines := []string{stFaint.Render(" PORTFOLIO"), ""}
+func windowLines(lines []string, off, h int) []string {
+	total := len(lines)
+	if off > total-h {
+		off = total - h
+	}
+	if off < 0 {
+		off = 0
+	}
+	out := make([]string, 0, h)
+	for i := off; i < off+h && i < total; i++ {
+		out = append(out, lines[i])
+	}
+	for len(out) < h {
+		out = append(out, "")
+	}
+	return out
+}
+
+func (m model) renderSidebar(h int, accent string) []string {
+	lines := []string{stFaint.Render("NAV"), ""}
 	for i, s := range sections {
 		num := stFaint.Render(strconv.Itoa(i + 1))
 		if i == m.sec {
 			tag := lipgloss.NewStyle().
 				Foreground(lipgloss.Color(colBg)).
-				Background(lipgloss.Color(colAccent)).
+				Background(lipgloss.Color(accent)).
 				Bold(true).Render(" " + s + " ")
-			lines = append(lines, " "+num+" "+tag)
+			lines = append(lines, num+" "+tag)
 		} else {
-			lines = append(lines, " "+num+" "+stDim.Render(s))
+			lines = append(lines, num+" "+stDim.Render(s))
 		}
+	}
+	for len(lines) < h-1 {
+		lines = append(lines, "")
+	}
+	lines = append(lines, stFaint.Render("q quit"))
+	if len(lines) > h {
+		lines = lines[:h]
 	}
 	for len(lines) < h {
 		lines = append(lines, "")
 	}
-	return lines[:h]
+	return lines
 }
 
-func (m model) renderEQ(n int) string {
+func (m model) renderEQ(n int, stops [][3]int) string {
 	var b strings.Builder
 	for i := 0; i < n; i++ {
 		ch := blocks[eqLevel(m.frame, i)]
@@ -154,83 +218,99 @@ func (m model) renderEQ(n int) string {
 		if n > 1 {
 			t = float64(i) / float64(n-1)
 		}
-		b.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color(colorAt(t))).Render(string(ch)))
+		b.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color(colorAtStops(t, stops))).Render(string(ch)))
 	}
 	return b.String()
 }
 
-func (m model) View() string {
-	if !m.ready || m.w < 4 || m.h < 8 {
-		return "loading…"
-	}
-	w := m.w
-	narrow := w < 64
-	var b strings.Builder
-
-	// Header.
-	left := " " + gradientBold("Amir Shetaia") + stFaint.Render(" · ") + stDim.Render(pRole)
-	right := stDim.Render(sections[m.sec]) + " "
-	b.WriteString(truncate(lineLR(left, right, w), w))
-	b.WriteString("\n")
-	if narrow {
-		l2 := lineLR(
-			" "+gradientBold(sections[m.sec]),
-			stFaint.Render(fmt.Sprintf("%d/%d  ‹←/→›", m.sec+1, len(sections)))+" ",
-			w,
-		)
-		b.WriteString(truncate(l2, w))
-	} else {
-		b.WriteString(stFaint.Render(strings.Repeat("─", w)))
-	}
-	b.WriteString("\n")
-
-	// Body (windowed by scroll offset).
-	bodyH := m.bodyHeight()
-	content := m.bodyLines()
-	total := len(content)
+func (m model) renderFooter(w int, stops [][3]int) string {
+	total := len(m.bodyLines())
+	bh := m.bodyHeight()
 	off := m.off
-	if maxOff := total - bodyH; off > maxOff {
-		off = maxOff
+	if off > total-bh {
+		off = total - bh
 	}
 	if off < 0 {
 		off = 0
 	}
-	win := make([]string, 0, bodyH)
-	for i := off; i < off+bodyH && i < total; i++ {
-		win = append(win, content[i])
-	}
-	for len(win) < bodyH {
-		win = append(win, "")
-	}
-
-	if narrow {
-		for _, l := range win {
-			b.WriteString(truncate(" "+l, w))
-			b.WriteString("\n")
-		}
-	} else {
-		side := m.renderSidebar(bodyH)
-		sep := stFaint.Render("│")
-		for i := 0; i < bodyH; i++ {
-			row := padRight(side[i], sidebarW) + " " + sep + " " + win[i]
-			b.WriteString(truncate(row, w))
-			b.WriteString("\n")
-		}
-	}
-
-	// Footer.
-	b.WriteString(stFaint.Render(strings.Repeat("─", w)))
-	b.WriteString("\n")
-	shown := bodyH
-	if off+shown > total {
-		shown = total - off
-	}
 	scroll := ""
-	if total > bodyH {
+	if total > bh {
+		shown := bh
+		if off+shown > total {
+			shown = total - off
+		}
 		scroll = stFaint.Render(fmt.Sprintf("%d–%d/%d", off+1, off+shown, total))
 	}
-	hints := stFaint.Render("↑/↓ scroll · ⇥ section · 1–7 jump · q quit")
-	rightF := scroll + "  " + m.renderEQ(10) + " "
-	b.WriteString(truncate(lineLR(" "+hints, rightF, w), w))
-	return b.String()
+
+	spot := ""
+	if m.now != nil {
+		icon := lipgloss.NewStyle().Foreground(lipgloss.Color(colorAtStops(0, stops))).Render("♫")
+		var label, eq string
+		if m.now.IsPlaying {
+			label = stFaint.Render("now playing ")
+			eq = m.renderEQ(7, stops) + " "
+		} else {
+			label = stFaint.Render("last played ")
+		}
+		info := m.now.Title
+		if m.now.Artist != "" {
+			info += " — " + m.now.Artist
+		}
+		avail := w - lipgloss.Width(scroll) - lipgloss.Width(label) - lipgloss.Width(eq) - 6
+		if avail < 8 {
+			avail = 8
+		}
+		spot = icon + " " + label + eq + stText.Render(marquee(info, avail, m.frame))
+	}
+	lineA := truncate(lineLR(" "+spot, scroll+" ", w), w)
+
+	hints := stFaint.Render("↑↓ scroll · ⇥ section · 1–7 jump · ↑↑↓↓←→←→ba")
+	right := stFaint.Render("ssh.amirshetaia.com ")
+	lineB := truncate(lineLR(" "+hints, right, w), w)
+	return lineA + "\n" + lineB
+}
+
+func (m model) View() string {
+	if !m.ready || m.w < 24 || m.h < 10 {
+		return "Make the window a touch bigger — this needs ~30×12.  (q to quit)"
+	}
+	stops := brandStops
+	accent := colAccent
+	border := colBorder
+	if m.arcade {
+		stops = arcadeStops
+		accent = colArcade
+		border = colBorderA
+	}
+	ph := float64(m.frame) * 0.015
+	w := m.w
+	narrow := w < 64
+
+	// Header.
+	left := " " + paintG("Amir Shetaia", true, stops, ph) + stFaint.Render("  ·  ") + stDim.Render(pRole)
+	tag := stFaint.Render("◷ " + clockStr())
+	if m.arcade {
+		tag = lipgloss.NewStyle().Foreground(lipgloss.Color(colArcade)).Bold(true).Render("★ ARCADE ★  ") + tag
+	}
+	header := truncate(lineLR(left, tag+" ", w), w)
+
+	// Body panels.
+	innerH := m.bodyHeight()
+	contentInnerW := m.contentWidth()
+	win := windowLines(bodyFor(m.sec, contentInnerW), m.off, innerH)
+	box := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(border)).
+		Padding(0, 1)
+
+	var row string
+	if narrow {
+		row = box.Width(contentInnerW).Height(innerH).Render(strings.Join(win, "\n"))
+	} else {
+		sidebar := box.Width(14).Height(innerH).Render(strings.Join(m.renderSidebar(innerH, accent), "\n"))
+		content := box.Width(contentInnerW).Height(innerH).Render(strings.Join(win, "\n"))
+		row = lipgloss.JoinHorizontal(lipgloss.Top, sidebar, " ", content)
+	}
+
+	return header + "\n" + row + "\n" + m.renderFooter(w, stops)
 }
