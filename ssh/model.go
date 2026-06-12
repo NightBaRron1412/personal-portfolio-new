@@ -62,7 +62,7 @@ func (m model) contentWidth() int {
 		}
 		return w
 	}
-	w := m.w - 23
+	w := m.w - 25 // 20-wide sidebar panel + 1 gap + content border/padding
 	if w < 10 {
 		w = 10
 	}
@@ -151,9 +151,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		if !m.booting && m.w >= 64 &&
 			msg.Action == tea.MouseActionPress && msg.Button == tea.MouseButtonLeft {
-			// Sidebar item i sits at terminal row 4+i, within the 18-wide panel.
+			// Sidebar item i sits at terminal row 4+i, within the 20-wide panel.
 			idx := msg.Y - 4
-			if msg.X >= 0 && msg.X < 18 && idx >= 0 && idx < len(sections) {
+			if msg.X >= 0 && msg.X < 20 && idx >= 0 && idx < len(sections) {
 				m.sec = idx
 				m.off = 0
 			}
@@ -402,7 +402,7 @@ func (m model) View() string {
 	if narrow {
 		row = box.Width(contentInnerW).Height(innerH).Render(strings.Join(win, "\n"))
 	} else {
-		sidebar := box.Width(14).Height(innerH).Render(strings.Join(m.renderSidebar(innerH, accent), "\n"))
+		sidebar := box.Width(16).Height(innerH).Render(strings.Join(m.renderSidebar(innerH, accent), "\n"))
 		content := box.Width(contentInnerW).Height(innerH).Render(strings.Join(win, "\n"))
 		row = lipgloss.JoinHorizontal(lipgloss.Top, sidebar, " ", content)
 	}
