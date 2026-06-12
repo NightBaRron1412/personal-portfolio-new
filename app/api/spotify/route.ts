@@ -153,7 +153,14 @@ async function diagnose() {
     };
   }
 
-  return { tokenOk: true, now: nowInfo, recent: recentInfo };
+  const meRes = await fetch("https://api.spotify.com/v1/me", { headers: auth, cache: "no-store" });
+  let account: Record<string, unknown> = { status: meRes.status };
+  if (meRes.ok) {
+    const d = (await meRes.json()) as { display_name?: string; id?: string };
+    account = { status: 200, displayName: d.display_name, id: d.id };
+  }
+
+  return { tokenOk: true, account, now: nowInfo, recent: recentInfo };
 }
 
 export async function GET(request: Request) {
