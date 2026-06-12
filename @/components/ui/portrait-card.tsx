@@ -68,7 +68,8 @@ export function PortraitCard({
           <img
             src={imageUrl}
             alt={name}
-            loading="lazy"
+            loading="eager"
+            fetchPriority="high"
             decoding="async"
             className="ken-burns absolute inset-0 h-full w-full object-cover"
           />

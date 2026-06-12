@@ -55,7 +55,7 @@ function Cover({ m, title }: { m: Meta; title: string }) {
           src={m.cover}
           alt={`${title} cover`}
           loading="eager"
-          fetchPriority="low"
+          fetchPriority="high"
           decoding="async"
           className="absolute inset-0 m-auto h-auto w-full object-contain transition-transform duration-500 group-hover:scale-[1.04]"
         />
@@ -68,7 +68,7 @@ function Cover({ m, title }: { m: Meta; title: string }) {
       src={m.cover}
       alt={`${title} cover`}
       loading="eager"
-      fetchPriority="low"
+      fetchPriority="high"
       decoding="async"
       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
