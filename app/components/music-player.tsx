@@ -6,21 +6,20 @@ import { cn } from "@/lib/utils";
 
 /**
  * Background music via the Web Audio API (not an <audio> element) so iOS does
- * NOT surface the loop in Now Playing / the Dynamic Island and it won't hijack
+ * NOT surface the loop in Now Playing / the Dynamic Island, and it won't hijack
  * the user's real music app.
  *
- * iOS unlock rules are strict:
- *  1. resume() must run synchronously inside the gesture (no await before it);
- *  2. a source node must actually be *started* inside a gesture — resume() alone
- *     reports "running" but stays muted. Since the real track may not have
- *     decoded by the first tap, we start a 1-sample silent buffer in the gesture
- *     to unlock the context, then start the real loop once it's ready.
- * Gesture listeners are armed immediately (not behind the HEAD check) so a slow
- * mobile network can't cause us to miss the first tap. Scrolling does NOT count
- * as a gesture. Playback pauses when backgrounded; the on/off choice persists.
+ * iOS unlock is finicky: resume() must run synchronously in a gesture AND a
+ * source node must actually start inside a gesture (resume alone reports
+ * "running" but stays muted). A scroll fires pointer events but does NOT count
+ * as an activation, so we must NOT consume a one-shot listener on it. Instead we
+ * keep the gesture listeners attached and re-attempt on every gesture until the
+ * loop is genuinely running, then detach. Scrolling can't unlock; the next real
+ * tap will. Playback pauses when backgrounded; the on/off choice persists.
  */
 const SRC = "/audio/menu.mp3";
 const LS_KEY = "music-on";
+const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"] as const;
 
 export function MusicPlayer({ className }: { className?: string }) {
   const ctxRef = useRef<AudioContext | null>(null);
@@ -28,9 +27,9 @@ export function MusicPlayer({ className }: { className?: string }) {
   const bufRef = useRef<AudioBuffer | null>(null);
   const loadRef = useRef<Promise<void> | null>(null);
   const startedRef = useRef(false);
-  const unlockedRef = useRef(false);
   const wantRef = useRef(false);
   const aliveRef = useRef(true);
+  const detachRef = useRef<() => void>(() => {});
 
   const [available, setAvailable] = useState(true);
   const [playing, setPlaying] = useState(false);
@@ -73,8 +72,8 @@ export function MusicPlayer({ className }: { className?: string }) {
         .then((ab) => ctxRef.current!.decodeAudioData(ab))
         .then((buf) => {
           bufRef.current = buf;
-          // Context was unlocked by the gesture's silent buffer, so starting
-          // the real loop now (outside a gesture) is allowed and audible.
+          // If a prior gesture already unlocked + resumed the context, start the
+          // real loop now and we're done autostarting.
           if (
             aliveRef.current &&
             wantRef.current &&
@@ -82,25 +81,26 @@ export function MusicPlayer({ className }: { className?: string }) {
           ) {
             startSource();
             setPlaying(true);
+            detachRef.current();
           }
         })
         .catch(() => {});
     }
   }, [startSource]);
 
-  // Must run synchronously inside a gesture.
+  // Called from each gesture (and the button). Safe to call repeatedly.
   const play = useCallback(() => {
     const ctx = buildGraph();
     if (!ctx) return;
     wantRef.current = true;
-    // iOS unlock: start a 1-sample silent buffer *inside the gesture*.
-    if (!unlockedRef.current) {
+    // iOS unlock: start a 1-sample silent buffer *inside the gesture*. Repeat on
+    // every gesture until the real loop runs — a scroll won't unlock, a tap will.
+    if (!startedRef.current) {
       try {
         const s = ctx.createBufferSource();
         s.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
         s.connect(ctx.destination);
         s.start(0);
-        unlockedRef.current = true;
       } catch {
         /* ignore */
       }
@@ -110,10 +110,11 @@ export function MusicPlayer({ className }: { className?: string }) {
     ctx
       .resume()
       .then(() => {
-        if (aliveRef.current) setPlaying(ctx.state === "running");
+        const running = ctx.state === "running";
+        if (aliveRef.current) setPlaying(running && startedRef.current);
+        if (running && startedRef.current) detachRef.current(); // autostart done
       })
       .catch(() => {});
-    setPlaying(true); // optimistic; corrected by the resume() result
   }, [buildGraph, startSource, loadBuffer]);
 
   const pause = useCallback(() => {
@@ -146,23 +147,19 @@ export function MusicPlayer({ className }: { className?: string }) {
         if (localStorage.getItem(LS_KEY) !== "false") play();
       }
     };
-    const opts = { once: true } as AddEventListenerOptions;
-    const armGestures = () => {
-      // WebKit honors touchend/click/keydown as activation gestures; first to
-      // fire unlocks. pointerdown included for desktop responsiveness.
-      window.addEventListener("pointerdown", onGesture, opts);
-      window.addEventListener("touchend", onGesture, opts);
-      window.addEventListener("click", onGesture, opts);
-      window.addEventListener("keydown", onGesture, opts);
-    };
+
+    const detach = () => GESTURES.forEach((ev) => window.removeEventListener(ev, onGesture));
+    const arm = () => GESTURES.forEach((ev) => window.addEventListener(ev, onGesture));
+    detachRef.current = detach;
 
     window.addEventListener("arcade-music", onArcade);
     document.addEventListener("visibilitychange", onVisibility);
-    // Arm autostart now — don't wait on the HEAD check, or a slow mobile
-    // connection could let the first tap slip by unarmed.
+    // Arm autostart now (not behind the HEAD check) so a slow mobile connection
+    // can't let the first tap slip by unarmed. Listeners persist until the loop
+    // is actually running, so a scroll can't waste the chance.
     if (localStorage.getItem(LS_KEY) !== "false") {
       wantRef.current = true;
-      armGestures();
+      arm();
     }
 
     // Confirm the track exists (hide control if not) and preload + decode it.
@@ -182,10 +179,7 @@ export function MusicPlayer({ className }: { className?: string }) {
 
     return () => {
       aliveRef.current = false;
-      window.removeEventListener("pointerdown", onGesture);
-      window.removeEventListener("touchend", onGesture);
-      window.removeEventListener("click", onGesture);
-      window.removeEventListener("keydown", onGesture);
+      detach();
       window.removeEventListener("arcade-music", onArcade);
       document.removeEventListener("visibilitychange", onVisibility);
       const ctx = ctxRef.current;
