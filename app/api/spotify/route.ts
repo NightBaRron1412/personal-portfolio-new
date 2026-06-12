@@ -81,11 +81,10 @@ async function fetchFromSpotify(): Promise<Track | null> {
   if (!access_token) return null;
   const auth = { Authorization: `Bearer ${access_token}` };
 
-  // 1) Currently playing — trust it ONLY when actually playing. A *paused* item
-  // lingers in this endpoint long after you've moved on (Spotify keeps the track
-  // "parked"), so using it for "last played" showed a stale song. Keep it only
-  // as a last-resort fallback if recently-played is unavailable.
-  let pausedFallback: Track | null = null;
+  // 1) Currently-playing reflects what's loaded on the active device — return it
+  // whether PLAYING or PAUSED. A paused track is the freshest thing the user
+  // touched, and crucially it is NOT yet in recently-played (that endpoint would
+  // return the *previous* track), so this is the correct "last played".
   const now = await fetch(NOW_PLAYING_ENDPOINT, { headers: auth, cache: "no-store" });
   if (now.status === 429) {
     noteRateLimit(now);
@@ -94,23 +93,22 @@ async function fetchFromSpotify(): Promise<Track | null> {
   if (now.status === 200) {
     const data = await now.json();
     if (data?.item && data.item.type === "track") {
-      if (data.is_playing) return buildTrack(data.item, true, data.progress_ms);
-      pausedFallback = buildTrack(data.item, false);
+      return buildTrack(data.item, !!data.is_playing, data.progress_ms);
     }
   }
 
-  // 2) Not playing → the most recent *completed* track is the real "last played".
+  // 2) Nothing loaded (204 / inactive device) → the most recent completed track.
   const recent = await fetch(RECENTLY_PLAYED_ENDPOINT, { headers: auth, cache: "no-store" });
   if (recent.status === 429) {
     noteRateLimit(recent);
-    return pausedFallback;
+    return null;
   }
   if (recent.ok) {
     const track = (await recent.json()).items?.[0]?.track as SpotifyItem | undefined;
     if (track) return buildTrack(track, false);
   }
 
-  return pausedFallback; // recently-played unavailable — fall back to paused/null
+  return null; // 429 / nothing — caller falls back to the cached track
 }
 
 export async function GET() {
