@@ -2,7 +2,7 @@ package main
 
 // Portfolio content — mirrors data/profile.ts + data/games.json from the website.
 
-var sections = []string{"Home", "About", "Experience", "Projects", "Skills", "Games", "Contact"}
+var sections = []string{"Home", "About", "Experience", "Projects", "Skills", "Signals", "Games", "Contact"}
 
 const (
 	pRole = "Senior Software Engineer · Systems, HPC & ML"

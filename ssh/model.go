@@ -10,6 +10,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const bootFrames = 22 // ~2.4s boot splash
+
 type tickMsg time.Time
 
 func tick() tea.Cmd {
@@ -32,22 +34,24 @@ func matchKonami(buf []string) bool {
 }
 
 type model struct {
-	w, h   int
-	sec    int
-	off    int
-	frame  int
-	now    *nowPlaying
-	arcade bool
-	konami []string
-	ready  bool
+	w, h    int
+	sec     int
+	off     int
+	frame   int
+	now     *nowPlaying
+	gh      *githubData
+	arcade  bool
+	booting bool
+	konami  []string
+	ready   bool
 }
 
 func newModel(w, h int) model {
-	return model{w: w, h: h, ready: w > 0 && h > 0}
+	return model{w: w, h: h, ready: w > 0 && h > 0, booting: true}
 }
 
 func (m model) Init() tea.Cmd {
-	return tea.Batch(tick(), fetchSpotify, spotifyTick())
+	return tea.Batch(tick(), fetchSpotify, spotifyTick(), fetchGithub)
 }
 
 func (m model) contentWidth() int {
@@ -65,7 +69,29 @@ func (m model) contentWidth() int {
 	return w
 }
 
-func (m model) bodyLines() []string { return bodyFor(m.sec, m.contentWidth()) }
+func (m model) sectionLines(w int) []string {
+	switch sections[m.sec] {
+	case "Home":
+		return viewHome(w)
+	case "About":
+		return viewAbout(w)
+	case "Experience":
+		return viewExperience(w)
+	case "Projects":
+		return viewProjects(w)
+	case "Skills":
+		return viewSkills(w)
+	case "Signals":
+		return viewSignals(w, m.gh)
+	case "Games":
+		return viewGames(w)
+	case "Contact":
+		return viewContact(w)
+	}
+	return nil
+}
+
+func (m model) bodyLines() []string { return m.sectionLines(m.contentWidth()) }
 
 // inner content height (inside the panel border).
 func (m model) bodyHeight() int {
@@ -106,6 +132,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case tickMsg:
 		m.frame++
+		if m.booting && m.frame >= bootFrames {
+			m.booting = false
+		}
 		return m, tick()
 	case spotifyMsg:
 		if msg.np != nil {
@@ -114,7 +143,27 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case spotifyTickMsg:
 		return m, tea.Batch(fetchSpotify, spotifyTick())
+	case githubMsg:
+		if msg.data != nil {
+			m.gh = msg.data
+		}
+		return m, nil
+	case tea.MouseMsg:
+		if !m.booting && m.w >= 64 &&
+			msg.Action == tea.MouseActionPress && msg.Button == tea.MouseButtonLeft {
+			// Sidebar item i sits at terminal row 4+i, within the 18-wide panel.
+			idx := msg.Y - 4
+			if msg.X >= 0 && msg.X < 18 && idx >= 0 && idx < len(sections) {
+				m.sec = idx
+				m.off = 0
+			}
+		}
+		return m, nil
 	case tea.KeyMsg:
+		if m.booting {
+			m.booting = false // any key skips the splash
+			return m, nil
+		}
 		k := msg.String()
 		m.konami = append(m.konami, k)
 		if len(m.konami) > len(konamiSeq) {
@@ -153,7 +202,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "end", "G":
 			m.off = 1 << 30
 			m.clamp()
-		case "1", "2", "3", "4", "5", "6", "7":
+		case "1", "2", "3", "4", "5", "6", "7", "8":
 			i := int(k[0] - '1')
 			if i >= 0 && i < len(sections) {
 				m.sec = i
@@ -223,6 +272,37 @@ func (m model) renderEQ(n int, stops [][3]int) string {
 	return b.String()
 }
 
+func (m model) renderBoot() string {
+	steps := []string{
+		"establishing secure channel",
+		"loading profile · Amir Shetaia",
+		"mounting /experience /projects /games",
+		"sync spotify.now_playing",
+		"fetch github.signals",
+		"render engine · bubbletea + lipgloss",
+	}
+	lines := []string{
+		gradientFlow("AMIR_OS", float64(m.frame)*0.03),
+		stFaint.Render("instrument terminal · v4.8"),
+		"",
+	}
+	shown := m.frame / 2
+	for i, s := range steps {
+		if i < shown {
+			lines = append(lines, stDim.Render("› "+s+" ")+stAccent.Render("ok"))
+		} else if i == shown {
+			lines = append(lines, stDim.Render("› "+s+" ")+stFaint.Render("…"))
+		}
+	}
+	lines = append(lines, "")
+	if shown >= len(steps) {
+		lines = append(lines, gradient("ready."))
+	} else {
+		lines = append(lines, stFaint.Render("booting…"))
+	}
+	return lipgloss.Place(m.w, m.h, lipgloss.Center, lipgloss.Center, strings.Join(lines, "\n"))
+}
+
 func (m model) renderFooter(w int, stops [][3]int) string {
 	total := len(m.bodyLines())
 	bh := m.bodyHeight()
@@ -264,7 +344,7 @@ func (m model) renderFooter(w int, stops [][3]int) string {
 	}
 	lineA := truncate(lineLR(" "+spot, scroll+" ", w), w)
 
-	hints := stFaint.Render("↑↓ scroll · ⇥ section · 1–7 jump · ↑↑↓↓←→←→ba")
+	hints := stFaint.Render("↑↓ scroll · ⇥ section · 1–8 jump · click nav · ↑↑↓↓←→←→ba")
 	right := stFaint.Render("ssh.amirshetaia.com ")
 	lineB := truncate(lineLR(" "+hints, right, w), w)
 	return lineA + "\n" + lineB
@@ -274,13 +354,22 @@ func (m model) View() string {
 	if !m.ready || m.w < 24 || m.h < 10 {
 		return "Make the window a touch bigger — this needs ~30×12.  (q to quit)"
 	}
+	if m.booting {
+		return m.renderBoot()
+	}
+
 	stops := brandStops
 	accent := colAccent
 	border := colBorder
 	if m.arcade {
 		stops = arcadeStops
 		accent = colArcade
-		border = colBorderA
+		// CRT pulse: border flickers between hot magenta and cyan.
+		if (m.frame/8)%2 == 0 {
+			border = "#ff2d95"
+		} else {
+			border = "#22d3ee"
+		}
 	}
 	ph := float64(m.frame) * 0.015
 	w := m.w
@@ -290,14 +379,20 @@ func (m model) View() string {
 	left := " " + paintG("Amir Shetaia", true, stops, ph) + stFaint.Render("  ·  ") + stDim.Render(pRole)
 	tag := stFaint.Render("◷ " + clockStr())
 	if m.arcade {
-		tag = lipgloss.NewStyle().Foreground(lipgloss.Color(colArcade)).Bold(true).Render("★ ARCADE ★  ") + tag
+		badge := "★ ARCADE ★"
+		bs := lipgloss.NewStyle().Foreground(lipgloss.Color(border)).Bold(true)
+		if (m.frame/5)%2 == 0 {
+			tag = bs.Render(badge) + "  " + tag
+		} else {
+			tag = stFaint.Render(badge) + "  " + tag
+		}
 	}
 	header := truncate(lineLR(left, tag+" ", w), w)
 
 	// Body panels.
 	innerH := m.bodyHeight()
 	contentInnerW := m.contentWidth()
-	win := windowLines(bodyFor(m.sec, contentInnerW), m.off, innerH)
+	win := windowLines(m.sectionLines(contentInnerW), m.off, innerH)
 	box := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(border)).

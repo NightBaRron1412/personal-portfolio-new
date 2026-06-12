@@ -83,15 +83,15 @@ func TestSSHServeRendersTUI(t *testing.T) {
 
 	got := make(chan string, 1)
 	go func() {
-		buf := make([]byte, 0, 32768)
+		buf := make([]byte, 0, 1<<18)
 		tmp := make([]byte, 4096)
-		end := time.Now().Add(2 * time.Second)
+		end := time.Now().Add(5 * time.Second) // read past the ~2.4s boot splash
 		for time.Now().Before(end) {
 			n, e := stdout.Read(tmp)
 			if n > 0 {
 				buf = append(buf, tmp[:n]...)
 			}
-			if e != nil || len(buf) > 12000 {
+			if e != nil {
 				break
 			}
 		}
@@ -101,7 +101,7 @@ func TestSSHServeRendersTUI(t *testing.T) {
 	var text string
 	select {
 	case text = <-got:
-	case <-time.After(4 * time.Second):
+	case <-time.After(7 * time.Second):
 		t.Fatal("timeout reading TUI output")
 	}
 

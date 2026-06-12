@@ -30,7 +30,7 @@ func env(k, d string) string {
 func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	pty, _, _ := s.Pty()
 	return newModel(pty.Window.Width, pty.Window.Height),
-		[]tea.ProgramOption{tea.WithAltScreen()}
+		[]tea.ProgramOption{tea.WithAltScreen(), tea.WithMouseCellMotion()}
 }
 
 func main() {

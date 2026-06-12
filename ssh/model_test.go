@@ -18,7 +18,9 @@ func upd(m model, msg tea.Msg) model {
 }
 
 func ready(w, h int) model {
-	return upd(newModel(w, h), tea.WindowSizeMsg{Width: w, Height: h})
+	m := upd(newModel(w, h), tea.WindowSizeMsg{Width: w, Height: h})
+	m.booting = false // skip the splash for deterministic tests
+	return m
 }
 
 func runeKey(s string) tea.KeyMsg {
@@ -32,6 +34,7 @@ func TestSectionsRender(t *testing.T) {
 		"Experience": {"AMD", "Huawei", "ROCm"},
 		"Projects":   {"OptVerse", "DeepParse", "VehiPlus"},
 		"Skills":     {"Languages", "OpenMP"},
+		"Signals":    {"SIGNALS", "fetching"},
 		"Games":      {"Witcher", "NightBaRron1412", "Pragmata"},
 		"Contact":    {"amirshetaia.com", "LinkedIn"},
 	}

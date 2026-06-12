@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 // gpaFrac parses "4.3/4.3" into a 0..1 fraction.
@@ -216,22 +218,88 @@ func viewContact(w int) []string {
 	return out
 }
 
-func bodyFor(sec, w int) []string {
-	switch sections[sec] {
-	case "Home":
-		return viewHome(w)
-	case "About":
-		return viewAbout(w)
-	case "Experience":
-		return viewExperience(w)
-	case "Projects":
-		return viewProjects(w)
-	case "Skills":
-		return viewSkills(w)
-	case "Games":
-		return viewGames(w)
-	case "Contact":
-		return viewContact(w)
+// ---- Live Signals (GitHub) ----
+
+var heatColors = []string{"#1e2730", "#0e5e54", "#13937e", "#1cc4a6", "#5ff0d8"}
+
+func heatCell(lvl int) string {
+	if lvl < 0 {
+		lvl = 0
 	}
-	return nil
+	if lvl > 4 {
+		lvl = 4
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(heatColors[lvl])).Render("■")
+}
+
+func heatmapLines(days []ghDay) []string {
+	cols := (len(days) + 6) / 7
+	rows := make([]string, 7)
+	for r := 0; r < 7; r++ {
+		var b strings.Builder
+		for c := 0; c < cols; c++ {
+			idx := c*7 + r
+			if idx >= len(days) {
+				b.WriteString(" ")
+				continue
+			}
+			b.WriteString(heatCell(days[idx].Level))
+		}
+		rows[r] = b.String()
+	}
+	legend := stFaint.Render("less ") + heatCell(0) + heatCell(1) + heatCell(2) + heatCell(3) + heatCell(4) + stFaint.Render(" more")
+	return append(rows, "", legend)
+}
+
+func firstLine(s string) string {
+	if i := strings.IndexByte(s, '\n'); i >= 0 {
+		return s[:i]
+	}
+	return s
+}
+
+func truncRunes(s string, n int) string {
+	if n < 1 {
+		n = 1
+	}
+	r := []rune(s)
+	if len(r) <= n {
+		return s
+	}
+	if n <= 1 {
+		return string(r[:n])
+	}
+	return string(r[:n-1]) + "…"
+}
+
+func viewSignals(w int, gh *githubData) []string {
+	out := []string{heading("Live Signals"), ""}
+	if gh == nil {
+		out = append(out, stFaint.Render("fetching live GitHub activity…"))
+		return out
+	}
+	out = append(out,
+		stAccent2.Render("@"+gh.User.Login)+
+			stFaint.Render(fmt.Sprintf("  ·  %d followers · %d public repos", gh.User.Followers, gh.User.PublicRepos)),
+		"",
+		stLabel.Render(strconv.Itoa(gh.Stats.TotalCommits))+stFaint.Render(" commits   ")+
+			stLabel.Render(strconv.Itoa(gh.Stats.ActiveDays))+stFaint.Render(" active days   ")+
+			stLabel.Render(strconv.Itoa(gh.Stats.CurrentStreak))+stFaint.Render(" day streak"),
+		"",
+		stFaint.Render(fmt.Sprintf("contributions · last %d days", len(gh.Heatmap))),
+	)
+	out = append(out, heatmapLines(gh.Heatmap)...)
+	out = append(out, "", stLabel.Render("// RECENT COMMITS"))
+	for i, c := range gh.RecentCommits {
+		if i >= 7 {
+			break
+		}
+		sha := c.Sha
+		if len(sha) > 7 {
+			sha = sha[:7]
+		}
+		out = append(out, stAccent.Render(sha)+" "+stText.Render(truncRunes(firstLine(c.Message), w-10)))
+		out = append(out, stFaint.Render("   "+c.Repo))
+	}
+	return out
 }
