@@ -9,12 +9,15 @@ import { cn } from "@/lib/utils";
  * NOT surface the loop in Now Playing / the Dynamic Island and it won't hijack
  * the user's real music app.
  *
- * iOS gotcha: AudioContext.resume() must be called *synchronously* inside the
- * user gesture — any `await` before it drops the activation and audio stays
- * blocked. So we build the graph and decode the track up front, then on the
- * first interaction we call resume() synchronously (no await). Autoplay-with-
- * sound is blocked until that gesture; scrolling does NOT count as one. Playback
- * pauses when the tab/app is backgrounded; the on/off choice persists.
+ * iOS unlock rules are strict:
+ *  1. resume() must run synchronously inside the gesture (no await before it);
+ *  2. a source node must actually be *started* inside a gesture — resume() alone
+ *     reports "running" but stays muted. Since the real track may not have
+ *     decoded by the first tap, we start a 1-sample silent buffer in the gesture
+ *     to unlock the context, then start the real loop once it's ready.
+ * Gesture listeners are armed immediately (not behind the HEAD check) so a slow
+ * mobile network can't cause us to miss the first tap. Scrolling does NOT count
+ * as a gesture. Playback pauses when backgrounded; the on/off choice persists.
  */
 const SRC = "/audio/menu.mp3";
 const LS_KEY = "music-on";
@@ -25,6 +28,7 @@ export function MusicPlayer({ className }: { className?: string }) {
   const bufRef = useRef<AudioBuffer | null>(null);
   const loadRef = useRef<Promise<void> | null>(null);
   const startedRef = useRef(false);
+  const unlockedRef = useRef(false);
   const wantRef = useRef(false);
   const aliveRef = useRef(true);
 
@@ -61,8 +65,6 @@ export function MusicPlayer({ className }: { className?: string }) {
     startedRef.current = true;
   }, []);
 
-  // Fetch + decode the track. When it lands, start the loop if the user has
-  // already asked to play and the context is running.
   const loadBuffer = useCallback(() => {
     if (bufRef.current || !ctxRef.current) return;
     if (!loadRef.current) {
@@ -71,6 +73,8 @@ export function MusicPlayer({ className }: { className?: string }) {
         .then((ab) => ctxRef.current!.decodeAudioData(ab))
         .then((buf) => {
           bufRef.current = buf;
+          // Context was unlocked by the gesture's silent buffer, so starting
+          // the real loop now (outside a gesture) is allowed and audible.
           if (
             aliveRef.current &&
             wantRef.current &&
@@ -84,11 +88,23 @@ export function MusicPlayer({ className }: { className?: string }) {
     }
   }, [startSource]);
 
-  // Must run synchronously inside a gesture: resume() is called before any await.
+  // Must run synchronously inside a gesture.
   const play = useCallback(() => {
     const ctx = buildGraph();
     if (!ctx) return;
     wantRef.current = true;
+    // iOS unlock: start a 1-sample silent buffer *inside the gesture*.
+    if (!unlockedRef.current) {
+      try {
+        const s = ctx.createBufferSource();
+        s.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+        s.connect(ctx.destination);
+        s.start(0);
+        unlockedRef.current = true;
+      } catch {
+        /* ignore */
+      }
+    }
     if (bufRef.current) startSource();
     else loadBuffer();
     ctx
@@ -132,15 +148,24 @@ export function MusicPlayer({ className }: { className?: string }) {
     };
     const opts = { once: true } as AddEventListenerOptions;
     const armGestures = () => {
-      // WebKit honors these as activation gestures; first one to fire unlocks.
+      // WebKit honors touchend/click/keydown as activation gestures; first to
+      // fire unlocks. pointerdown included for desktop responsiveness.
       window.addEventListener("pointerdown", onGesture, opts);
       window.addEventListener("touchend", onGesture, opts);
       window.addEventListener("click", onGesture, opts);
       window.addEventListener("keydown", onGesture, opts);
     };
 
-    // Confirm the track exists before showing the control, then preload it so
-    // the first tap can start instantly.
+    window.addEventListener("arcade-music", onArcade);
+    document.addEventListener("visibilitychange", onVisibility);
+    // Arm autostart now — don't wait on the HEAD check, or a slow mobile
+    // connection could let the first tap slip by unarmed.
+    if (localStorage.getItem(LS_KEY) !== "false") {
+      wantRef.current = true;
+      armGestures();
+    }
+
+    // Confirm the track exists (hide control if not) and preload + decode it.
     fetch(SRC, { method: "HEAD" })
       .then((res) => {
         if (!aliveRef.current) return;
@@ -150,11 +175,6 @@ export function MusicPlayer({ className }: { className?: string }) {
         }
         buildGraph();
         loadBuffer();
-        window.addEventListener("arcade-music", onArcade);
-        document.addEventListener("visibilitychange", onVisibility);
-        if (localStorage.getItem(LS_KEY) === "false") return;
-        wantRef.current = true;
-        armGestures();
       })
       .catch(() => {
         if (aliveRef.current) setAvailable(false);
