@@ -55,11 +55,37 @@ async function getAccessToken() {
   return response.json();
 }
 
+type SpotifyItem = {
+  name: string;
+  artists: { name: string }[];
+  album: { name: string; images?: { url: string }[] };
+  external_urls: { spotify: string };
+  duration_ms: number;
+};
+
+function buildTrack(item: SpotifyItem, isPlaying: boolean, progress?: number): Track {
+  return {
+    isPlaying,
+    title: item.name,
+    artist: item.artists.map((a) => a.name).join(", "),
+    album: item.album.name,
+    albumArt: item.album.images?.[0]?.url,
+    songUrl: item.external_urls.spotify,
+    progress: isPlaying ? progress : undefined,
+    duration: isPlaying ? item.duration_ms : undefined,
+  };
+}
+
 async function fetchFromSpotify(): Promise<Track | null> {
   const { access_token } = await getAccessToken();
   if (!access_token) return null;
   const auth = { Authorization: `Bearer ${access_token}` };
 
+  // 1) Currently playing — trust it ONLY when actually playing. A *paused* item
+  // lingers in this endpoint long after you've moved on (Spotify keeps the track
+  // "parked"), so using it for "last played" showed a stale song. Keep it only
+  // as a last-resort fallback if recently-played is unavailable.
+  let pausedFallback: Track | null = null;
   const now = await fetch(NOW_PLAYING_ENDPOINT, { headers: auth, cache: "no-store" });
   if (now.status === 429) {
     noteRateLimit(now);
@@ -67,44 +93,24 @@ async function fetchFromSpotify(): Promise<Track | null> {
   }
   if (now.status === 200) {
     const data = await now.json();
-    // Use the active track whether it's PLAYING or PAUSED. When paused, Spotify
-    // still reports it here, but the recently-played endpoint below points at the
-    // *previous* track — which made "last played" show the wrong song.
     if (data?.item && data.item.type === "track") {
-      const playing = !!data.is_playing;
-      return {
-        isPlaying: playing,
-        title: data.item.name,
-        artist: data.item.artists.map((a: { name: string }) => a.name).join(", "),
-        album: data.item.album.name,
-        albumArt: data.item.album.images?.[0]?.url,
-        songUrl: data.item.external_urls.spotify,
-        progress: playing ? data.progress_ms : undefined,
-        duration: playing ? data.item.duration_ms : undefined,
-      };
+      if (data.is_playing) return buildTrack(data.item, true, data.progress_ms);
+      pausedFallback = buildTrack(data.item, false);
     }
   }
 
+  // 2) Not playing → the most recent *completed* track is the real "last played".
   const recent = await fetch(RECENTLY_PLAYED_ENDPOINT, { headers: auth, cache: "no-store" });
   if (recent.status === 429) {
     noteRateLimit(recent);
-    return null;
+    return pausedFallback;
   }
   if (recent.ok) {
-    const track = (await recent.json()).items?.[0]?.track;
-    if (track) {
-      return {
-        isPlaying: false,
-        title: track.name,
-        artist: track.artists.map((a: { name: string }) => a.name).join(", "),
-        album: track.album.name,
-        albumArt: track.album.images?.[0]?.url,
-        songUrl: track.external_urls.spotify,
-      };
-    }
+    const track = (await recent.json()).items?.[0]?.track as SpotifyItem | undefined;
+    if (track) return buildTrack(track, false);
   }
 
-  return null; // 429 / nothing — caller falls back to the cached track
+  return pausedFallback; // recently-played unavailable — fall back to paused/null
 }
 
 export async function GET() {
