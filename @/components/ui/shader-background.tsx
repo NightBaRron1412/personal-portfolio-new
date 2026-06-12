@@ -116,6 +116,10 @@ export function ShaderBackground({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  // When WebGL is unavailable (locked-down/corporate browsers, Zscaler browser
+  // isolation, disabled hardware acceleration), fall back to a CSS gradient so
+  // the hero background is never blank.
+  const [failed, setFailed] = useState(false);
   // Theme as a ref so the draw loop can read it without re-initializing WebGL.
   const lightRef = useRef(resolvedTheme === "light");
   const drawRef = useRef<(() => void) | null>(null);
@@ -132,19 +136,32 @@ export function ShaderBackground({ className }: { className?: string }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !mounted) return;
-    const gl = canvas.getContext("webgl");
-    if (!gl) return;
+    const gl = (canvas.getContext("webgl") ||
+      canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+    if (!gl) {
+      setFailed(true);
+      return;
+    }
 
     const vert = compile(gl, gl.VERTEX_SHADER, VERT);
     const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG);
-    if (!vert || !frag) return;
+    if (!vert || !frag) {
+      setFailed(true);
+      return;
+    }
 
     const program = gl.createProgram();
-    if (!program) return;
+    if (!program) {
+      setFailed(true);
+      return;
+    }
     gl.attachShader(program, vert);
     gl.attachShader(program, frag);
     gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      setFailed(true);
+      return;
+    }
 
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -244,6 +261,22 @@ export function ShaderBackground({ className }: { className?: string }) {
       unsubscribe();
     };
   }, [mounted]);
+
+  if (failed) {
+    const light = resolvedTheme === "light";
+    return (
+      <div
+        aria-hidden
+        className={cn("block h-full w-full", className)}
+        style={{
+          backgroundColor: light ? "#eef2f4" : "#0a0e14",
+          backgroundImage: light
+            ? "radial-gradient(120% 90% at 82% 0%, rgba(20,170,150,0.16), transparent 60%), radial-gradient(90% 70% at 12% 0%, rgba(167,139,250,0.14), transparent 55%)"
+            : "radial-gradient(120% 90% at 82% 0%, rgba(45,212,191,0.22), transparent 60%), radial-gradient(90% 70% at 12% 0%, rgba(167,139,250,0.18), transparent 55%), repeating-linear-gradient(100deg, transparent 0 22px, rgba(45,212,191,0.05) 22px 23px)",
+        }}
+      />
+    );
+  }
 
   return <canvas ref={canvasRef} aria-hidden className={cn("block h-full w-full", className)} />;
 }
