@@ -111,9 +111,58 @@ async function fetchFromSpotify(): Promise<Track | null> {
   return null; // 429 / nothing — caller falls back to the cached track
 }
 
-export async function GET() {
+// TEMP diagnostic: ?debug=1 reveals raw Spotify status codes + what each
+// endpoint reports (no tokens exposed). Remove once the source is confirmed.
+async function diagnose() {
+  const { access_token } = await getAccessToken();
+  if (!access_token) return { tokenOk: false };
+  const auth = { Authorization: `Bearer ${access_token}` };
+
+  const now = await fetch(NOW_PLAYING_ENDPOINT, { headers: auth, cache: "no-store" });
+  let nowInfo: Record<string, unknown> = { status: now.status };
+  if (now.status === 200) {
+    const d = (await now.json()) as {
+      is_playing?: boolean;
+      item?: { name?: string; type?: string; artists?: { name: string }[] };
+    };
+    nowInfo = {
+      status: 200,
+      isPlaying: d?.is_playing,
+      type: d?.item?.type,
+      title: d?.item?.name,
+      artist: d?.item?.artists?.map((a) => a.name).join(", "),
+    };
+  }
+
+  const recentRes = await fetch(
+    "https://api.spotify.com/v1/me/player/recently-played?limit=5",
+    { headers: auth, cache: "no-store" }
+  );
+  let recentInfo: Record<string, unknown> = { status: recentRes.status };
+  if (recentRes.ok) {
+    const d = (await recentRes.json()) as {
+      items?: { track?: { name?: string; artists?: { name: string }[] }; played_at?: string }[];
+    };
+    recentInfo = {
+      status: 200,
+      items: (d.items ?? []).map((it) => ({
+        title: it.track?.name,
+        artist: it.track?.artists?.map((a) => a.name).join(", "),
+        playedAt: it.played_at,
+      })),
+    };
+  }
+
+  return { tokenOk: true, now: nowInfo, recent: recentInfo };
+}
+
+export async function GET(request: Request) {
   if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REFRESH_TOKEN) {
     return NextResponse.json({ isPlaying: false, notConfigured: true }, { headers: NO_CACHE_HEADERS });
+  }
+
+  if (new URL(request.url).searchParams.has("debug")) {
+    return NextResponse.json(await diagnose(), { headers: NO_CACHE_HEADERS });
   }
 
   // Serve a fresh cache without touching Spotify.
