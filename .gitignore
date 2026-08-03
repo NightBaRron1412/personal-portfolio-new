@@ -22,6 +22,7 @@ certificates
 test-results
 playwright-report
 .playwright/.cache
+.playwright-mcp/
 
 # icon generation scratch
 scripts/.tmp/

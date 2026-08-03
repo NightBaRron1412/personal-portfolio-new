@@ -19,11 +19,23 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "mobile-chromium",
+      use: { ...devices["Pixel 5"] },
+    },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },
   ],
   // Run against the production build — it serves instantly, whereas `next dev`
   // cold-compiles this heavy page on first request and trips the timeouts.
   webServer: {
-    command: `pnpm build && pnpm start -- -p ${port}`,
+    command: `pnpm build && pnpm exec next start -p ${port}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180000,

@@ -70,7 +70,7 @@ Set these in `.env.local` (dev) and on Vercel (prod). All are optional — featu
 | --- | --- |
 | `SITE_URL` | Canonical/OG/sitemap base URL (e.g. `https://amirshetaia.com`) |
 | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` / `SPOTIFY_REFRESH_TOKEN` | Now‑playing widget |
-| `RESEND_API_KEY` | Contact‑form email delivery |
+| `RESEND_API_KEY` | Contact-form email delivery. The API returns 503 instead of dropping messages when unset. |
 | `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL` | Contact recipient / verified sender |
 | `GITHUB_TOKEN` | Optional — higher rate limits for the GitHub activity feed |
 | `NEXT_PUBLIC_ENABLE_ANALYTICS` / `NEXT_PUBLIC_ENABLE_SPEED_INSIGHTS` | Toggle Vercel Analytics / Speed Insights |

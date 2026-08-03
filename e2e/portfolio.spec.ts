@@ -28,8 +28,13 @@ test.describe("Portfolio", () => {
     }
   });
 
-  test("nav links scroll to their section", async ({ page }) => {
-    await page.getByRole("button", { name: "Work", exact: true }).first().click();
+  test("nav links scroll to their section", async ({ page }, testInfo) => {
+    if (testInfo.project.name === "mobile-chromium") {
+      await page.getByRole("button", { name: "Open menu", exact: true }).click();
+      await page.getByRole("button", { name: "03 Work", exact: true }).click();
+    } else {
+      await page.getByRole("button", { name: "Work", exact: true }).first().click();
+    }
     await page.waitForTimeout(800);
     const inView = await page.evaluate(() => {
       const el = document.getElementById("work");
@@ -64,8 +69,14 @@ test.describe("Portfolio", () => {
 
   test("page loads without critical console errors", async ({ page }) => {
     const errors: string[] = [];
+    const failedResponses: string[] = [];
     page.on("console", (msg) => {
       if (msg.type() === "error") errors.push(msg.text());
+    });
+    page.on("response", (response) => {
+      if (response.status() >= 400) {
+        failedResponses.push(`${response.status()} ${response.url()}`);
+      }
     });
     await page.goto("/");
     await page.waitForSelector("main", { timeout: 10000 });
@@ -82,6 +93,13 @@ test.describe("Portfolio", () => {
         !e.includes("insights")
     );
     expect(critical).toHaveLength(0);
+    const criticalResponses = failedResponses.filter(
+      (entry) =>
+        !entry.includes("/api/spotify") &&
+        !entry.includes("/api/github") &&
+        !entry.includes("/_vercel/")
+    );
+    expect(criticalResponses).toHaveLength(0);
   });
 
   test("project cards link to their GitHub repositories", async ({ page }) => {
@@ -89,10 +107,18 @@ test.describe("Portfolio", () => {
     await expect(page.getByRole("link", { name: "Repository" }).first()).toBeVisible();
   });
 
-  test("skip-to-content is the first focusable element", async ({ page }) => {
-    await page.keyboard.press("Tab");
-    const focused = await page.evaluate(() => document.activeElement?.textContent ?? "");
-    expect(focused).toMatch(/skip to content/i);
+  test("skip-to-content is the first focusable element", async ({ page }, testInfo) => {
+    if (testInfo.project.name === "webkit") {
+      const firstFocusable = await page.evaluate(() => {
+        const selector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+        return document.querySelector(selector)?.textContent ?? "";
+      });
+      expect(firstFocusable).toMatch(/skip to content/i);
+    } else {
+      await page.keyboard.press("Tab");
+      const focused = await page.evaluate(() => document.activeElement?.textContent ?? "");
+      expect(focused).toMatch(/skip to content/i);
+    }
   });
 
   test("unknown routes render the 404 page", async ({ page }) => {

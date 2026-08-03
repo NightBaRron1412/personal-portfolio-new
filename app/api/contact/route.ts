@@ -78,8 +78,11 @@ export async function POST(request: Request) {
 
     // Check if API key is configured
     if (!process.env.RESEND_API_KEY) {
-      console.warn("RESEND_API_KEY not configured; dropping contact submission");
-      return NextResponse.json({ ok: true });
+      console.error("RESEND_API_KEY not configured; contact submission rejected");
+      return NextResponse.json(
+        { error: "Contact form is temporarily unavailable" },
+        { status: 503 }
+      );
     }
 
     // Send email via Resend.

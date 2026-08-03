@@ -28,7 +28,7 @@ interface MarqueeProps extends ComponentPropsWithoutRef<"div"> {
   vertical?: boolean
   /**
    * Number of times to repeat the content
-   * @default 4
+   * @default 2
    */
   repeat?: number
 }
@@ -39,7 +39,7 @@ export function Marquee({
   pauseOnHover = false,
   children,
   vertical = false,
-  repeat = 4,
+  repeat = 2,
   ...props
 }: MarqueeProps) {
   return (
@@ -59,6 +59,7 @@ export function Marquee({
         .map((_, i) => (
           <div
             key={i}
+            aria-hidden={i > 0 ? true : undefined}
             className={cn("flex shrink-0 justify-around gap-[var(--gap)]", {
               "animate-marquee flex-row": !vertical,
               "animate-marquee-vertical flex-col": vertical,
