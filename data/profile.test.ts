@@ -23,8 +23,10 @@ describe("profile data integrity", () => {
   });
 
   it("every project has title/description/tech and valid links", () => {
+    const allProjects = [...profile.projects, ...profile.otherProjects];
     expect(profile.projects.length).toBeGreaterThan(0);
-    for (const p of profile.projects) {
+    expect(profile.otherProjects.length).toBeGreaterThanOrEqual(8);
+    for (const p of allProjects) {
       expect(p.title).toBeTruthy();
       expect(p.description).toBeTruthy();
       expect(p.tech.length).toBeGreaterThan(0);

@@ -55,9 +55,11 @@ test.describe("Portfolio", () => {
     expect(after).not.toBe(before);
   });
 
-  test("flagship projects are listed", async ({ page }) => {
+  test("featured and additional projects are listed", async ({ page }) => {
     await expect(page.getByText("DeepParse:", { exact: false })).toBeVisible();
     await expect(page.getByText("VehiPlus:", { exact: false })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Money Dashboard" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Recipe Box" })).toBeVisible();
   });
 
   test("contact form exposes the expected fields", async ({ page }) => {

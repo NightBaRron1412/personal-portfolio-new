@@ -163,6 +163,89 @@ export function Work() {
           </Reveal>
         );
       })}
+
+      <Reveal className="!mt-10">
+        <div className="flex flex-col gap-3 border-t border-border-subtle pt-8 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <PanelLabel>project archive</PanelLabel>
+            <h3 className="mt-2 text-2xl sm:text-3xl">More things I&apos;ve built</h3>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">
+              Products, research tools, embedded systems, and experiments beyond the featured case
+              studies.
+            </p>
+          </div>
+          <a
+            href={profile.social.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mono inline-flex w-fit items-center gap-1.5 text-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-accent"
+          >
+            All repositories <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
+      </Reveal>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {profile.otherProjects.map((project, i) => {
+          const color = PROJECT_ACCENTS[(i + profile.projects.length) % PROJECT_ACCENTS.length];
+          return (
+            <Reveal key={project.title} delay={(i % 2) * 70}>
+              <article className="panel group relative flex h-full flex-col overflow-hidden p-5 transition-transform duration-300 hover:-translate-y-1 sm:p-6">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-[0.08] blur-2xl transition-opacity duration-300 group-hover:opacity-[0.16]"
+                  style={{ background: color }}
+                />
+
+                <div className="relative flex items-start justify-between gap-4">
+                  <div>
+                    <span className="eyebrow" style={{ color }}>
+                      A-{String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h4 className="mt-2 text-lg sm:text-xl">{project.title}</h4>
+                    <p className="eyebrow mt-1.5">{project.category}</p>
+                  </div>
+                  <a
+                    href={project.repo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${project.title} repository`}
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border-subtle text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                  >
+                    <Github className="h-4 w-4" />
+                  </a>
+                </div>
+
+                <p className="relative mt-4 flex-1 text-sm leading-relaxed text-text-secondary">
+                  {project.description}
+                </p>
+
+                <div className="relative mt-5 flex flex-wrap gap-1.5">
+                  {project.tech.map((t) => (
+                    <span
+                      key={t}
+                      className="mono rounded-md border border-border-subtle bg-surface px-2 py-1 text-[11px] text-text-secondary"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                {project.demo ? (
+                  <a
+                    href={project.demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mono relative mt-5 inline-flex w-fit items-center gap-1.5 text-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-accent"
+                  >
+                    Open project <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
+              </article>
+            </Reveal>
+          );
+        })}
+      </div>
     </div>
   );
 }

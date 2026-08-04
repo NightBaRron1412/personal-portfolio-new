@@ -371,6 +371,80 @@ export const profile = {
       }
     }
   ],
+  otherProjects: [
+    {
+      title: "Money Dashboard",
+      category: "Product · Personal Finance",
+      description:
+        "A full-stack finance dashboard for accounts, cards, investments, budgets, savings goals, and multi-currency reporting, with Gemini-powered insights and voice transaction entry.",
+      tech: ["Next.js", "TypeScript", "Supabase", "Gemini", "Recharts"],
+      repo: "https://github.com/NightBaRron1412/money-dashboard",
+      demo: "https://money.amirshetaia.com/demo"
+    },
+    {
+      title: "Recipe Box",
+      category: "Product · AI Automation",
+      description:
+        "An Arabic-first recipe PWA and Telegram bot that turns social links, videos, photos, and text into structured recipes using Gemini and a serverless media resolver.",
+      tech: ["Next.js", "Supabase", "Gemini", "Telegram", "Python"],
+      repo: "https://github.com/NightBaRron1412/recipe-box",
+      demo: "https://recipe-box-lemon.vercel.app"
+    },
+    {
+      title: "Studio Manager",
+      category: "Desktop · Offline-first",
+      description:
+        "A fully Arabic, RTL desktop system for photography studios covering sales, customers, debts, bookings, expenses, reporting, and local-first data storage.",
+      tech: ["Electron", "React", "TypeScript", "SQLite", "Tailwind CSS"],
+      repo: "https://github.com/NightBaRron1412/studio_managment",
+      demo: "https://github.com/NightBaRron1412/studio_managment/releases/latest"
+    },
+    {
+      title: "StockPulse",
+      category: "Research Tool · Market Analysis",
+      description:
+        "A self-hosted stock research system that scans the S&P 500, combines multiple signals, advises on portfolio risk, and delivers Telegram and Discord alerts without auto-trading.",
+      tech: ["Python", "FastAPI", "Next.js", "Pandas", "Market Data"],
+      repo: "https://github.com/NightBaRron1412/stockpulse",
+      demo: ""
+    },
+    {
+      title: "Personal AI Companion",
+      category: "AI Product · Arabic-first",
+      description:
+        "A private AI companion with streaming chat, persistent editable memories, an evolving personality, Arabic dialect controls, and multi-model Google Gemma support.",
+      tech: ["Next.js", "TypeScript", "Google Gemma", "AI SDK", "SQLite"],
+      repo: "https://github.com/NightBaRron1412/personal-chatbot",
+      demo: ""
+    },
+    {
+      title: "Tetris AI Agent",
+      category: "Interactive AI · Game Agent",
+      description:
+        "A browser-based Tetris agent that evaluates placements in real time, improves its heuristic weights through hill climbing, and visualizes its decisions alongside a manual play mode.",
+      tech: ["React", "TypeScript", "Vite", "Heuristic Search", "Vitest"],
+      repo: "https://github.com/NightBaRron1412/tetris-ai-agent",
+      demo: ""
+    },
+    {
+      title: "ATmega32-CTOS",
+      category: "Embedded · Driver Library",
+      description:
+        "A layered bare-metal driver suite for ATmega32 microcontrollers, with clean MCAL and HAL interfaces spanning core peripherals and reusable hardware modules.",
+      tech: ["C", "AVR", "Bare Metal", "MCAL", "HAL"],
+      repo: "https://github.com/NightBaRron1412/ATmega32-CTOS",
+      demo: ""
+    },
+    {
+      title: "Automated Planning",
+      category: "Graduate Work · Planning Systems",
+      description:
+        "Graduate-level planning systems across epidemic control, manufacturing, warehouse automation, epistemic reasoning, and space-colony domains.",
+      tech: ["PDDL", "RDDL", "HDDL", "Epistemic Planning"],
+      repo: "https://github.com/NightBaRron1412/CISC813-Automated-Planning-Assignments",
+      demo: ""
+    }
+  ],
   education: {
     degrees: [
       {

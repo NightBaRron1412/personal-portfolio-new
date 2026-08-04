@@ -65,9 +65,9 @@ export default function HomePage() {
           <Section
             id="work"
             index="03"
-            title="Selected Work"
-            meta="case studies"
-            lead="A few projects that show how I think — making a parallel solver reproducible, taming messy logs, and putting a car's senses on the edge."
+            title="Projects"
+            meta="case studies + archive"
+            lead="Deep dives into systems, ML, and embedded work — plus the products, research tools, and experiments I've built along the way."
           >
             <Work />
           </Section>
