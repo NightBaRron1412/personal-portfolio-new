@@ -84,7 +84,9 @@ export function MusicPlayer({ className }: { className?: string }) {
             detachRef.current();
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          if (aliveRef.current) setAvailable(false);
+        });
     }
   }, [startSource]);
 
@@ -154,28 +156,12 @@ export function MusicPlayer({ className }: { className?: string }) {
 
     window.addEventListener("arcade-music", onArcade);
     document.addEventListener("visibilitychange", onVisibility);
-    // Arm autostart now (not behind the HEAD check) so a slow mobile connection
-    // can't let the first tap slip by unarmed. Listeners persist until the loop
-    // is actually running, so a scroll can't waste the chance.
-    if (localStorage.getItem(LS_KEY) !== "false") {
+    // Only returning visitors who explicitly opted in get gesture-unlock.
+    // A missing preference means zero audio network/decoding work on page load.
+    if (localStorage.getItem(LS_KEY) === "true") {
       wantRef.current = true;
       arm();
     }
-
-    // Confirm the track exists (hide control if not) and preload + decode it.
-    fetch(SRC, { method: "HEAD" })
-      .then((res) => {
-        if (!aliveRef.current) return;
-        if (!res.ok) {
-          setAvailable(false);
-          return;
-        }
-        buildGraph();
-        loadBuffer();
-      })
-      .catch(() => {
-        if (aliveRef.current) setAvailable(false);
-      });
 
     return () => {
       aliveRef.current = false;
@@ -186,7 +172,7 @@ export function MusicPlayer({ className }: { className?: string }) {
       ctxRef.current = null;
       if (ctx) void ctx.close();
     };
-  }, [play, buildGraph, loadBuffer]);
+  }, [play]);
 
   const toggle = () => {
     if (playing) {

@@ -1,5 +1,3 @@
-"use client";
-
 import { GitHubPanel } from "./github-panel";
 import { Reveal } from "./reveal";
 

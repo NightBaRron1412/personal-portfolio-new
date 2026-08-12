@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Music } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 type SpotifyData = {
   isPlaying: boolean;
@@ -25,9 +24,6 @@ export function SpotifyWidget() {
   const [duration, setDuration] = useState(0);
 
   // title overflow → marquee
-  const titleRef = useRef<HTMLParagraphElement>(null);
-  const [shift, setShift] = useState(0);
-
   useEffect(() => {
     let alive = true;
     const load = () =>
@@ -45,11 +41,15 @@ export function SpotifyWidget() {
           setReady(true);
         })
         .catch(() => {});
-    load();
-    const poll = setInterval(load, 20000);
+    let poll: ReturnType<typeof setInterval> | undefined;
+    const start = setTimeout(() => {
+      load();
+      poll = setInterval(load, 20000);
+    }, 3500);
     return () => {
       alive = false;
-      clearInterval(poll);
+      clearTimeout(start);
+      if (poll) clearInterval(poll);
     };
   }, []);
 
@@ -62,16 +62,6 @@ export function SpotifyWidget() {
   }, [data?.isPlaying, duration]);
 
   // measure title overflow whenever the track changes → drive the marquee
-  useEffect(() => {
-    const el = titleRef.current;
-    if (!el) return;
-    const raf = requestAnimationFrame(() => {
-      const overflow = el.scrollWidth - el.clientWidth;
-      setShift(overflow > 4 ? -(overflow + 8) : 0);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [data?.title]);
-
   if (!data) return null;
   const pct = duration ? Math.min(100, (progress / duration) * 100) : 0;
 
@@ -92,7 +82,15 @@ export function SpotifyWidget() {
         <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-border-subtle">
           {data.albumArt ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={data.albumArt} alt={data.album ?? ""} className="h-full w-full object-cover" />
+            <img
+              src={data.albumArt}
+              alt={data.album ?? ""}
+              width={36}
+              height={36}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-bg-elevated">
               <Music className="h-4 w-4 text-text-faint" />
@@ -117,14 +115,7 @@ export function SpotifyWidget() {
             </span>
           </div>
           <div className="overflow-hidden">
-            <p
-              ref={titleRef}
-              className={cn(
-                "whitespace-nowrap text-xs font-semibold text-text-primary transition-colors group-hover:text-accent",
-                shift < 0 && "spotify-title-scroll"
-              )}
-              style={shift < 0 ? ({ "--mq-shift": `${shift}px` } as React.CSSProperties) : undefined}
-            >
+            <p className="truncate text-xs font-semibold text-text-primary transition-colors group-hover:text-accent">
               {data.title}
             </p>
           </div>

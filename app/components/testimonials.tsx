@@ -1,5 +1,3 @@
-"use client";
-
 import { profile } from "@/data/profile";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 import { Reveal } from "./reveal";

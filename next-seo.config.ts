@@ -1,10 +1,11 @@
 import { DefaultSeoProps } from "next-seo";
+import { getSiteUrl } from "./lib/site";
 
-const siteUrl = process.env.SITE_URL || "https://amirshetaia.com";
+const siteUrl = getSiteUrl();
 
 const config: DefaultSeoProps = {
-  title: "Amir Shetaia | Senior Software Engineer @ AMD",
-  description: "Senior Software Engineer at AMD developing GPU drivers for the ROCm platform. Specializing in HPC, ML systems, and formal verification.",
+  title: "Amir Shetaia | Senior Software Engineer at AMD",
+  description: "Official portfolio of Amir Shetaia, Senior Software Engineer at AMD, featuring GPU driver and ROCm work, HPC systems, formal verification, and ML.",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -15,7 +16,7 @@ const config: DefaultSeoProps = {
         url: "/og/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Amir Shetaia - Senior Software Engineer at AMD"
+        alt: "Amir Shetaia, Senior Software Engineer at AMD"
       }
     ]
   },

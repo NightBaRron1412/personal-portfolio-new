@@ -1,5 +1,3 @@
-"use client";
-
 import { profile } from "@/data/profile";
 import { Marquee } from "@/components/ui/marquee";
 import { Logo } from "./logo";

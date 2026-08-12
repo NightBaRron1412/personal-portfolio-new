@@ -6,10 +6,14 @@ type RevealProps = {
   children: ReactNode;
   as?: ElementType;
   className?: string;
+  /** optional entrance treatment */
+  variant?: "default" | "game" | "mobile";
   /** stagger delay in ms */
   delay?: number;
   /** trigger threshold 0..1 */
   threshold?: number;
+  /** IntersectionObserver margin, useful for entrances that should start at the viewport edge */
+  rootMargin?: string;
 };
 
 /**
@@ -22,8 +26,10 @@ export function Reveal({
   children,
   as: Tag = "div",
   className,
+  variant = "default",
   delay = 0,
   threshold = 0,
+  rootMargin = "0px 0px -8% 0px",
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const [shown, setShown] = useState(false);
@@ -47,17 +53,18 @@ export function Reveal({
           }
         }
       },
-      { threshold, rootMargin: "0px 0px -8% 0px" }
+      { threshold, rootMargin }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [shown, threshold]);
+  }, [rootMargin, shown, threshold]);
 
   return (
     <Tag
       ref={ref}
       data-reveal={shown ? "in" : ""}
+      data-reveal-variant={variant}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
       className={className}
     >

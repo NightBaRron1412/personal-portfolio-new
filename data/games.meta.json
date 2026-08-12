@@ -1,7 +1,7 @@
 {
   "witcher3": {
     "appid": "292030",
-    "cover": "/images/games/witcher3.jpg",
+    "cover": "/images/games/witcher3.webp",
     "wide": false,
     "year": "2015",
     "genres": [
@@ -11,7 +11,7 @@
   },
   "gow-ragnarok": {
     "appid": "2322010",
-    "cover": "/images/games/gow-ragnarok.jpg",
+    "cover": "/images/games/gow-ragnarok.webp",
     "wide": false,
     "year": "2024",
     "genres": [
@@ -22,7 +22,7 @@
   },
   "tlou": {
     "appid": "2531310",
-    "cover": "/images/games/tlou.jpg",
+    "cover": "/images/games/tlou.webp",
     "wide": false,
     "year": "2025",
     "genres": [
@@ -33,7 +33,7 @@
   },
   "detroit": {
     "appid": "1222140",
-    "cover": "/images/games/detroit.jpg",
+    "cover": "/images/games/detroit.webp",
     "wide": false,
     "year": "2020",
     "genres": [
@@ -44,7 +44,7 @@
   },
   "pragmata": {
     "appid": "3357650",
-    "cover": "/images/games/pragmata.jpg",
+    "cover": "/images/games/pragmata.webp",
     "wide": false,
     "year": "2026",
     "genres": [
@@ -55,7 +55,7 @@
   },
   "bf6": {
     "appid": "2807960",
-    "cover": "/images/games/bf6.jpg",
+    "cover": "/images/games/bf6.webp",
     "wide": false,
     "year": "2025",
     "genres": [
@@ -65,7 +65,7 @@
   },
   "r6": {
     "appid": "359550",
-    "cover": "/images/games/r6.jpg",
+    "cover": "/images/games/r6.webp",
     "wide": false,
     "year": "2015",
     "genres": [
@@ -76,7 +76,7 @@
   },
   "fc26": {
     "appid": "3405690",
-    "cover": "/images/games/fc26.jpg",
+    "cover": "/images/games/fc26.webp",
     "wide": false,
     "year": "2025",
     "genres": [

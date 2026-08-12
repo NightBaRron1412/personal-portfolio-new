@@ -382,17 +382,36 @@ textarea {
 [data-reveal] {
   opacity: 0;
   transform: translateY(24px);
-  filter: blur(6px);
   transition:
     opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform, filter;
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 [data-reveal="in"] {
   opacity: 1;
   transform: none;
-  filter: blur(0);
+}
+
+/* The games entrance needed more visual definition on phones. Desktop keeps
+   the site's existing, quieter reveal treatment. */
+@media (max-width: 767px) {
+  [data-reveal=""][data-reveal-variant="game"],
+  [data-reveal=""][data-reveal-variant="mobile"] {
+    transform: translateY(34px) scale(0.96);
+    transition-duration: 0.7s;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-reveal][data-reveal-variant="mobile"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* One semantic text node plus a decorative animated decoder overlay. */
+.decoder-visual::before {
+  content: attr(data-text);
 }
 
 .hero-shader {
@@ -435,6 +454,14 @@ textarea {
 }
 .light .aurora::before { opacity: 0.12; }
 .light .aurora::after { opacity: 0.1; }
+
+@media (hover: none), (pointer: coarse) {
+  .aurora::before,
+  .aurora::after {
+    animation: none;
+    will-change: auto;
+  }
+}
 @keyframes drift-a {
   from { transform: translate3d(0, 0, 0) scale(1); }
   to { transform: translate3d(14vw, 12vh, 0) scale(1.15); }
@@ -647,6 +674,17 @@ html[data-arcade="true"] .grain {
 }
 
 /* Game cover sheen — a light streak that sweeps across on hover */
+.game-cover-placeholder {
+  background:
+    radial-gradient(circle at 22% 18%, var(--accent-soft), transparent 42%),
+    linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+}
+.game-cover-image {
+  transition-property: opacity, transform;
+  transition-duration: 700ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @keyframes gameSheen {
   0% { transform: translateX(-160%) skewX(-16deg); }
   100% { transform: translateX(260%) skewX(-16deg); }

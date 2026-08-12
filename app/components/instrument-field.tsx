@@ -53,6 +53,7 @@ export function InstrumentField({ className }: { className?: string }) {
 
     type Node = { bx: number; by: number; x: number; y: number; ph: number; amp: number };
     let nodes: Node[] = [];
+    let links: Array<[number, number]> = [];
     let w = 0;
     let h = 0;
     let scrollBoost = 0; // links brighten with scroll velocity, then decay
@@ -91,6 +92,22 @@ export function InstrumentField({ className }: { className?: string }) {
             ph: (j - Math.floor(j)) * Math.PI * 2,
             amp: 4 + (k - Math.floor(k)) * 6,
           });
+        }
+      }
+
+      // Node topology is stable, so calculate candidate links once instead of
+      // scanning every node pair on every animation frame.
+      links = [];
+      const candidateDistance = LINK + 24;
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i]!;
+          const b = nodes[j]!;
+          const dx = a.bx - b.bx;
+          const dy = a.by - b.by;
+          if (dx * dx + dy * dy < candidateDistance * candidateDistance) {
+            links.push([i, j]);
+          }
         }
       }
     };
@@ -132,22 +149,20 @@ export function InstrumentField({ className }: { className?: string }) {
 
       // node-to-node links
       ctx.lineWidth = 1;
-      for (let i = 0; i < nodes.length; i++) {
+      for (const [i, j] of links) {
         const a = nodes[i]!;
-        for (let j = i + 1; j < nodes.length; j++) {
-          const b = nodes[j]!;
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < LINK * LINK) {
-            const d = Math.sqrt(d2);
-            const alpha = Math.min(0.6, (1 - d / LINK) * linkA * (1 + scrollBoost * 2));
-            ctx.strokeStyle = `rgba(${teal},${alpha})`;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
+        const b = nodes[j]!;
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < LINK * LINK) {
+          const d = Math.sqrt(d2);
+          const alpha = Math.min(0.6, (1 - d / LINK) * linkA * (1 + scrollBoost * 2));
+          ctx.strokeStyle = `rgba(${teal},${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
         }
       }
 
@@ -192,16 +207,31 @@ export function InstrumentField({ className }: { className?: string }) {
     };
 
     build();
+    drawFrame(0);
 
     let raf = 0;
+    let startTimer = 0;
+    let lastFrame = 0;
+    const frameInterval = 1000 / 24;
     const loop = (t: number) => {
-      drawFrame(t);
+      if (t - lastFrame >= frameInterval) {
+        drawFrame(t);
+        lastFrame = t;
+      }
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
-      if (!raf) raf = requestAnimationFrame(loop);
+      if (raf || startTimer) return;
+      startTimer = window.setTimeout(() => {
+        startTimer = 0;
+        if (!document.hidden) raf = requestAnimationFrame(loop);
+      }, 900);
     };
     const stop = () => {
+      if (startTimer) {
+        clearTimeout(startTimer);
+        startTimer = 0;
+      }
       if (raf) {
         cancelAnimationFrame(raf);
         raf = 0;
@@ -210,9 +240,15 @@ export function InstrumentField({ className }: { className?: string }) {
 
     // Live motion preference — pauses to a single static frame when the visitor
     // turns motion off (in-app toggle or OS), resumes when turned back on.
-    let reduced = prefersReducedMotion();
+    const connection = (
+      navigator as Navigator & { connection?: { saveData?: boolean } }
+    ).connection;
+    const staticDevice =
+      window.matchMedia("(hover: none), (pointer: coarse)").matches ||
+      connection?.saveData === true;
+    let reduced = prefersReducedMotion() || staticDevice;
     const applyMotion = () => {
-      reduced = prefersReducedMotion();
+      reduced = prefersReducedMotion() || staticDevice;
       if (reduced) {
         stop();
         drawFrame(0);
@@ -232,9 +268,11 @@ export function InstrumentField({ className }: { className?: string }) {
     };
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("pointermove", onMove, { passive: true });
-    window.addEventListener("pointerleave", onLeave);
-    window.addEventListener("blur", onLeave);
+    if (!staticDevice) {
+      window.addEventListener("pointermove", onMove, { passive: true });
+      window.addEventListener("pointerleave", onLeave);
+      window.addEventListener("blur", onLeave);
+    }
     const onVisibility = () => {
       if (reduced) return;
       document.hidden ? stop() : start();
@@ -248,9 +286,11 @@ export function InstrumentField({ className }: { className?: string }) {
       stop();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerleave", onLeave);
-      window.removeEventListener("blur", onLeave);
+      if (!staticDevice) {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerleave", onLeave);
+        window.removeEventListener("blur", onLeave);
+      }
       document.removeEventListener("visibilitychange", onVisibility);
       unsubscribe();
     };

@@ -1,5 +1,3 @@
-"use client";
-
 import { Trophy } from "lucide-react";
 import { profile } from "@/data/profile";
 import { Reveal } from "./reveal";

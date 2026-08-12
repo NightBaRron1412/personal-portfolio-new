@@ -1,9 +1,8 @@
-"use client";
-
 import { ArrowUpRight, Gamepad2 } from "lucide-react";
 import GAMES from "@/data/games.json";
 import META from "@/data/games.meta.json";
 import { cn } from "@/lib/utils";
+import { GameCover } from "./game-cover";
 import { Reveal } from "./reveal";
 
 type Meta = {
@@ -28,53 +27,6 @@ function HudStat({ label, value, accent }: { label: string; value: string; accen
   );
 }
 
-function Cover({ m, title }: { m: Meta; title: string }) {
-  if (!m.cover) {
-    return (
-      <div
-        className="absolute inset-0 flex items-center justify-center p-3 text-center"
-        style={{ background: "var(--gradient)" }}
-      >
-        <span className="font-display text-base font-semibold text-text-on-accent">{title}</span>
-      </div>
-    );
-  }
-  if (m.wide) {
-    // landscape header → full art on a blurred fill so it reads as a cover
-    return (
-      <>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={m.cover}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-55 blur-xl"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={m.cover}
-          alt={`${title} cover`}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 m-auto h-auto w-full object-contain transition-transform duration-500 group-hover:scale-[1.04]"
-        />
-      </>
-    );
-  }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={m.cover}
-      alt={`${title} cover`}
-      loading="eager"
-      fetchPriority="high"
-      decoding="async"
-      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-    />
-  );
-}
-
 /**
  * "Off the Clock" — a console-style game shelf. Player-profile HUD + ranked
  * cover cards (status badges, now-playing pulse, selection glow on hover,
@@ -84,15 +36,17 @@ export function Games() {
   return (
     <div className="space-y-5">
       {/* player HUD */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-border-subtle bg-surface px-4 py-3">
-        <span className="mono inline-flex items-center gap-2 text-xs font-medium text-text-primary">
-          <Gamepad2 className="h-4 w-4 text-accent" /> PLAYER · NightBaRron1412
-        </span>
-        <HudStat label="library" value={`${GAMES.length} titles`} />
-        <HudStat label="genre" value="story-driven AAA" />
-        <HudStat label="platforms" value={PLATFORMS.slice(0, 3).join(" · ")} />
-        {nowPlaying ? <HudStat label="now playing" value={nowPlaying.title} accent /> : null}
-      </div>
+      <Reveal variant="mobile" threshold={0.05} rootMargin="0px">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-border-subtle bg-surface px-4 py-3">
+          <span className="mono inline-flex items-center gap-2 text-xs font-medium text-text-primary">
+            <Gamepad2 className="h-4 w-4 text-accent" /> PLAYER · NightBaRron1412
+          </span>
+          <HudStat label="library" value={`${GAMES.length} titles`} />
+          <HudStat label="genre" value="story-driven AAA" />
+          <HudStat label="platforms" value={PLATFORMS.slice(0, 3).join(" · ")} />
+          {nowPlaying ? <HudStat label="now playing" value={nowPlaying.title} accent /> : null}
+        </div>
+      </Reveal>
 
       {/* shelf */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
@@ -101,7 +55,13 @@ export function Games() {
           const playing = /playing/i.test(g.status ?? "");
           const detail = [m.year, ...(m.genres ?? [])].filter(Boolean).join(" · ");
           return (
-            <Reveal key={g.slug} delay={(i % 6) * 55}>
+            <Reveal
+              key={g.slug}
+              delay={(i % 2) * 90}
+              threshold={0.05}
+              rootMargin="0px"
+              variant="game"
+            >
               <a
                 href={m.url ?? undefined}
                 target={m.url ? "_blank" : undefined}
@@ -111,7 +71,7 @@ export function Games() {
                   playing && "border-accent/40 shadow-glow ring-1 ring-accent/30"
                 )}
               >
-                <Cover m={m} title={g.title} />
+                <GameCover cover={m.cover} title={g.title} wide={m.wide} />
 
                 {/* hover sheen sweep */}
                 <span
