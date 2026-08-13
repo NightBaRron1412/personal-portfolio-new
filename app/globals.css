@@ -404,8 +404,8 @@ textarea {
 
   [data-reveal=""][data-reveal-variant="game"],
   [data-reveal=""][data-reveal-variant="mobile"] {
-    transform: translate3d(0, 34px, 0) scale(0.96);
-    transition-duration: 0.7s;
+    transform: translate3d(0, 44px, 0) scale(0.94);
+    transition-duration: 0.9s;
   }
 
   [data-reveal="in"][data-reveal-variant="game"],

@@ -33,7 +33,7 @@ export function Reveal({
   rootMargin = "0px 0px -8% 0px",
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
-  const animationRef = useRef<Animation | null>(null);
+  const animationRefs = useRef<Animation[]>([]);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -56,27 +56,35 @@ export function Reveal({
               !prefersReducedMotion();
 
             if (shouldUseMobileEntrance) {
-              const animation = el.animate(
+              const fade = el.animate([{ opacity: 0 }, { opacity: 1 }], {
+                duration: 900,
+                delay,
+                easing: "linear",
+                fill: "both",
+              });
+              const lift = el.animate(
                 [
-                  { opacity: 0, transform: "translate3d(0, 34px, 0) scale(0.96)" },
-                  { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" },
+                  { transform: "translate3d(0, 44px, 0) scale(0.94)" },
+                  { transform: "translate3d(0, 0, 0) scale(1)" },
                 ],
                 {
-                  duration: 700,
+                  duration: 900,
                   delay,
                   easing: "cubic-bezier(0.16, 1, 0.3, 1)",
                   fill: "both",
                 }
               );
-              animationRef.current = animation;
-              void animation.finished.then(
-                () => {
-                  if (animationRef.current === animation) {
-                    animation.cancel();
-                    animationRef.current = null;
-                  }
-                },
-                () => undefined
+              const animations = [fade, lift];
+              animationRefs.current = animations;
+              const finishAnimations = () => {
+                if (animationRefs.current === animations) {
+                  animations.forEach((animation) => animation.cancel());
+                  animationRefs.current = [];
+                }
+              };
+              void Promise.all(animations.map((animation) => animation.finished)).then(
+                finishAnimations,
+                finishAnimations
               );
             }
 
@@ -95,7 +103,7 @@ export function Reveal({
 
   useEffect(
     () => () => {
-      animationRef.current?.cancel();
+      animationRefs.current.forEach((animation) => animation.cancel());
     },
     []
   );
