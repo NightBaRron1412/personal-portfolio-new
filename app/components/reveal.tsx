@@ -45,64 +45,95 @@ export function Reveal({
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const shouldUseMobileEntrance =
-              variant !== "default" &&
-              window.matchMedia("(max-width: 767px)").matches &&
-              typeof el.animate === "function" &&
-              !prefersReducedMotion();
+    let cancelled = false;
+    let revealing = false;
+    let observer: IntersectionObserver | null = null;
 
-            if (shouldUseMobileEntrance) {
-              // WebKit can merge a zero-delay animation with the React reveal
-              // update during momentum scrolling. A short backwards-filled
-              // delay guarantees at least one hidden composited frame first.
-              const mobileDelay = delay + 90;
-              const fade = el.animate([{ opacity: 0 }, { opacity: 1 }], {
-                duration: 900,
-                delay: mobileDelay,
-                easing: "linear",
-                fill: "both",
-              });
-              const lift = el.animate(
-                [
-                  { transform: "translate3d(0, 44px, 0) scale(0.94)" },
-                  { transform: "translate3d(0, 0, 0) scale(1)" },
-                ],
-                {
-                  duration: 900,
-                  delay: mobileDelay,
-                  easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-                  fill: "both",
-                }
-              );
-              const animations = [fade, lift];
-              animationRefs.current = animations;
-              const finishAnimations = () => {
-                if (animationRefs.current === animations) {
-                  animations.forEach((animation) => animation.cancel());
-                  animationRefs.current = [];
-                }
-              };
-              void Promise.all(animations.map((animation) => animation.finished)).then(
-                finishAnimations,
-                finishAnimations
-              );
-            }
+    const revealWhenReady = async () => {
+      if (revealing) return;
+      revealing = true;
+      observer?.disconnect();
 
-            setShown(true);
-            observer.disconnect();
-            break;
+      const shouldUseMobileEntrance =
+        variant !== "default" &&
+        window.matchMedia("(max-width: 767px)").matches &&
+        typeof el.animate === "function" &&
+        !prefersReducedMotion();
+
+      if (shouldUseMobileEntrance && variant === "game") {
+        // A loaded image is not necessarily decoded into pixels on iOS. Keep
+        // the entire card hidden until its poster can be painted, so Safari
+        // cannot reveal the status tag first and snap the artwork in later.
+        const posters = Array.from(el.querySelectorAll<HTMLImageElement>("[data-game-cover]"));
+        await Promise.all(
+          posters.map((poster) =>
+            typeof poster.decode === "function"
+              ? poster.decode().catch(() => undefined)
+              : Promise.resolve()
+          )
+        );
+        if (cancelled) return;
+
+        // Give WebKit one compositor frame to commit the decoded poster layer
+        // before the wrapper starts changing opacity.
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        if (cancelled) return;
+      }
+
+      if (shouldUseMobileEntrance) {
+        // WebKit can merge a zero-delay animation with the React reveal update
+        // during momentum scrolling. The backwards-filled delay guarantees a
+        // hidden composited frame before either column starts fading.
+        const mobileDelay = delay + 90;
+        const fade = el.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: 900,
+          delay: mobileDelay,
+          easing: "linear",
+          fill: "both",
+        });
+        const lift = el.animate(
+          [
+            { transform: "translate3d(0, 44px, 0) scale(0.94)" },
+            { transform: "translate3d(0, 0, 0) scale(1)" },
+          ],
+          {
+            duration: 900,
+            delay: mobileDelay,
+            easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+            fill: "both",
           }
+        );
+        const animations = [fade, lift];
+        animationRefs.current = animations;
+        const finishAnimations = () => {
+          if (animationRefs.current === animations) {
+            animations.forEach((animation) => animation.cancel());
+            animationRefs.current = [];
+          }
+        };
+        void Promise.all(animations.map((animation) => animation.finished)).then(
+          finishAnimations,
+          finishAnimations
+        );
+      }
+
+      setShown(true);
+    };
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void revealWhenReady();
         }
       },
       { threshold, rootMargin }
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+    };
   }, [delay, rootMargin, threshold, variant]);
 
   useEffect(

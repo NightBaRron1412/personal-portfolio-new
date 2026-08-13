@@ -412,6 +412,22 @@ textarea {
   [data-reveal="in"][data-reveal-variant="mobile"] {
     transform: translate3d(0, 0, 0) scale(1);
   }
+
+  [data-game-card],
+  [data-game-cover] {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+  }
+
+  [data-game-card] {
+    contain: paint;
+    isolation: isolate;
+  }
+
+  [data-game-cover] {
+    will-change: transform;
+  }
 }
 
 @media (min-width: 768px) {

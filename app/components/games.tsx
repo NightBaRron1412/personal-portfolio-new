@@ -63,6 +63,7 @@ export function Games() {
               variant="game"
             >
               <a
+                data-game-card
                 href={m.url ?? undefined}
                 target={m.url ? "_blank" : undefined}
                 rel="noopener noreferrer"
