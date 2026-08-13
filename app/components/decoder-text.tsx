@@ -8,7 +8,8 @@ const GLYPHS = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&/<>{}[]=*+";
  * DecoderText — resolves the text from scrambling glyphs (left→right) when it
  * scrolls into view, for a "decrypting" telemetry feel. SSR-safe (renders the
  * real string), a11y-safe (aria-label carries the real text), and reduced-motion
- * safe (shows the text instantly).
+ * safe (shows the text instantly). Keeping one text node also prevents search
+ * crawlers from reading every animated heading twice.
  */
 export function DecoderText({
   text,
@@ -82,9 +83,8 @@ export function DecoderText({
 
   return (
     <Tag ref={ref} className={className}>
-      {/* real text for screen readers (the animated glyphs are decorative) */}
       <span className="sr-only">{text}</span>
-      <span aria-hidden>{display}</span>
+      <span aria-hidden className="decoder-visual" data-text={display} />
     </Tag>
   );
 }

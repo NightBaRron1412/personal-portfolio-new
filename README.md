@@ -22,7 +22,7 @@ panels, a live WebGL plasma backdrop, and a dotted world map.
 
 - **Hero** — live status card (local clock, location), plasma shader backdrop, decoder/typed text
 - **About** — 3D‑tilt portrait framed as a live instrument readout
-- **Selected Work** — tilt + border‑beam project cards with per‑project accents
+- **Projects** — deep case studies plus a compact archive of product, AI, research, and embedded builds
 - **Experience** — a choreographed career‑journey timeline: gradient progress rail with a
   scroll‑tracking comet, glowing active nodes, and an Egypt → Canada relocation beat
 - **Education** — animated radial GPA gauges
@@ -68,7 +68,8 @@ Set these in `.env.local` (dev) and on Vercel (prod). All are optional — featu
 
 | Variable | Used for |
 | --- | --- |
-| `SITE_URL` | Canonical/OG/sitemap base URL (e.g. `https://amirshetaia.com`) |
+| `SITE_URL` | Canonical/OG/sitemap base URL (use `https://www.amirshetaia.com` in production) |
+| `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` | Optional search-console HTML verification tokens |
 | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` / `SPOTIFY_REFRESH_TOKEN` | Now‑playing widget |
 | `RESEND_API_KEY` | Contact-form email delivery. The API returns 503 instead of dropping messages when unset. |
 | `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL` | Contact recipient / verified sender |
@@ -76,6 +77,11 @@ Set these in `.env.local` (dev) and on Vercel (prod). All are optional — featu
 | `NEXT_PUBLIC_ENABLE_ANALYTICS` / `NEXT_PUBLIC_ENABLE_SPEED_INSIGHTS` | Toggle Vercel Analytics / Speed Insights |
 
 > Background music lives at `public/audio/menu.mp3`. Use a track you have the rights to.
+
+## Search visibility
+
+See [SEO.md](./SEO.md) for Google Search Console verification, sitemap submission,
+indexing, structured-data validation, and ongoing name-search guidance.
 
 ## Deployment
 

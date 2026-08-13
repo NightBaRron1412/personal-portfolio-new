@@ -34,7 +34,7 @@ export function PortraitCard({
   const rotateX = useTransform(sy, [-0.5, 0.5], ["9deg", "-9deg"]);
   const rotateY = useTransform(sx, [-0.5, 0.5], ["-9deg", "9deg"]);
 
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const onMove = (e: React.MouseEvent<HTMLElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     mouseX.set((e.clientX - r.left) / r.width - 0.5);
     mouseY.set((e.clientY - r.top) / r.height - 0.5);
@@ -54,7 +54,7 @@ export function PortraitCard({
 
   return (
     <div className={cn("[perspective:1000px]", className)}>
-      <motion.div
+      <motion.figure
         onMouseMove={onMove}
         onMouseLeave={onLeave}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
@@ -67,9 +67,10 @@ export function PortraitCard({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
-            alt={name}
-            loading="eager"
-            fetchPriority="high"
+            alt={`Portrait of ${name}, Senior Software Engineer at AMD`}
+            title={`${name} — Senior Software Engineer at AMD`}
+            loading="lazy"
+            fetchPriority="low"
             decoding="async"
             className="ken-burns absolute inset-0 h-full w-full object-cover"
           />
@@ -100,15 +101,16 @@ export function PortraitCard({
             </span>
           </div>
 
-          {/* bottom caption */}
-          <div
-            style={{ transform: "translateZ(38px)" }}
-            className="absolute inset-x-0 bottom-0 flex items-center justify-between p-4"
-          >
-            <span className="font-display text-base font-semibold text-white">{name}</span>
-            <span className="mono text-xs text-white/70">{subtitle}</span>
-          </div>
         </div>
+
+        {/* Visible, semantic caption gives people and image search clear context. */}
+        <figcaption
+          style={{ transform: "translateZ(38px)" }}
+          className="absolute inset-x-3 bottom-3 z-10 flex items-center justify-between p-4"
+        >
+          <span className="font-display text-base font-semibold text-white">{name}</span>
+          <span className="mono text-xs text-white/70">{subtitle}</span>
+        </figcaption>
 
         {/* HUD corner brackets — float above the frame for depth */}
         {corners.map((c) => (
@@ -123,7 +125,7 @@ export function PortraitCard({
             )}
           />
         ))}
-      </motion.div>
+      </motion.figure>
     </div>
   );
 }

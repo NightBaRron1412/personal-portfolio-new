@@ -64,12 +64,14 @@ type SpotifyItem = {
 };
 
 function buildTrack(item: SpotifyItem, isPlaying: boolean, progress?: number): Track {
+  const albumImages = item.album.images ?? [];
   return {
     isPlaying,
     title: item.name,
     artist: item.artists.map((a) => a.name).join(", "),
     album: item.album.name,
-    albumArt: item.album.images?.[0]?.url,
+    // Spotify orders these largest-to-smallest; the widget only renders at 36px.
+    albumArt: albumImages[albumImages.length - 1]?.url,
     songUrl: item.external_urls.spotify,
     progress: isPlaying ? progress : undefined,
     duration: isPlaying ? item.duration_ms : undefined,

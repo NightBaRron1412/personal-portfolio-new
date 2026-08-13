@@ -15,7 +15,7 @@ const RAIL_FADE = "linear-gradient(to bottom, transparent, #000 5%, #000 95%, tr
 
 export function Experience() {
   const railRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState<number | null>(0);
+  const [open, setOpen] = useState<Set<number>>(() => new Set([0]));
 
   // Progress line fills + a glow "comet" tracks the scroll through the timeline.
   const { scrollYProgress } = useScroll({
@@ -94,7 +94,7 @@ export function Experience() {
 
         <div className="space-y-3">
           {jobs.map((job, i) => {
-            const isOpen = open === i;
+            const isOpen = open.has(i);
             const hasType = "type" in job && (job as { type?: string }).type;
             const bullets = job.bullets.filter(
               (b) => b.trim().toLowerCase() !== job.summary.trim().toLowerCase()
@@ -138,24 +138,13 @@ export function Experience() {
                       )}
                     >
                       <button
-                        onClick={(e) => {
-                          const willOpen = !isOpen;
-                          setOpen(willOpen ? i : null);
-                          // The expanded bullets can land below the fold on
-                          // mobile — once they're laid out, bring the card into
-                          // view so the details aren't off-screen.
-                          if (willOpen) {
-                            const card = e.currentTarget.closest("[data-exp-card]");
-                            const reduce = window.matchMedia(
-                              "(prefers-reduced-motion: reduce)"
-                            ).matches;
-                            window.setTimeout(() => {
-                              card?.scrollIntoView({
-                                behavior: reduce ? "auto" : "smooth",
-                                block: "nearest",
-                              });
-                            }, 360);
-                          }
+                        onClick={() => {
+                          setOpen((current) => {
+                            const next = new Set(current);
+                            if (next.has(i)) next.delete(i);
+                            else next.add(i);
+                            return next;
+                          });
                         }}
                         className="flex w-full items-start gap-3 p-4 text-left sm:gap-4 sm:p-5"
                         aria-expanded={isOpen}
@@ -212,23 +201,28 @@ export function Experience() {
                       </button>
 
                       {/* expandable bullets */}
-                      <motion.div
-                        initial={false}
-                        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-                        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                        className="overflow-hidden"
+                      <div
+                        aria-hidden={!isOpen}
+                        className={cn(
+                          "grid transition-[grid-template-rows,opacity] duration-300 ease-out",
+                          isOpen
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "pointer-events-none grid-rows-[0fr] opacity-0"
+                        )}
                       >
-                        {bullets.length ? (
-                          <ul className="space-y-2 border-t border-border-subtle px-4 py-4 sm:mx-5 sm:px-[60px] sm:py-4">
-                            {bullets.map((b, bi) => (
-                              <li key={bi} className="flex gap-2.5 text-sm text-text-secondary">
-                                <span className="mono mt-0.5 shrink-0 text-accent">›</span>
-                                <span>{b}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : null}
-                      </motion.div>
+                        <div className="min-h-0 overflow-hidden">
+                          {bullets.length ? (
+                            <ul className="space-y-2 border-t border-border-subtle px-4 py-4 sm:mx-5 sm:px-[60px] sm:py-4">
+                              {bullets.map((b, bi) => (
+                                <li key={bi} className="flex gap-2.5 text-sm text-text-secondary">
+                                  <span className="mono mt-0.5 shrink-0 text-accent">›</span>
+                                  <span>{b}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </Reveal>

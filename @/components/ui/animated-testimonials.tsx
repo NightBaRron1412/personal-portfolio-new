@@ -66,7 +66,8 @@ export function AnimatedTestimonials({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={t.src}
-                alt={t.name}
+                alt={`Portrait of ${t.name}, ${t.designation}`}
+                title={`${t.name} — professional reference for Amir Shetaia`}
                 draggable={false}
                 loading="lazy"
                 className="h-full w-full rounded-2xl border border-border-subtle object-cover object-center"

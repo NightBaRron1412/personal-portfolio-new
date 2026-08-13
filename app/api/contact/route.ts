@@ -34,7 +34,7 @@ function isAllowedOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return true;
 
-  const siteUrl = process.env.SITE_URL;
+  const siteUrl = process.env.SITE_URL?.trim();
   if (!siteUrl) return true;
 
   try {

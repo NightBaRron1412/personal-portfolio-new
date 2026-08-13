@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { isAnalyticsEnabled, isSpeedInsightsEnabled } from "@/lib/analytics";
+import { getSiteUrl } from "@/lib/site";
 import { Providers } from "./providers";
 import { StructuredData } from "./components/structured-data";
 import { ArcadeMode } from "./components/arcade-mode";
@@ -36,22 +37,39 @@ export const viewport: Viewport = {
   ],
 };
 
-const siteUrl = process.env.SITE_URL || "https://amirshetaia.com";
+const siteUrl = getSiteUrl();
+const pageTitle = "Amir Shetaia | Senior Software Engineer at AMD";
+const pageDescription =
+  "Official portfolio of Amir Shetaia, Senior Software Engineer at AMD, featuring GPU driver and ROCm work, HPC systems, formal verification, and ML.";
+const googleVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+const bingVerification = process.env.BING_SITE_VERIFICATION?.trim();
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Amir Shetaia | Senior Software Engineer @ AMD",
-  description:
-    "Senior Software Engineer at AMD developing GPU drivers for the ROCm platform. Specializing in HPC, ML systems, and formal verification.",
+  metadataBase: new URL(`${siteUrl}/`),
+  title: pageTitle,
+  description: pageDescription,
   applicationName: "Amir Shetaia",
   authors: [{ name: "Amir Shetaia", url: siteUrl }],
   creator: "Amir Shetaia",
   publisher: "Amir Shetaia",
+  category: "technology",
+  referrer: "origin-when-cross-origin",
+  formatDetection: { email: false, address: false, telephone: false },
   alternates: { canonical: siteUrl },
+  verification: {
+    ...(googleVerification ? { google: googleVerification } : {}),
+    ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
+  },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   // Icons are provided by the app/ file conventions: icon.svg (modern),
   // favicon.ico (legacy), apple-icon.png (iOS). No manual overrides needed.
@@ -60,24 +78,24 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Amir Shetaia",
-    title: "Amir Shetaia | Senior Software Engineer @ AMD",
-    description: "GPU drivers for ML & data center workloads on ROCm. HPC optimization, formal methods, and verification systems.",
+    title: pageTitle,
+    description: pageDescription,
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Amir Shetaia - Senior Software Engineer at AMD",
-        type: "image/png"
-      }
-    ]
+        alt: "Amir Shetaia, Senior Software Engineer at AMD",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Amir Shetaia | Senior Software Engineer @ AMD",
-    description: "GPU drivers for ML & data center workloads on ROCm. HPC, formal methods, verification.",
-    images: ["/og-image.png"]
-  }
+    title: pageTitle,
+    description: pageDescription,
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

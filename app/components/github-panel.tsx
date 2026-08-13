@@ -30,6 +30,7 @@ export function GitHubPanel() {
   const { resolvedTheme } = useTheme();
   const [data, setData] = useState<GitHubData | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
+  const panelRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   // Responsive sizing so the 6 months fit any width (no horizontal cut).
   const [block, setBlock] = useState({ size: 11, margin: 3 });
@@ -69,22 +70,47 @@ export function GitHubPanel() {
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/github")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((json: GitHubData) => {
-        if (!alive) return;
-        if (!json?.heatmap?.length) return setState("error");
-        setData(json);
-        setState("ok");
-      })
-      .catch(() => alive && setState("error"));
+    const el = panelRef.current;
+    let started = false;
+    const load = () => {
+      if (started) return;
+      started = true;
+      fetch("/api/github")
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((json: GitHubData) => {
+          if (!alive) return;
+          if (!json?.heatmap?.length) return setState("error");
+          setData(json);
+          setState("ok");
+        })
+        .catch(() => alive && setState("error"));
+    };
+
+    if (!el || typeof IntersectionObserver === "undefined") {
+      load();
+      return () => {
+        alive = false;
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          load();
+        }
+      },
+      { rootMargin: "500px 0px" }
+    );
+    observer.observe(el);
     return () => {
       alive = false;
+      observer.disconnect();
     };
   }, []);
 
   return (
-    <div className="panel ticks p-5 sm:p-6">
+    <div ref={panelRef} className="panel ticks p-5 sm:p-6">
       {/* header */}
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">

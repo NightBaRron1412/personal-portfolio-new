@@ -136,6 +136,16 @@ export function ShaderBackground({ className }: { className?: string }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !mounted) return;
+    const connection = (
+      navigator as Navigator & { connection?: { saveData?: boolean } }
+    ).connection;
+    const staticDevice =
+      window.matchMedia("(hover: none), (pointer: coarse)").matches ||
+      connection?.saveData === true;
+    if (staticDevice) {
+      setFailed(true);
+      return;
+    }
     const gl = (canvas.getContext("webgl") ||
       canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
     if (!gl) {
@@ -206,17 +216,31 @@ export function ShaderBackground({ className }: { className?: string }) {
       uLight = lightRef.current ? 1 : 0;
       draw(8);
     };
+    drawRef.current();
 
     let raf = 0;
+    let startTimer = 0;
+    let lastFrame = 0;
     let inView = true;
-    const loop = () => {
-      draw((Date.now() - start) / 1000);
+    const loop = (timestamp: number) => {
+      if (timestamp - lastFrame >= 1000 / 30) {
+        draw((Date.now() - start) / 1000);
+        lastFrame = timestamp;
+      }
       raf = requestAnimationFrame(loop);
     };
     const startLoop = () => {
-      if (!raf) raf = requestAnimationFrame(loop);
+      if (raf || startTimer) return;
+      startTimer = window.setTimeout(() => {
+        startTimer = 0;
+        if (inView && !document.hidden) raf = requestAnimationFrame(loop);
+      }, 700);
     };
     const stopLoop = () => {
+      if (startTimer) {
+        clearTimeout(startTimer);
+        startTimer = 0;
+      }
       if (raf) {
         cancelAnimationFrame(raf);
         raf = 0;

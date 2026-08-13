@@ -1,5 +1,3 @@
-"use client";
-
 import { profile } from "@/data/profile";
 import { Marquee } from "@/components/ui/marquee";
 import { Reveal } from "./reveal";
@@ -24,7 +22,10 @@ export function Skills() {
     <div className="space-y-8">
       {/* infinite tech marquee */}
       <Reveal>
-        <div className="relative overflow-hidden rounded-xl border border-border-subtle bg-surface py-3">
+        <div
+          className="relative overflow-hidden rounded-xl border border-border-subtle bg-surface py-3"
+          data-nosnippet
+        >
           <Marquee pauseOnHover className="[--duration:42s] py-0">
             {ROW_A.map((s) => (
               <Chip key={s} label={s} />

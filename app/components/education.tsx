@@ -1,5 +1,3 @@
-"use client";
-
 import { Award, Users } from "lucide-react";
 import { profile } from "@/data/profile";
 import { Logo } from "./logo";
