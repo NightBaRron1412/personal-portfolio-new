@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 type RevealProps = {
   children: ReactNode;
@@ -32,11 +33,12 @@ export function Reveal({
   rootMargin = "0px 0px -8% 0px",
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
+  const animationRef = useRef<Animation | null>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || shown) return;
+    if (!el) return;
 
     if (typeof IntersectionObserver === "undefined") {
       setShown(true);
@@ -47,6 +49,37 @@ export function Reveal({
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
+            const shouldUseMobileEntrance =
+              variant !== "default" &&
+              window.matchMedia("(max-width: 767px)").matches &&
+              typeof el.animate === "function" &&
+              !prefersReducedMotion();
+
+            if (shouldUseMobileEntrance) {
+              const animation = el.animate(
+                [
+                  { opacity: 0, transform: "translate3d(0, 34px, 0) scale(0.96)" },
+                  { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" },
+                ],
+                {
+                  duration: 700,
+                  delay,
+                  easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                  fill: "both",
+                }
+              );
+              animationRef.current = animation;
+              void animation.finished.then(
+                () => {
+                  if (animationRef.current === animation) {
+                    animation.cancel();
+                    animationRef.current = null;
+                  }
+                },
+                () => undefined
+              );
+            }
+
             setShown(true);
             observer.disconnect();
             break;
@@ -58,7 +91,14 @@ export function Reveal({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [rootMargin, shown, threshold]);
+  }, [delay, rootMargin, threshold, variant]);
+
+  useEffect(
+    () => () => {
+      animationRef.current?.cancel();
+    },
+    []
+  );
 
   return (
     <Tag

@@ -301,7 +301,7 @@ export function InstrumentField({ className }: { className?: string }) {
     <canvas
       ref={canvasRef}
       aria-hidden
-      className={className ?? "pointer-events-none fixed inset-0 z-0"}
+      className={className ?? "instrument-field pointer-events-none fixed inset-0 z-0"}
     />
   );
 }

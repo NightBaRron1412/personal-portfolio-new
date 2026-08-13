@@ -391,13 +391,26 @@ textarea {
   transform: none;
 }
 
-/* The games entrance needed more visual definition on phones. Desktop keeps
-   the site's existing, quieter reveal treatment. */
+/* The games entrance needs its own composited layer on phones. Mobile Safari
+   can otherwise defer painting a 2D opacity/transform transition while the
+   page is scrolling, which makes the finished card appear in one jump. */
 @media (max-width: 767px) {
+  [data-reveal][data-reveal-variant="game"],
+  [data-reveal][data-reveal-variant="mobile"] {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: opacity, transform;
+  }
+
   [data-reveal=""][data-reveal-variant="game"],
   [data-reveal=""][data-reveal-variant="mobile"] {
-    transform: translateY(34px) scale(0.96);
+    transform: translate3d(0, 34px, 0) scale(0.96);
     transition-duration: 0.7s;
+  }
+
+  [data-reveal="in"][data-reveal-variant="game"],
+  [data-reveal="in"][data-reveal-variant="mobile"] {
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -796,6 +809,38 @@ html[data-arcade="true"] .crt::after {
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 140px 140px;
+}
+
+/* iOS/WebKit repaints fixed blurred, masked and blend-mode layers during a
+   scroll. Keeping all of them stacked made short entrances finish between two
+   paints on iPhone. Phones use an equivalent lightweight scrolling texture;
+   tablet and desktop visuals are unchanged. */
+@media (max-width: 767px) {
+  body {
+    background-image:
+      radial-gradient(var(--grid) 1px, transparent 1px),
+      radial-gradient(100% 60% at 50% 0%, var(--accent-glow), transparent 70%);
+    background-position: -1px -1px, 0 0;
+    background-size: 28px 28px, auto;
+  }
+
+  body::before,
+  body::after,
+  .aurora,
+  .instrument-field,
+  .cursor-glow,
+  .grain,
+  .crt {
+    display: none;
+  }
+
+  html[data-arcade="true"] .crt {
+    display: block;
+  }
+
+  .hero-shader {
+    transform: none !important;
+  }
 }
 
 /* Form controls inherit instrument styling */
