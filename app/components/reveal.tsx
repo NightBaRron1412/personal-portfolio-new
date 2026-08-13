@@ -56,9 +56,13 @@ export function Reveal({
               !prefersReducedMotion();
 
             if (shouldUseMobileEntrance) {
+              // WebKit can merge a zero-delay animation with the React reveal
+              // update during momentum scrolling. A short backwards-filled
+              // delay guarantees at least one hidden composited frame first.
+              const mobileDelay = delay + 90;
               const fade = el.animate([{ opacity: 0 }, { opacity: 1 }], {
                 duration: 900,
-                delay,
+                delay: mobileDelay,
                 easing: "linear",
                 fill: "both",
               });
@@ -69,7 +73,7 @@ export function Reveal({
                 ],
                 {
                   duration: 900,
-                  delay,
+                  delay: mobileDelay,
                   easing: "cubic-bezier(0.16, 1, 0.3, 1)",
                   fill: "both",
                 }
