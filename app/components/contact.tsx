@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { contactSchema as schema } from "@/lib/contact";
+import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { Copy, Github, Linkedin, Mail, Send } from "lucide-react";
@@ -13,12 +14,7 @@ import { Reveal } from "./reveal";
 import { ShinyButton } from "@/components/ui/shiny-button";
 import { WorldMap } from "./world-map";
 
-const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-  website: z.string().optional(), // honeypot
-});
+
 
 type FormValues = z.infer<typeof schema>;
 
@@ -26,6 +22,7 @@ const email = profile.contact.email;
 
 export function Contact() {
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState("");
   const {
     register,
     handleSubmit,
@@ -35,21 +32,24 @@ export function Contact() {
 
   const onSubmit = async (values: FormValues) => {
     setLoading(true);
+    setFeedback("");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
+        signal: AbortSignal.timeout(20000),
       });
       if (res.status === 429) {
-        toast.error("Too many requests — try again in a minute.");
+        const seconds = Math.max(1, Number(res.headers.get("Retry-After")) || 60);
+        setFeedback(`Please wait ${seconds} seconds before trying again. Your message is still here.`);
         return;
       }
       if (!res.ok) throw new Error("Failed");
-      toast.success("Message sent — I’ll get back to you soon.");
+      setFeedback("Message sent — thank you. I’ll get back to you soon.");
       reset();
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      setFeedback("Couldn’t send your message. Your draft is still here; try again or use the email link.");
     } finally {
       setLoading(false);
     }
@@ -130,6 +130,8 @@ export function Contact() {
       <Reveal delay={90} className="lg:col-span-7">
         <form
           onSubmit={handleSubmit(onSubmit)}
+          aria-busy={loading}
+          noValidate
           className="panel space-y-4 p-6"
           suppressHydrationWarning
         >
@@ -147,6 +149,8 @@ export function Contact() {
             <Field id="cf-name" label="Name" error={errors.name?.message}>
               <Input
                 id="cf-name"
+                autoComplete="name"
+                maxLength={80}
                 placeholder="Your name"
                 aria-invalid={!!errors.name}
                 aria-describedby={errors.name ? "cf-name-error" : undefined}
@@ -156,6 +160,8 @@ export function Contact() {
             <Field id="cf-email" label="Email" error={errors.email?.message}>
               <Input
                 id="cf-email"
+                autoComplete="email"
+                maxLength={200}
                 type="email"
                 placeholder="you@example.com"
                 aria-invalid={!!errors.email}
@@ -167,6 +173,7 @@ export function Contact() {
           <Field id="cf-message" label="Message" error={errors.message?.message}>
             <Textarea
               id="cf-message"
+              maxLength={5000}
               rows={6}
               placeholder="What are you working on?"
               aria-invalid={!!errors.message}
@@ -185,6 +192,7 @@ export function Contact() {
               {!loading ? <Send className="h-4 w-4" /> : null}
             </span>
           </ShinyButton>
+          <p role="status" aria-live="polite" className="min-h-5 text-sm leading-relaxed text-text-secondary">{feedback}</p>
         </form>
       </Reveal>
     </div>

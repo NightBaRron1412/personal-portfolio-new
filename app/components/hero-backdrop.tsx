@@ -1,7 +1,10 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ShaderBackground } from "@/components/ui/shader-background";
+import dynamic from "next/dynamic";
+import { useDetailedEffects } from "@/hooks/use-detailed-effects";
+
+const ShaderBackground = dynamic(() => import("@/components/ui/shader-background"), { ssr: false });
 
 const MASK = "linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%)";
 
@@ -12,6 +15,7 @@ const MASK = "linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%)";
  * transform here is safe (won't create a containing block for fixed elements).
  */
 export function HeroBackdrop() {
+  const detailed = useDetailedEffects();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 900], [0, 150]);
 
@@ -21,7 +25,8 @@ export function HeroBackdrop() {
       style={{ y, maskImage: MASK, WebkitMaskImage: MASK }}
       className="hero-shader absolute inset-x-0 top-0 z-0 h-[115vh] overflow-hidden"
     >
-      <ShaderBackground className="h-full w-full opacity-50" />
+      <div className="mobile-atmosphere" />
+      {detailed ? <ShaderBackground className="h-full w-full opacity-50" /> : null}
       {/* darken the left (text) side, keep the shader vivid on the right */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-bg-main via-bg-main/85 to-transparent" />
       {/* gentle overall floor for small/secondary text */}

@@ -1,6 +1,7 @@
 import nextConfig from "eslint-config-next";
 
 const config = [
+  { ignores: ["output/**", "test-results/**", ".playwright-cli/**", "playwright-report/**"] },
   ...nextConfig,
   {
     rules: {

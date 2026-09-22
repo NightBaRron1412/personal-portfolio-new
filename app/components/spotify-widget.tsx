@@ -30,8 +30,11 @@ export function SpotifyWidget() {
 
   useEffect(() => {
     let alive = true;
-    const load = () =>
-      fetch("/api/spotify", { cache: "no-store" })
+    let pending = false;
+    const load = () => {
+      if (document.hidden || pending) return;
+      pending = true;
+      return fetch("/api/spotify", { cache: "no-store" })
         .then((r) => r.json())
         .then((json: SpotifyData) => {
           if (!alive) return;
@@ -44,11 +47,15 @@ export function SpotifyWidget() {
           setDuration(json.duration ?? 0);
           setReady(true);
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => { pending = false; });
+    };
+    document.addEventListener("visibilitychange", load);
     load();
     const poll = setInterval(load, 20000);
     return () => {
       alive = false;
+      document.removeEventListener("visibilitychange", load);
       clearInterval(poll);
     };
   }, []);

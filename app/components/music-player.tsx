@@ -120,7 +120,7 @@ export function MusicPlayer({ className }: { className?: string }) {
   const pause = useCallback(() => {
     wantRef.current = false;
     const ctx = ctxRef.current;
-    if (ctx && ctx.state === "running") void ctx.suspend();
+    if (ctx && ctx.state === "running") void ctx.suspend().catch(() => {});
     setPlaying(false);
   }, []);
 
@@ -139,7 +139,7 @@ export function MusicPlayer({ className }: { className?: string }) {
       if (document.hidden) {
         if (ctx && ctx.state === "running") {
           wasPlaying = true;
-          void ctx.suspend();
+          void ctx.suspend().catch(() => {});
           setPlaying(false);
         }
       } else if (wasPlaying) {
@@ -184,7 +184,7 @@ export function MusicPlayer({ className }: { className?: string }) {
       document.removeEventListener("visibilitychange", onVisibility);
       const ctx = ctxRef.current;
       ctxRef.current = null;
-      if (ctx) void ctx.close();
+      if (ctx) void ctx.close().catch(() => {});
     };
   }, [play, buildGraph, loadBuffer]);
 

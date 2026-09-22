@@ -16,7 +16,7 @@ import { Contact } from "./components/contact";
 import { Footer } from "./components/footer";
 import { SpotifyWidget } from "./components/spotify-widget";
 import { CursorGlow } from "./components/cursor-glow";
-import { InstrumentField } from "./components/instrument-field";
+import { AmbientEffects } from "./components/ambient-effects";
 import { HeroBackdrop } from "./components/hero-backdrop";
 
 export default function HomePage() {
@@ -32,7 +32,7 @@ export default function HomePage() {
       {/* animated plasma shader band with scroll parallax */}
       <HeroBackdrop />
       <div className="aurora" aria-hidden />
-      <InstrumentField />
+      <AmbientEffects />
       <CursorGlow />
       <ScrollProgress />
       <Nav />

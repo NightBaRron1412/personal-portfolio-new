@@ -40,6 +40,7 @@ export function InstrumentField({ className }: { className?: string }) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (window.matchMedia("(max-width: 767px), (pointer: coarse)").matches) return;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;

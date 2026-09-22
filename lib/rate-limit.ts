@@ -15,6 +15,16 @@ export function rateLimit(key: string, windowMs: number, max: number): { ok: boo
   const store = getStore();
   const now = Date.now();
 
+  // Bound memory for long-lived processes without evicting active restrictions.
+  if (store.size >= 1000) {
+    for (const [storedKey, entry] of store) {
+      if (entry.resetAt <= now) store.delete(storedKey);
+    }
+    if (store.size >= 10000 && !store.has(key)) {
+      return { ok: false, retryAfterSeconds: 60 };
+    }
+  }
+
   const existing = store.get(key);
   if (!existing || now >= existing.resetAt) {
     store.set(key, { count: 1, resetAt: now + windowMs });

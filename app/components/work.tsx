@@ -84,9 +84,10 @@ export function Work() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Repository"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                      title={`${project.title} repository`}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border-subtle px-3 text-xs text-text-secondary transition-colors hover:border-accent hover:text-accent"
                     >
-                      <Github className="h-4 w-4" />
+                      <Github className="h-4 w-4" /> View code
                     </a>
                   ) : null}
                   {project.demo ? (
@@ -108,7 +109,7 @@ export function Work() {
 
               {/* metrics */}
               {metrics.length ? (
-                <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="mt-6 grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
                   {metrics.map((m) => (
                     <div key={m.label} className="panel-quiet p-3.5">
                       <div className="text-gradient font-display text-xl font-semibold">
@@ -140,7 +141,7 @@ export function Work() {
                       ["result", project.details.results],
                     ] as const
                   ).map(([label, body]) => (
-                    <div key={label} className="border-t border-border-subtle pt-3">
+                    <div key={label} className={label === "result" ? "rounded-lg border border-accent-soft bg-accent-soft p-3" : "border-t border-border-subtle pt-3"}>
                       <PanelLabel className="mb-2">{label}</PanelLabel>
                       <p className="text-sm leading-relaxed text-text-secondary">{body}</p>
                     </div>

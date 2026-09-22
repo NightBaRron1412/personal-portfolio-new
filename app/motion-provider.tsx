@@ -15,47 +15,39 @@ const MotionPreferenceContext = createContext<MotionPreference | null>(null);
 
 export function MotionProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
-  const [motionEnabled, setMotionEnabled] = useState(true);
+  const [preference, setPreference] = useState<boolean | null>(null);
+  const [systemReduced, setSystemReduced] = useState(false);
+  const motionEnabled = preference ?? !systemReduced;
 
   useEffect(() => {
-    setHydrated(true);
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setSystemReduced(media.matches);
+    sync();
+    media.addEventListener("change", sync);
     try {
       const stored = localStorage.getItem("motion-enabled");
-      if (stored === null) {
-        // No stored preference: honor the OS "reduce motion" setting.
-        const prefersReduced = window.matchMedia(
-          "(prefers-reduced-motion: reduce)"
-        ).matches;
-        setMotionEnabled(!prefersReduced);
-      } else {
-        setMotionEnabled(stored === "true");
-      }
-    } catch {
-      // ignore storage errors
-    }
+      if (stored === "true" || stored === "false") setPreference(stored === "true");
+    } catch { /* Storage is optional. */ }
+    setHydrated(true);
+    return () => media.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("motion-enabled", motionEnabled ? "true" : "false");
-    } catch {
-      // ignore storage errors
-    }
-
-    if (typeof document !== "undefined") {
-      document.documentElement.setAttribute(
-        "data-force-motion",
-        motionEnabled ? "true" : "false"
-      );
-    }
-  }, [motionEnabled]);
+    if (!hydrated) return;
+    if (preference === null) document.documentElement.removeAttribute("data-force-motion");
+    else document.documentElement.setAttribute("data-force-motion", String(preference));
+  }, [hydrated, preference]);
 
   const value = useMemo<MotionPreference>(() => {
+    const setMotionEnabled = (enabled: boolean) => {
+      setPreference(enabled);
+      try { localStorage.setItem("motion-enabled", String(enabled)); } catch { /* Optional. */ }
+    };
     return {
       hydrated,
       motionEnabled,
       setMotionEnabled,
-      toggleMotion: () => setMotionEnabled((v) => !v),
+      toggleMotion: () => setMotionEnabled(!motionEnabled),
     };
   }, [hydrated, motionEnabled]);
 

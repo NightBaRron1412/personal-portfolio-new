@@ -2,7 +2,8 @@
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useMotionPreference } from "../../../app/motion-provider";
 
 export type Testimonial = {
   quote: string;
@@ -24,6 +25,16 @@ export function AnimatedTestimonials({
   autoplay?: boolean;
 }) {
   const [active, setActive] = useState(0);
+  const root = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const { motionEnabled } = useMotionPreference();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+    if (root.current) observer.observe(root.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleNext = () => setActive((p) => (p + 1) % testimonials.length);
   const handlePrev = () => setActive((p) => (p - 1 + testimonials.length) % testimonials.length);
@@ -33,17 +44,18 @@ export function AnimatedTestimonials({
   // manual next/prev/dot), so a manual click always gets a full interval and
   // never double-advances.
   useEffect(() => {
-    if (!autoplay) return;
-    const id = setInterval(handleNext, 5500);
+    if (!autoplay || !motionEnabled || !inView || paused) return;
+    const id = setInterval(() => {
+      if (!document.hidden) setActive((p) => (p + 1) % testimonials.length);
+    }, 5500);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoplay, active]);
+  }, [autoplay, active, motionEnabled, inView, paused, testimonials.length]);
 
   // deterministic tilt per card (avoids SSR/client mismatch)
   const tiltFor = (i: number) => (i % 3) * 4 - 4;
 
   return (
-    <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-14">
+    <div ref={root} onFocusCapture={() => setPaused(true)} onMouseEnter={() => setPaused(true)} className="grid gap-10 md:grid-cols-2 md:items-center md:gap-14">
       {/* stacked portraits */}
       <div className="relative mx-auto h-72 w-full max-w-xs sm:h-80">
         <AnimatePresence>
@@ -89,19 +101,9 @@ export function AnimatedTestimonials({
             {testimonials[active].name}
           </h3>
           <p className="mono mt-1 text-xs text-text-faint">{testimonials[active].designation}</p>
-          <motion.p className="mt-6 text-base leading-relaxed text-text-secondary">
-            {testimonials[active].quote.split(" ").map((word, index) => (
-              <motion.span
-                key={index}
-                initial={{ filter: "blur(8px)", opacity: 0, y: 4 }}
-                animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
-                transition={{ duration: 0.22, ease: "easeInOut", delay: 0.015 * index }}
-                className="inline-block"
-              >
-                {word}&nbsp;
-              </motion.span>
-            ))}
-          </motion.p>
+          <p className="mt-6 text-base leading-relaxed text-text-secondary">
+            {testimonials[active].quote}
+          </p>
         </motion.div>
 
         <div className="mt-8 flex items-center gap-3">
@@ -125,6 +127,7 @@ export function AnimatedTestimonials({
                 key={i}
                 onClick={() => setActive(i)}
                 aria-label={`Go to testimonial ${i + 1}`}
+                aria-pressed={isActive(i)}
                 className={
                   "h-1.5 rounded-full transition-all " +
                   (isActive(i) ? "w-5 bg-accent" : "w-1.5 bg-border-strong hover:bg-text-faint")
@@ -132,6 +135,11 @@ export function AnimatedTestimonials({
               />
             ))}
           </div>
+          {autoplay && motionEnabled ? (
+            <button onClick={() => setPaused((value) => !value)} className="ml-auto min-h-9 text-xs text-text-secondary hover:text-accent" aria-label={paused ? "Play testimonials" : "Pause testimonials"}>
+              {paused ? "Play" : "Pause"}
+            </button>
+          ) : null}
         </div>
       </div>
     </div>

@@ -30,6 +30,8 @@ type Track = {
 // "last played" vanish). We call Spotify at most once per CACHE_MS and serve the
 // last good track on rate-limit/error so it stays visible.
 let cache: { data: Track; ts: number } | null = null;
+let inFlight: Promise<Track | null> | null = null;
+let token: { value: string; expiresAt: number } | null = null;
 let cooldownUntil = 0; // honor Spotify's Retry-After so we don't extend a 429 ban
 const CACHE_MS = 30_000;
 
@@ -39,6 +41,7 @@ function noteRateLimit(res: Response) {
 }
 
 async function getAccessToken() {
+  if (token && Date.now() < token.expiresAt) return { access_token: token.value };
   const basic = Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64");
   const response = await fetch(TOKEN_ENDPOINT, {
     method: "POST",
@@ -51,8 +54,13 @@ async function getAccessToken() {
       refresh_token: SPOTIFY_REFRESH_TOKEN!,
     }),
     cache: "no-store",
+    signal: AbortSignal.timeout(8000),
   });
-  return response.json();
+  if (response.status === 429) noteRateLimit(response);
+  if (!response.ok) return {};
+  const data = await response.json();
+  if (data.access_token) token = { value: data.access_token, expiresAt: Date.now() + Math.max(0, (data.expires_in ?? 3600) - 60) * 1000 };
+  return data;
 }
 
 type SpotifyItem = {
@@ -85,7 +93,8 @@ async function fetchFromSpotify(): Promise<Track | null> {
   // whether PLAYING or PAUSED. A paused track is the freshest thing the user
   // touched, and crucially it is NOT yet in recently-played (that endpoint would
   // return the *previous* track), so this is the correct "last played".
-  const now = await fetch(NOW_PLAYING_ENDPOINT, { headers: auth, cache: "no-store" });
+  const now = await fetch(NOW_PLAYING_ENDPOINT, { headers: auth, cache: "no-store", signal: AbortSignal.timeout(8000) });
+  if (now.status === 401) { token = null; return null; }
   if (now.status === 429) {
     noteRateLimit(now);
     return null;
@@ -98,7 +107,8 @@ async function fetchFromSpotify(): Promise<Track | null> {
   }
 
   // 2) Nothing loaded (204 / inactive device) → the most recent completed track.
-  const recent = await fetch(RECENTLY_PLAYED_ENDPOINT, { headers: auth, cache: "no-store" });
+  const recent = await fetch(RECENTLY_PLAYED_ENDPOINT, { headers: auth, cache: "no-store", signal: AbortSignal.timeout(8000) });
+  if (recent.status === 401) { token = null; return null; }
   if (recent.status === 429) {
     noteRateLimit(recent);
     return null;
@@ -128,15 +138,17 @@ export async function GET() {
   }
 
   try {
-    const data = await fetchFromSpotify();
+    const data = await (inFlight ??= fetchFromSpotify().finally(() => { inFlight = null; }));
     if (data) {
       cache = { data, ts: Date.now() };
       return NextResponse.json(data, { headers: NO_CACHE_HEADERS });
     }
+    cooldownUntil = Math.max(cooldownUntil, Date.now() + CACHE_MS);
     // Rate-limited or empty: keep showing the last known track if we have one.
     if (cache) return NextResponse.json(cache.data, { headers: NO_CACHE_HEADERS });
     return NextResponse.json({ isPlaying: false }, { headers: NO_CACHE_HEADERS });
   } catch (err) {
+    cooldownUntil = Math.max(cooldownUntil, Date.now() + CACHE_MS);
     console.error("Spotify API error:", err);
     if (cache) return NextResponse.json(cache.data, { headers: NO_CACHE_HEADERS });
     return NextResponse.json({ isPlaying: false }, { headers: NO_CACHE_HEADERS });

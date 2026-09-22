@@ -91,6 +91,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="font-sans antialiased text-[15px] sm:text-base" suppressHydrationWarning data-darkreader-skip>
         <Providers>{children}</Providers>
+        <noscript><style>{`[data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; }`}</style></noscript>
         <div className="grain" aria-hidden />
         <div className="crt" aria-hidden />
         <ArcadeMode />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowUpRight, Gamepad2 } from "lucide-react";
 import GAMES from "@/data/games.json";
 import META from "@/data/games.meta.json";
@@ -29,7 +30,8 @@ function HudStat({ label, value, accent }: { label: string; value: string; accen
 }
 
 function Cover({ m, title }: { m: Meta; title: string }) {
-  if (!m.cover) {
+  const [failed, setFailed] = useState(false);
+  if (!m.cover || failed) {
     return (
       <div
         className="absolute inset-0 flex items-center justify-center p-3 text-center"
@@ -48,14 +50,17 @@ function Cover({ m, title }: { m: Meta; title: string }) {
           src={m.cover}
           alt=""
           aria-hidden
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full scale-110 object-cover opacity-55 blur-xl"
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={m.cover}
           alt={`${title} cover`}
-          loading="eager"
-          fetchPriority="high"
+          onError={() => setFailed(true)}
+          loading="lazy"
+          fetchPriority="low"
           decoding="async"
           className="absolute inset-0 m-auto h-auto w-full object-contain transition-transform duration-500 group-hover:scale-[1.04]"
         />
@@ -67,8 +72,9 @@ function Cover({ m, title }: { m: Meta; title: string }) {
     <img
       src={m.cover}
       alt={`${title} cover`}
-      loading="eager"
-      fetchPriority="high"
+          onError={() => setFailed(true)}
+      loading="lazy"
+      fetchPriority="low"
       decoding="async"
       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
     />

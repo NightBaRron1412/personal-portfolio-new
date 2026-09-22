@@ -135,6 +135,7 @@ export function ShaderBackground({ className }: { className?: string }) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (window.matchMedia("(max-width: 767px), (pointer: coarse)").matches) return;
     if (!canvas || !mounted) return;
     const gl = (canvas.getContext("webgl") ||
       canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
@@ -259,6 +260,11 @@ export function ShaderBackground({ className }: { className?: string }) {
       window.removeEventListener("resize", resize);
       ro?.disconnect();
       unsubscribe();
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vert);
+      gl.deleteShader(frag);
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, [mounted]);
 

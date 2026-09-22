@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { z } from "zod";
+import { contactSchema as schema } from "@/lib/contact";
 import { rateLimit } from "@/lib/rate-limit";
+import { readRequestJson } from "@/lib/request-json";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
-const schema = z.object({
-  name: z.string().trim().min(2).max(80),
-  email: z.string().trim().email().max(200),
-  message: z.string().trim().min(10).max(5000),
-  // Honeypot field (bots often fill this). The client does not need to send it.
-  website: z.string().trim().max(200).optional().or(z.literal("")),
-});
+
 
 function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -63,7 +58,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const raw = await request.json().catch(() => null);
+    let raw: unknown;
+    try { raw = await readRequestJson(request); }
+    catch (error) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: error instanceof RangeError ? 413 : 400 });
+    }
     const parsed = schema.safeParse(raw);
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });

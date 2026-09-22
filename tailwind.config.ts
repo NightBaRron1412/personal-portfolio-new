@@ -18,6 +18,7 @@ const config: Config = {
         display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"]
       },
       colors: {
+        surface: "var(--surface)",
         bg: {
           main: "var(--bg-main)",
           secondary: "var(--bg-secondary)",

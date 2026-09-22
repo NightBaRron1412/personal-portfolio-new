@@ -37,4 +37,10 @@ describe("rateLimit", () => {
     expect(rateLimit("x", 60_000, 5).ok).toBe(false);
     expect(rateLimit("y", 60_000, 5).ok).toBe(true);
   });
+  it("reclaims expired identities instead of retaining them indefinitely", () => {
+    const store = new Map(Array.from({ length: 1000 }, (_, i) => [`old-${i}`, { count: 1, resetAt: 0 }]));
+    globalThis.__rateLimitStore = store;
+    expect(rateLimit("new", 60000, 5).ok).toBe(true);
+    expect(store.size).toBe(1);
+  });
 });

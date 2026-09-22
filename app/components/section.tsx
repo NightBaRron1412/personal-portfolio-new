@@ -23,11 +23,11 @@ type SectionProps = {
  */
 export function Section({ id, index, title, meta, lead, children, className }: SectionProps) {
   return (
-    <section id={id} className={cn("scroll-mt-24 py-16 sm:py-20 lg:py-24", className)}>
+    <section id={id} className={cn("scroll-mt-24 py-10 sm:py-20 lg:py-24", className)}>
       {/* section separator — a faint fading rule for rhythm between sections */}
       <div
         aria-hidden
-        className="mb-12 h-px w-full bg-gradient-to-r from-transparent via-border-strong/60 to-transparent sm:mb-16"
+        className="mb-8 h-px w-full bg-gradient-to-r from-transparent via-border-strong/60 to-transparent sm:mb-16"
       />
       <Reveal>
         <div className="mb-6 flex items-center gap-4">
@@ -35,7 +35,7 @@ export function Section({ id, index, title, meta, lead, children, className }: S
             <span aria-hidden className="h-2 w-2 rounded-[1px] bg-accent" />
             <span className="eyebrow num text-accent">{index}</span>
           </span>
-          <h2 className="shrink-0 text-gradient">
+          <h2 className="min-w-0 text-gradient">
             <DecoderText text={title} />
           </h2>
           <span aria-hidden className="h-px flex-1 gradient-rule opacity-40" />

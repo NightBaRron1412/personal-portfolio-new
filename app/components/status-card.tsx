@@ -16,6 +16,7 @@ function useLocalDate() {
       month: "short",
       day: "numeric",
       timeZone: TZ,
+      timeZoneName: "short",
     });
     const update = () => setDate(fmt.format(new Date()));
     update();
@@ -58,7 +59,7 @@ export function StatusCard() {
           className="num text-gradient block text-[2.75rem] font-bold leading-none tracking-tight sm:text-5xl"
         />
         <div className="mono mt-3 text-xs text-text-faint" suppressHydrationWarning>
-          {date ?? "—"} · Eastern · UTC−5
+          {date ?? "—"} · Toronto
         </div>
       </div>
 

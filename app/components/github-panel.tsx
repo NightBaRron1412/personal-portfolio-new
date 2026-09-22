@@ -17,6 +17,7 @@ type GitHubData = {
   recentCommits: Commit[];
   heatmap: HeatDay[];
   includesPrivateContributions: boolean;
+  contributionSource?: "calendar" | "public-sample";
   stats: { totalCommits: number; activeDays: number; currentStreak: number; repos: number };
 };
 
@@ -30,7 +31,9 @@ export function GitHubPanel() {
   const { resolvedTheme } = useTheme();
   const [data, setData] = useState<GitHubData | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
+  const [attempt, setAttempt] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   // Responsive sizing so the 6 months fit any width (no horizontal cut).
   const [block, setBlock] = useState({ size: 11, margin: 3 });
   // On narrow screens the footer text (total + legend) is the width constraint,
@@ -69,7 +72,11 @@ export function GitHubPanel() {
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/github")
+    const controller = new AbortController();
+    let timeout: ReturnType<typeof setTimeout>;
+    const load = () => {
+      timeout = setTimeout(() => controller.abort(), 25000);
+      return fetch("/api/github", { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((json: GitHubData) => {
         if (!alive) return;
@@ -77,14 +84,25 @@ export function GitHubPanel() {
         setData(json);
         setState("ok");
       })
-      .catch(() => alive && setState("error"));
+      .catch(() => alive && setState("error"))
+      .finally(() => clearTimeout(timeout));
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      void load();
+    }, { rootMargin: "500px" });
+    if (rootRef.current) observer.observe(rootRef.current);
     return () => {
       alive = false;
+      controller.abort();
+      clearTimeout(timeout);
+      observer.disconnect();
     };
-  }, []);
+  }, [attempt]);
 
   return (
-    <div className="panel ticks p-5 sm:p-6">
+    <div ref={rootRef} className="panel ticks p-5 sm:p-6" aria-busy={state === "loading"}>
       {/* header */}
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -116,7 +134,7 @@ export function GitHubPanel() {
       </div>
 
       {state === "error" ? (
-        <Offline label="github telemetry offline" />
+        <Offline label="GitHub is taking a break. Try loading it again." retry={() => { setState("loading"); setAttempt(value => value + 1); }} />
       ) : state === "loading" ? (
         <Skeleton />
       ) : data ? (
@@ -179,6 +197,8 @@ export function GitHubPanel() {
             </div>
           </div>
 
+          {data.contributionSource === "public-sample" ? <p className="mt-4 text-xs leading-relaxed text-text-faint">Showing a sample of recent public commits. Full contribution history is temporarily unavailable.</p> : null}
+
           {/* recent commits */}
           {data.recentCommits.length ? (
             <div className="mt-6 border-t border-border-subtle pt-5">
@@ -203,12 +223,13 @@ export function GitHubPanel() {
   );
 }
 
-function Offline({ label }: { label: string }) {
+function Offline({ label, retry }: { label: string; retry: () => void }) {
   return (
     <div className="flex items-center justify-center py-12">
       <div className="text-center">
         <div className="mono mb-1 text-text-faint">⚠ no signal</div>
         <p className="eyebrow">{label}</p>
+        <button onClick={retry} className="mt-4 min-h-11 rounded-lg border border-border-subtle px-4 text-sm text-text-primary hover:border-accent">Retry GitHub</button>
       </div>
     </div>
   );
