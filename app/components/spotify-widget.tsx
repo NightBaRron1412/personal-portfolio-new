@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 type SpotifyData = {
   isPlaying: boolean;
   notConfigured?: boolean;
+  unavailable?: boolean;
   title?: string;
   artist?: string;
   album?: string;
@@ -21,6 +22,7 @@ type SpotifyData = {
 export function SpotifyWidget() {
   const [data, setData] = useState<SpotifyData | null>(null);
   const [ready, setReady] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -34,20 +36,31 @@ export function SpotifyWidget() {
     const load = () => {
       if (document.hidden || pending) return;
       pending = true;
-      return fetch("/api/spotify", { cache: "no-store" })
-        .then((r) => r.json())
+      return fetch("/api/spotify", { cache: "no-store", signal: AbortSignal.timeout(25000) })
+        .then((r) => r.ok ? r.json() : Promise.reject(new Error("Spotify unavailable")))
         .then((json: SpotifyData) => {
           if (!alive) return;
-          if (json?.notConfigured || (!json?.title && !json?.albumArt)) {
+          if (json?.notConfigured) {
             setReady(false);
+            setUnavailable(false);
             return;
           }
+          if (!json?.title && !json?.albumArt) {
+            setUnavailable(true);
+            setData(previous => previous ? { ...previous, isPlaying: false } : null);
+            return;
+          }
+          setUnavailable(false);
           setData(json);
           setProgress(json.progress ?? 0);
           setDuration(json.duration ?? 0);
           setReady(true);
         })
-        .catch(() => {})
+        .catch(() => {
+          if (!alive) return;
+          setUnavailable(true);
+          setData(previous => previous ? { ...previous, isPlaying: false } : null);
+        })
         .finally(() => { pending = false; });
     };
     document.addEventListener("visibilitychange", load);
@@ -79,7 +92,12 @@ export function SpotifyWidget() {
     return () => cancelAnimationFrame(raf);
   }, [data?.title]);
 
-  if (!data) return null;
+  if (!data) return unavailable ? (
+    <aside aria-label="Spotify status" className="spotify-widget fixed bottom-4 left-4 z-40 flex w-[230px] items-center gap-2.5 rounded-xl border border-border-subtle bg-bg-secondary p-3 shadow-soft">
+      <Music className="h-5 w-5 shrink-0 text-accent" aria-hidden />
+      <div><p className="text-xs font-medium text-text-primary">Spotify</p><p className="mt-0.5 text-[11px] text-text-secondary">Listening activity unavailable</p></div>
+    </aside>
+  ) : null;
   const pct = duration ? Math.min(100, (progress / duration) * 100) : 0;
 
   return (
@@ -93,7 +111,7 @@ export function SpotifyWidget() {
         href={data.songUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex items-center gap-2.5 rounded-xl border border-border-subtle bg-bg-secondary/95 p-2 pr-3 shadow-soft backdrop-blur-md transition-colors hover:border-accent/40"
+        className="group flex items-center gap-2.5 rounded-xl border border-border-subtle bg-bg-secondary p-2 pr-3 shadow-soft transition-colors hover:border-accent/40"
       >
         {/* album art */}
         <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-border-subtle">

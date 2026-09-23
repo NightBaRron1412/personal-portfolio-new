@@ -22,7 +22,7 @@ export function HeroBackdrop() {
   return (
     <motion.div
       aria-hidden
-      style={{ y, maskImage: MASK, WebkitMaskImage: MASK }}
+      style={{ y: detailed ? y : 0, maskImage: MASK, WebkitMaskImage: MASK }}
       className="hero-shader absolute inset-x-0 top-0 z-0 h-[115vh] overflow-hidden"
     >
       <div className="mobile-atmosphere" />

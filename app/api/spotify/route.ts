@@ -57,7 +57,11 @@ async function getAccessToken() {
     signal: AbortSignal.timeout(8000),
   });
   if (response.status === 429) noteRateLimit(response);
-  if (!response.ok) return {};
+  if (!response.ok) {
+    // Record a safe diagnostic, never the response body or credentials.
+    console.error("Spotify token request rejected", { status: response.status });
+    return {};
+  }
   const data = await response.json();
   if (data.access_token) token = { value: data.access_token, expiresAt: Date.now() + Math.max(0, (data.expires_in ?? 3600) - 60) * 1000 };
   return data;
@@ -134,7 +138,7 @@ export async function GET() {
   // In a rate-limit cooldown: don't call Spotify (would extend the ban); serve
   // the last known track instead.
   if (Date.now() < cooldownUntil) {
-    return NextResponse.json(cache?.data ?? { isPlaying: false }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json(cache?.data ?? { isPlaying: false, unavailable: true }, { headers: NO_CACHE_HEADERS });
   }
 
   try {
@@ -146,11 +150,11 @@ export async function GET() {
     cooldownUntil = Math.max(cooldownUntil, Date.now() + CACHE_MS);
     // Rate-limited or empty: keep showing the last known track if we have one.
     if (cache) return NextResponse.json(cache.data, { headers: NO_CACHE_HEADERS });
-    return NextResponse.json({ isPlaying: false }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ isPlaying: false, unavailable: true }, { headers: NO_CACHE_HEADERS });
   } catch (err) {
     cooldownUntil = Math.max(cooldownUntil, Date.now() + CACHE_MS);
     console.error("Spotify API error:", err);
     if (cache) return NextResponse.json(cache.data, { headers: NO_CACHE_HEADERS });
-    return NextResponse.json({ isPlaying: false }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ isPlaying: false, unavailable: true }, { headers: NO_CACHE_HEADERS });
   }
 }

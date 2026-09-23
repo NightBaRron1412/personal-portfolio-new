@@ -48,3 +48,13 @@ Reviewed the homepage, shared visual system, navigation, interactive sections, c
 - Desktop canvas bundles are conditional, and resizing from desktop to phone and back was checked in the browser.
 - Additional iPhone/WebKit checks confirmed GitHub failure-to-retry recovery. Mobile dark-mode axe scan reported no WCAG A/AA violations.
 - Background music and its preload remain intact. No lossy audio conversion was applied.
+
+## Regression follow-up — September 22
+
+- Removed the current-section strip from the fixed header; the header remains 65 px including its border.
+- Restored eager game artwork loading and the original 800 ms blur/slide entrance with 55 ms stagger, including mobile.
+- Limited smooth scrolling to the root, changed horizontal overflow containment to clip, and disabled phone hero parallax to reduce scroll/compositing interference.
+- Spotify now shows an unavailable state instead of disappearing, retains a loaded track through failed refreshes, and bounds client requests. A new API test covers rejected authorization and retry cooldown.
+- Verified production Spotify refresh credentials are rejected with invalid_grant. Real listening activity requires account reauthorization; the fallback does not resolve that external authorization failure.
+- Validation: 21 unit/API tests, 40 existing browser tests, typecheck, lint, and production build passed. Chromium wheel scrolling reached the page bottom without a lock; WebKit mobile programmatic scrolling and gallery start/end states were checked. All eight covers decoded, and computed transitions retained the original stagger. A mocked successful Spotify response followed by an unavailable response retained the track.
+- These checks use browser emulation, not a physical-phone performance benchmark. Synthetic touch gestures did not advance the Chromium page, so they are not counted as successful touch-scroll verification.

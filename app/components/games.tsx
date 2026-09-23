@@ -50,7 +50,7 @@ function Cover({ m, title }: { m: Meta; title: string }) {
           src={m.cover}
           alt=""
           aria-hidden
-          loading="lazy"
+          loading="eager"
           decoding="async"
           className="absolute inset-0 h-full w-full scale-110 object-cover opacity-55 blur-xl"
         />
@@ -59,8 +59,8 @@ function Cover({ m, title }: { m: Meta; title: string }) {
           src={m.cover}
           alt={`${title} cover`}
           onError={() => setFailed(true)}
-          loading="lazy"
-          fetchPriority="low"
+          loading="eager"
+          fetchPriority="high"
           decoding="async"
           className="absolute inset-0 m-auto h-auto w-full object-contain transition-transform duration-500 group-hover:scale-[1.04]"
         />
@@ -73,8 +73,8 @@ function Cover({ m, title }: { m: Meta; title: string }) {
       src={m.cover}
       alt={`${title} cover`}
           onError={() => setFailed(true)}
-      loading="lazy"
-      fetchPriority="low"
+      loading="eager"
+      fetchPriority="high"
       decoding="async"
       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
@@ -107,7 +107,7 @@ export function Games() {
           const playing = /playing/i.test(g.status ?? "");
           const detail = [m.year, ...(m.genres ?? [])].filter(Boolean).join(" · ");
           return (
-            <Reveal key={g.slug} delay={(i % 6) * 55}>
+            <Reveal key={g.slug} delay={(i % 6) * 55} className="game-reveal">
               <a
                 href={m.url ?? undefined}
                 target={m.url ? "_blank" : undefined}

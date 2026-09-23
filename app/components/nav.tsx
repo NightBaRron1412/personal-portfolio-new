@@ -151,7 +151,6 @@ export function Nav() {
         </div>
       </nav>
 
-      {scrolled && !open ? <div className="mx-auto max-w-6xl px-4 pb-2 text-[10px] uppercase tracking-[.16em] text-accent xl:hidden" aria-hidden="true">{NAV_LINKS.find(link => link.id === active)?.label ?? "Overview"}</div> : null}
 
       {/* Mobile menu */}
       {open ? (

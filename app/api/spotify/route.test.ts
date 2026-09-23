@@ -7,6 +7,19 @@ afterEach(() => {
   vi.resetModules();
 });
 
+it("reports unavailable authorization and cools down instead of returning a silent empty player", async () => {
+  vi.stubEnv("SPOTIFY_CLIENT_ID", "test");
+  vi.stubEnv("SPOTIFY_CLIENT_SECRET", "test");
+  vi.stubEnv("SPOTIFY_REFRESH_TOKEN", "invalid");
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const fetch = vi.fn(async () => Response.json({ error: "invalid_grant" }, { status: 400 }));
+  vi.stubGlobal("fetch", fetch);
+  const { GET } = await import("./route");
+  expect(await (await GET()).json()).toEqual({ isPlaying: false, unavailable: true });
+  expect(await (await GET()).json()).toEqual({ isPlaying: false, unavailable: true });
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
 it("coalesces simultaneous polls and reuses the access token on later refreshes", async () => {
   vi.stubEnv("SPOTIFY_CLIENT_ID", "test");
   vi.stubEnv("SPOTIFY_CLIENT_SECRET", "test");
