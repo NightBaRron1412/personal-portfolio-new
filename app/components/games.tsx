@@ -107,7 +107,7 @@ export function Games() {
           const playing = /playing/i.test(g.status ?? "");
           const detail = [m.year, ...(m.genres ?? [])].filter(Boolean).join(" · ");
           return (
-            <Reveal key={g.slug} delay={(i % 6) * 55} className="game-reveal">
+            <Reveal key={g.slug} threshold={0.2} delay={100 + (i % 6) * 55} className="game-reveal">
               <a
                 href={m.url ?? undefined}
                 target={m.url ? "_blank" : undefined}

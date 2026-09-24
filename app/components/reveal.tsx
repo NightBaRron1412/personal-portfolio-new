@@ -40,7 +40,7 @@ export function Reveal({
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && entry.intersectionRatio >= threshold) {
             setShown(true);
             observer.disconnect();
             break;
