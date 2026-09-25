@@ -872,3 +872,16 @@ a:focus-visible, button:focus-visible {
     transform .85s cubic-bezier(.16, 1, .3, 1);
 }
 [data-reveal="in"].game-reveal { transform: none; }
+
+/* Keep each game's decoded poster and card on stable layers during the
+   compositor-driven entrance, especially while Safari is momentum-scrolling. */
+@media (max-width: 767px) {
+  [data-reveal].game-reveal,
+  [data-game-card],
+  [data-game-cover] {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  [data-reveal].game-reveal { will-change: opacity, transform; }
+  [data-game-card] { contain: paint; isolation: isolate; }
+}

@@ -133,6 +133,12 @@ test.describe("Portfolio", () => {
       true
     );
     await expect(firstCard).toHaveAttribute("data-reveal", "in");
+    await expect
+      .poll(() => firstCard.evaluate((card) => Number(getComputedStyle(card).opacity)))
+      .toBeGreaterThan(0.1);
+    expect(await firstCard.evaluate((card) => Number(getComputedStyle(card).opacity))).toBeLessThan(
+      0.95
+    );
     await expect(games).toContainText("now playing EA SPORTS FC 27");
     await expect(games.locator('a[href="https://store.steampowered.com/app/4080220"]')).toHaveCount(
       1
@@ -140,7 +146,7 @@ test.describe("Portfolio", () => {
   });
 
   test("skip-to-content is the first focusable element", async ({ page }, testInfo) => {
-    if (testInfo.project.name === "webkit") {
+    if (testInfo.project.name.includes("webkit")) {
       const firstFocusable = await page.evaluate(() => {
         const selector =
           'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';

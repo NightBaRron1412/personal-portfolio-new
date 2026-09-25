@@ -91,6 +91,7 @@ function Cover({ m, title, onReady }: { m: Meta; title: string; onReady: () => v
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={imageRef}
+          data-game-cover
           src={m.cover}
           alt={`${title} cover`}
           onLoad={handleLoad}
@@ -106,6 +107,7 @@ function Cover({ m, title, onReady }: { m: Meta; title: string; onReady: () => v
     // eslint-disable-next-line @next/next/no-img-element
     <img
       ref={imageRef}
+      data-game-cover
       src={m.cover}
       alt={`${title} cover`}
       onLoad={handleLoad}
@@ -127,11 +129,13 @@ function GameCard({ game, index }: { game: Game; index: number }) {
   return (
     <Reveal
       ready={coverReady}
-      threshold={0.2}
-      delay={80 + (index % 2) * 100}
+      variant="game"
+      threshold={0.05}
+      delay={(index % 2) * 90}
       className="game-reveal"
     >
       <a
+        data-game-card
         href={m.url ?? undefined}
         target={m.url ? "_blank" : undefined}
         rel="noopener noreferrer"
