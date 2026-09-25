@@ -156,7 +156,7 @@ function GameCard({ game, index }: { game: Game; index: number }) {
             className={cn(
               "absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide backdrop-blur-sm",
               playing
-                ? "border-accent/50 bg-accent-soft text-accent"
+                ? "bottom-12 top-auto border-accent/70 bg-black/80 text-accent"
                 : "border-white/20 bg-black/55 text-white"
             )}
           >
