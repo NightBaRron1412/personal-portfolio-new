@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { ArrowUpRight, Gamepad2 } from "lucide-react";
 import GAMES from "@/data/games.json";
 import META from "@/data/games.meta.json";
@@ -19,18 +19,52 @@ type Meta = {
 const meta = META as unknown as Record<string, Meta>;
 const PLATFORMS = [...new Set(GAMES.flatMap((g) => g.platforms))];
 const nowPlaying = GAMES.find((g) => /playing/i.test(g.status ?? ""));
+type Game = (typeof GAMES)[number];
 
 function HudStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <span className="mono text-[11px]">
       <span className="uppercase tracking-wide text-text-faint">{label} </span>
-      <span className={accent ? "font-semibold text-text-primary" : "text-text-primary"}>{value}</span>
+      <span className={accent ? "font-semibold text-text-primary" : "text-text-primary"}>
+        {value}
+      </span>
     </span>
   );
 }
 
-function Cover({ m, title }: { m: Meta; title: string }) {
+function Cover({ m, title, onReady }: { m: Meta; title: string; onReady: () => void }) {
   const [failed, setFailed] = useState(false);
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const finishLoading = useCallback(
+    (image: HTMLImageElement) => {
+      void image
+        .decode()
+        .catch(() => {})
+        .then(onReady);
+    },
+    [onReady]
+  );
+
+  // A cached image can finish before React attaches its onLoad handler.
+  useEffect(() => {
+    const image = imageRef.current;
+    if (!image?.complete) return;
+    if (image.naturalWidth) finishLoading(image);
+    else {
+      setFailed(true);
+      onReady();
+    }
+  }, [finishLoading, onReady]);
+
+  const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
+    finishLoading(event.currentTarget);
+  };
+  const handleError = () => {
+    setFailed(true);
+    onReady();
+  };
+
   if (!m.cover || failed) {
     return (
       <div
@@ -56,11 +90,12 @@ function Cover({ m, title }: { m: Meta; title: string }) {
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={imageRef}
           src={m.cover}
           alt={`${title} cover`}
-          onError={() => setFailed(true)}
-          loading="eager"
-          fetchPriority="high"
+          onLoad={handleLoad}
+          onError={handleError}
+          loading="lazy"
           decoding="async"
           className="absolute inset-0 m-auto h-auto w-full object-contain transition-transform duration-500 group-hover:scale-[1.04]"
         />
@@ -70,14 +105,99 @@ function Cover({ m, title }: { m: Meta; title: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
+      ref={imageRef}
       src={m.cover}
       alt={`${title} cover`}
-          onError={() => setFailed(true)}
-      loading="eager"
-      fetchPriority="high"
+      onLoad={handleLoad}
+      onError={handleError}
+      loading="lazy"
       decoding="async"
       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
+  );
+}
+
+function GameCard({ game, index }: { game: Game; index: number }) {
+  const m = meta[game.slug] ?? ({} as Meta);
+  const playing = /playing/i.test(game.status ?? "");
+  const detail = [m.year, ...(m.genres ?? [])].filter(Boolean).join(" · ");
+  const [coverReady, setCoverReady] = useState(!m.cover);
+  const markCoverReady = useCallback(() => setCoverReady(true), []);
+
+  return (
+    <Reveal
+      ready={coverReady}
+      threshold={0.2}
+      delay={80 + (index % 2) * 100}
+      className="game-reveal"
+    >
+      <a
+        href={m.url ?? undefined}
+        target={m.url ? "_blank" : undefined}
+        rel="noopener noreferrer"
+        className={cn(
+          "group relative block aspect-[2/3] overflow-hidden rounded-xl border border-border-subtle bg-bg-elevated transition-all duration-300 hover:-translate-y-1.5 hover:border-accent hover:shadow-glow hover:ring-2 hover:ring-accent/50",
+          playing && "border-accent/40 shadow-glow ring-1 ring-accent/30"
+        )}
+      >
+        <Cover m={m} title={game.title} onReady={markCoverReady} />
+
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -translate-x-[160%] skew-x-[-16deg] bg-gradient-to-r from-transparent via-white/25 to-transparent group-hover:[animation:gameSheen_0.75s_ease-out]"
+        />
+
+        <span className="num pointer-events-none absolute right-1.5 top-0.5 z-10 text-2xl font-bold text-white/20 mix-blend-overlay">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+
+        {game.status ? (
+          <span
+            className={cn(
+              "absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide backdrop-blur-sm",
+              playing
+                ? "border-accent/50 bg-accent-soft text-accent"
+                : "border-white/20 bg-black/55 text-white"
+            )}
+          >
+            {playing ? (
+              <span className="pulse-dot relative inline-flex h-1 w-1 rounded-full bg-accent" />
+            ) : null}
+            {game.status}
+          </span>
+        ) : null}
+
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-2.5 transition-opacity duration-300 group-hover:opacity-0">
+          <h3 className="truncate text-xs font-semibold text-white">{game.title}</h3>
+          {m.year || game.platforms?.[0] ? (
+            <div className="mono mt-0.5 text-[10px] text-white/65">
+              {[m.year, game.platforms?.[0]].filter(Boolean).join(" · ")}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/80 to-black/20 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <h3 className="text-sm font-semibold leading-tight text-white">{game.title}</h3>
+          {detail ? <div className="mono mt-1 text-[11px] text-accent">{detail}</div> : null}
+          <p className="mt-2 text-[13px] leading-relaxed text-white/90">{game.note}</p>
+          <div className="mt-3 flex flex-wrap gap-1">
+            {game.platforms.map((platform) => (
+              <span
+                key={platform}
+                className="mono rounded border border-white/25 px-1.5 py-0.5 text-[9px] text-white/85"
+              >
+                {platform}
+              </span>
+            ))}
+          </div>
+          {m.url ? (
+            <span className="mono mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-accent">
+              ▶ VIEW ON STEAM <ArrowUpRight className="h-3 w-3" />
+            </span>
+          ) : null}
+        </div>
+      </a>
+    </Reveal>
   );
 }
 
@@ -102,86 +222,9 @@ export function Games() {
 
       {/* shelf */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-        {GAMES.map((g, i) => {
-          const m = meta[g.slug] ?? ({} as Meta);
-          const playing = /playing/i.test(g.status ?? "");
-          const detail = [m.year, ...(m.genres ?? [])].filter(Boolean).join(" · ");
-          return (
-            <Reveal key={g.slug} threshold={0.2} delay={100 + (i % 6) * 55} className="game-reveal">
-              <a
-                href={m.url ?? undefined}
-                target={m.url ? "_blank" : undefined}
-                rel="noopener noreferrer"
-                className={cn(
-                  "group relative block aspect-[2/3] overflow-hidden rounded-xl border border-border-subtle bg-bg-elevated transition-all duration-300 hover:-translate-y-1.5 hover:border-accent hover:shadow-glow hover:ring-2 hover:ring-accent/50",
-                  playing && "border-accent/40 shadow-glow ring-1 ring-accent/30"
-                )}
-              >
-                <Cover m={m} title={g.title} />
-
-                {/* hover sheen sweep */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 -translate-x-[160%] skew-x-[-16deg] bg-gradient-to-r from-transparent via-white/25 to-transparent group-hover:[animation:gameSheen_0.75s_ease-out]"
-                />
-
-                {/* rank */}
-                <span className="num pointer-events-none absolute right-1.5 top-0.5 z-10 text-2xl font-bold text-white/20 mix-blend-overlay">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-
-                {/* status */}
-                {g.status ? (
-                  <span
-                    className={cn(
-                      "absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide backdrop-blur-sm",
-                      playing
-                        ? "border-accent/50 bg-accent-soft text-accent"
-                        : "border-white/20 bg-black/55 text-white"
-                    )}
-                  >
-                    {playing ? (
-                      <span className="pulse-dot relative inline-flex h-1 w-1 rounded-full bg-accent" />
-                    ) : null}
-                    {g.status}
-                  </span>
-                ) : null}
-
-                {/* resting label */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-2.5 transition-opacity duration-300 group-hover:opacity-0">
-                  <h3 className="truncate text-xs font-semibold text-white">{g.title}</h3>
-                  {m.year || g.platforms?.[0] ? (
-                    <div className="mono mt-0.5 text-[10px] text-white/65">
-                      {[m.year, g.platforms?.[0]].filter(Boolean).join(" · ")}
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* hover detail */}
-                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/80 to-black/20 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <h3 className="text-sm font-semibold leading-tight text-white">{g.title}</h3>
-                  {detail ? <div className="mono mt-1 text-[11px] text-accent">{detail}</div> : null}
-                  <p className="mt-2 text-[13px] leading-relaxed text-white/90">{g.note}</p>
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {g.platforms.map((p) => (
-                      <span
-                        key={p}
-                        className="mono rounded border border-white/25 px-1.5 py-0.5 text-[9px] text-white/85"
-                      >
-                        {p}
-                      </span>
-                    ))}
-                  </div>
-                  {m.url ? (
-                    <span className="mono mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-accent">
-                      ▶ VIEW ON STEAM <ArrowUpRight className="h-3 w-3" />
-                    </span>
-                  ) : null}
-                </div>
-              </a>
-            </Reveal>
-          );
-        })}
+        {GAMES.map((game, index) => (
+          <GameCard key={game.slug} game={game} index={index} />
+        ))}
       </div>
     </div>
   );

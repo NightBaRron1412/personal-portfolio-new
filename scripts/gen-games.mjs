@@ -33,7 +33,9 @@ async function details(appid) {
       { headers: UA }
     );
     const j = await r.json();
-    const d = j?.[appid]?.data;
+    const d =
+      j?.[appid]?.data ??
+      Object.values(j ?? {}).find((entry) => entry?.data?.steam_appid === Number(appid))?.data;
     if (!d) return {};
     const year = (d.release_date?.date || "").match(/\d{4}/)?.[0] || null;
     const genres = (d.genres || []).slice(0, 2).map((g) => g.description);
@@ -80,7 +82,7 @@ async function downloadCover(appid, slug, headerUrl, posterUrl) {
 
 const meta = {};
 for (const g of games) {
-  const appid = await searchAppId(g.query || g.title);
+  const appid = g.appid || (await searchAppId(g.query || g.title));
   let info = {};
   let cover = null;
   let wide = false;

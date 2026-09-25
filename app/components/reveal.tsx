@@ -10,6 +10,8 @@ type RevealProps = {
   delay?: number;
   /** trigger threshold 0..1 */
   threshold?: number;
+  /** Wait for required content (such as a cover image) before revealing. */
+  ready?: boolean;
 };
 
 /**
@@ -24,13 +26,14 @@ export function Reveal({
   className,
   delay = 0,
   threshold = 0,
+  ready = true,
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || shown) return;
+    if (!el || shown || !ready) return;
 
     if (typeof IntersectionObserver === "undefined") {
       setShown(true);
@@ -52,7 +55,7 @@ export function Reveal({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [shown, threshold]);
+  }, [ready, shown, threshold]);
 
   return (
     <Tag

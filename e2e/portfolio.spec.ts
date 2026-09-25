@@ -46,10 +46,12 @@ test.describe("Portfolio", () => {
   });
 
   test("theme toggle switches the html class", async ({ page }) => {
-    const getTheme = () =>
-      page.evaluate(() => document.documentElement.classList.contains("dark"));
+    const getTheme = () => page.evaluate(() => document.documentElement.classList.contains("dark"));
     const before = await getTheme();
-    await page.getByRole("button", { name: /switch to .* theme/i }).first().click();
+    await page
+      .getByRole("button", { name: /switch to .* theme/i })
+      .first()
+      .click();
     await page.waitForTimeout(300);
     const after = await getTheme();
     expect(after).not.toBe(before);
@@ -109,10 +111,39 @@ test.describe("Portfolio", () => {
     await expect(page.getByRole("link", { name: "Repository" }).first()).toBeVisible();
   });
 
+  test("game covers finish loading before their cards reveal", async ({ page }) => {
+    let releaseCover!: () => void;
+    const coverHeld = new Promise<void>((resolve) => {
+      releaseCover = resolve;
+    });
+    await page.route("**/images/games/witcher3.jpg", async (route) => {
+      await coverHeld;
+      await route.continue();
+    });
+    await page.reload({ waitUntil: "domcontentloaded" });
+
+    const games = page.locator("#games");
+    const firstCard = games.locator(".game-reveal").first();
+    await firstCard.scrollIntoViewIfNeeded();
+    await expect(firstCard).toHaveAttribute("data-reveal", "");
+
+    releaseCover();
+    await expect(firstCard.locator('img[alt="The Witcher 3: Wild Hunt cover"]')).toHaveJSProperty(
+      "complete",
+      true
+    );
+    await expect(firstCard).toHaveAttribute("data-reveal", "in");
+    await expect(games).toContainText("now playing EA SPORTS FC 27");
+    await expect(games.locator('a[href="https://store.steampowered.com/app/4080220"]')).toHaveCount(
+      1
+    );
+  });
+
   test("skip-to-content is the first focusable element", async ({ page }, testInfo) => {
     if (testInfo.project.name === "webkit") {
       const firstFocusable = await page.evaluate(() => {
-        const selector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+        const selector =
+          'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
         return document.querySelector(selector)?.textContent ?? "";
       });
       expect(firstFocusable).toMatch(/skip to content/i);

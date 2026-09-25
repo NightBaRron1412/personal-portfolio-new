@@ -204,10 +204,10 @@ var games = []gameItem{
 	{"God of War Ragnarök", "favorite", "Norse myth, brutal and tender — the best-feeling combat I've played.", []string{"PS5", "PC"}},
 	{"The Last of Us Part II", "favorite", "The benchmark for storytelling in games — it wrecked me, in the best way.", []string{"PS5", "PC"}},
 	{"Detroit: Become Human", "favorite", "Branching android futures where every choice actually mattered.", []string{"PS4", "PC"}},
-	{"Pragmata", "currently playing", "Capcom's lunar sci-fi mystery — and it absolutely delivered.", []string{"PS5", "Xbox", "PC"}},
+	{"Pragmata", "recently played", "Capcom's lunar sci-fi mystery — and it absolutely delivered.", []string{"PS5", "Xbox", "PC"}},
 	{"Battlefield 6", "in rotation", "All-out warfare, back to its loud, chaotic best.", []string{"PC", "PS5", "Xbox"}},
 	{"Rainbow Six Siege", "FPS go-to", "The squad-based tac-shooter I keep coming back to.", []string{"PC", "PS5", "Xbox"}},
-	{"EA SPORTS FC 26", "in rotation", "The daily fix — Ultimate Team and Weekend League grind.", []string{"PS5", "PC", "Xbox"}},
+	{"EA SPORTS FC 27", "currently playing", "The daily fix — Ultimate Team and Weekend League grind.", []string{"PS5", "PC", "Xbox"}},
 }
 
 // Player tag shown on the Games view.

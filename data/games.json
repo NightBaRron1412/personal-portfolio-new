@@ -38,7 +38,7 @@
     "poster": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Pragmata_cover.jpg",
     "platforms": ["PS5", "Xbox", "PC"],
     "note": "Capcom's lunar sci-fi mystery — and it absolutely delivered.",
-    "status": "currently playing"
+    "status": "recently played"
   },
   {
     "title": "Battlefield 6",
@@ -58,12 +58,13 @@
     "status": "FPS go-to"
   },
   {
-    "title": "EA SPORTS FC 26",
-    "slug": "fc26",
-    "query": "EA SPORTS FC 26",
-    "poster": "https://upload.wikimedia.org/wikipedia/en/f/f2/EA_FC_26_Cover.jpg",
+    "title": "EA SPORTS FC 27",
+    "slug": "fc27",
+    "query": "EA SPORTS FC 27",
+    "appid": "4080220",
+    "poster": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4080220/81210d536b70c14e4cf9725f3f03d82bf64e5e25/library_capsule_2x.jpg",
     "platforms": ["PS5", "PC", "Xbox"],
     "note": "The daily fix — Ultimate Team and Weekend League grind.",
-    "status": "in rotation"
+    "status": "currently playing"
   }
 ]

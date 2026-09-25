@@ -4,9 +4,7 @@
     "cover": "/images/games/witcher3.jpg",
     "wide": false,
     "year": "2015",
-    "genres": [
-      "RPG"
-    ],
+    "genres": ["RPG"],
     "url": "https://store.steampowered.com/app/292030"
   },
   "gow-ragnarok": {
@@ -14,10 +12,7 @@
     "cover": "/images/games/gow-ragnarok.jpg",
     "wide": false,
     "year": "2024",
-    "genres": [
-      "Action",
-      "Adventure"
-    ],
+    "genres": ["Action", "Adventure"],
     "url": "https://store.steampowered.com/app/2322010"
   },
   "tlou": {
@@ -25,10 +20,7 @@
     "cover": "/images/games/tlou.jpg",
     "wide": false,
     "year": "2025",
-    "genres": [
-      "Action",
-      "Adventure"
-    ],
+    "genres": ["Action", "Adventure"],
     "url": "https://store.steampowered.com/app/2531310"
   },
   "detroit": {
@@ -36,10 +28,7 @@
     "cover": "/images/games/detroit.jpg",
     "wide": false,
     "year": "2020",
-    "genres": [
-      "Action",
-      "Adventure"
-    ],
+    "genres": ["Action", "Adventure"],
     "url": "https://store.steampowered.com/app/1222140"
   },
   "pragmata": {
@@ -47,10 +36,7 @@
     "cover": "/images/games/pragmata.jpg",
     "wide": false,
     "year": "2026",
-    "genres": [
-      "Action",
-      "Adventure"
-    ],
+    "genres": ["Action", "Adventure"],
     "url": "https://store.steampowered.com/app/3357650"
   },
   "bf6": {
@@ -58,9 +44,7 @@
     "cover": "/images/games/bf6.jpg",
     "wide": false,
     "year": "2025",
-    "genres": [
-      "Action"
-    ],
+    "genres": ["Action"],
     "url": "https://store.steampowered.com/app/2807960"
   },
   "r6": {
@@ -68,21 +52,15 @@
     "cover": "/images/games/r6.jpg",
     "wide": false,
     "year": "2015",
-    "genres": [
-      "Action",
-      "Free To Play"
-    ],
+    "genres": ["Action", "Free To Play"],
     "url": "https://store.steampowered.com/app/359550"
   },
-  "fc26": {
-    "appid": "3405690",
-    "cover": "/images/games/fc26.jpg",
+  "fc27": {
+    "appid": "4080220",
+    "cover": "/images/games/fc27.jpg",
     "wide": false,
-    "year": "2025",
-    "genres": [
-      "Simulation",
-      "Sports"
-    ],
-    "url": "https://store.steampowered.com/app/3405690"
+    "year": "2026",
+    "genres": ["Simulation", "Sports"],
+    "url": "https://store.steampowered.com/app/4080220"
   }
 }
